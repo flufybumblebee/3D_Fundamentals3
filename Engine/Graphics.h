@@ -27,6 +27,7 @@
 #include "Colors.h"
 #include "Vec2.h"
 #include "ZBuffer.h"
+#include "TexVertex.h"
 
 #define CHILI_GFX_EXCEPTION( hr,note ) Graphics::Exception( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
@@ -120,6 +121,16 @@ public:
 			}
 		}
 	}
+	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
+	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
+	void DrawFlatTopTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
+	void DrawFlatBottomTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
+	void DrawFlatTopTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
+	void DrawFlatBottomTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
+	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,
+		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
+
+
 private:
 	GDIPlusManager										gdipMan;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;
@@ -136,6 +147,6 @@ private:
 	D3D11_MAPPED_SUBRESOURCE							mappedSysBufferTexture;
 	Surface												sysBuffer;
 public:
-	static constexpr unsigned int ScreenWidth = 640u;
-	static constexpr unsigned int ScreenHeight = 480u;
+	static constexpr unsigned int ScreenWidth = 800u;
+	static constexpr unsigned int ScreenHeight = 600u;
 };

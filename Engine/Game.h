@@ -21,34 +21,23 @@
 #pragma once
 
 #include "Graphics.h"
-#include <memory>
-#include <vector>
-#include "Scene.h"
-#include "FrameTimer.h"
+#include "Tetris.h"
 
 class Game
 {
+private:
+	MainWindow& wnd;
+	Graphics gfx;
+
+private:
+	Tetris tetris;
 public:
 	Game( class MainWindow& wnd );
 	Game( const Game& ) = delete;
 	Game& operator=( const Game& ) = delete;
 	void Go();
+
 private:
-	void ComposeFrame();
 	void UpdateModel();
-	/********************************/
-	/*  User Functions              */
-	void CycleScenes();
-	void ReverseCycleScenes();
-	void OutputSceneName() const;
-	/********************************/
-private:
-	MainWindow& wnd;
-	Graphics gfx;
-	/********************************/
-	/*  User Variables              */
-	FrameTimer ft;
-	std::vector<std::unique_ptr<Scene>> scenes;
-	std::vector<std::unique_ptr<Scene>>::iterator curScene;
-	/********************************/
+	void ComposeFrame();
 };

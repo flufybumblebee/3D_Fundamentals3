@@ -20,31 +20,15 @@
 ******************************************************************************************/
 #include "MainWindow.h"
 #include "Game.h"
-#include "Sphere.h"
-#include "TestTriangle.h"
-//#include "CubeSkinScene.h"
-//#include "CubeVertexColorScene.h"
-//#include "CubeSolidScene.h"
-//#include "DoubleCubeScene.h"
-//#include "VertexWaveScene.h"
-//#include "CubeVertexPositionColorScene.h"
-//#include "CubeSolidGeometryScene.h"
-//#include "CubeFlatIndependentScene.h"
-//#include "GeometryFlatScene.h"
-//#include "GouraudScene.h"
-//#include "GouraudPointScene.h"
-//#include "PhongPointScene.h"
-#include "SpecularPhongPointScene.h"
-#include <sstream>
+
 
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )
+	gfx( wnd ),
+	tetris(wnd.kbd,gfx)
 {
-	scenes.push_back( std::make_unique<SpecularPhongPointScene>( gfx ) );
-	curScene = scenes.begin();
-	OutputSceneName();
+	tetris.Setup();
 }
 
 void Game::Go()
@@ -57,66 +41,10 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	const float dt = ft.Mark();
-	// cycle through scenes when tab is pressed
-	while( !wnd.kbd.KeyIsEmpty() )
-	{
-		const auto e = wnd.kbd.ReadKey();
-		if( e.GetCode() == VK_TAB && e.IsPress() )
-		{
-			if( wnd.kbd.KeyIsPressed( VK_SHIFT ) )
-			{
-				ReverseCycleScenes();
-			}
-			else
-			{
-				CycleScenes();
-			}
-		}
-		else if( e.GetCode() == VK_ESCAPE && e.IsPress() )
-		{
-			wnd.Kill();
-		}
-	}
-	// update scene
-	(*curScene)->Update( wnd.kbd,wnd.mouse,dt );
-}
-
-void Game::CycleScenes()
-{
-	if( ++curScene == scenes.end() )
-	{
-		curScene = scenes.begin();
-	}
-	OutputSceneName();
-}
-
-void Game::ReverseCycleScenes()
-{
-	if( curScene == scenes.begin() )
-	{
-		curScene = scenes.end() - 1;
-	}
-	else
-	{
-		--curScene;
-	}
-	OutputSceneName();
-}
-
-void Game::OutputSceneName() const
-{
-	std::stringstream ss;
-	const std::string stars( (*curScene)->GetName().size() + 4,'*' );
-
-	ss << stars << std::endl 
-		<< "* " << (*curScene)->GetName() << " *" << std::endl 
-		<< stars << std::endl;
-	OutputDebugStringA( ss.str().c_str() );
+	tetris.Update();
 }
 
 void Game::ComposeFrame()
 {
-	// draw scene
-	(*curScene)->Draw();
+	tetris.Draw();
 }
