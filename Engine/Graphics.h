@@ -66,6 +66,12 @@ public:
 	{
 		sysBuffer.PutPixel( x,y,c );
 	}
+	Surface CopySysBuffer() const
+	{
+		Surface copy(ScreenWidth, ScreenHeight);
+		copy.Copy(sysBuffer);
+		return std::move(copy);
+	}
 	~Graphics();
 	void DrawLineDepth( ZBuffer& zb,Vec3& v0,Vec3& v1,Color c )
 	{
@@ -123,8 +129,10 @@ public:
 	}
 	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
+	
 	void DrawFlatTopTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 	void DrawFlatBottomTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
+
 	void DrawFlatTopTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatBottomTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,

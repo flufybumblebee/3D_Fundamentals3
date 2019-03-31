@@ -29,6 +29,7 @@ namespace Gdiplus
 }
 #include <gdiplus.h>
 #include <sstream>
+//#include <gdiplusheaders.h>
 
 #pragma comment( lib,"gdiplus.lib" )
 
@@ -59,6 +60,7 @@ Surface Surface::FromFile( const std::wstring & name )
 
 	{
 		Gdiplus::Bitmap bitmap( name.c_str() );
+		
 		if( bitmap.GetLastStatus() != Gdiplus::Status::Ok )
 		{
 			std::wstringstream ss;

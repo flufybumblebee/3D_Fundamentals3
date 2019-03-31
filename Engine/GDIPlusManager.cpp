@@ -22,6 +22,7 @@
 #include "ChiliWin.h"
 #include "GDIPlusManager.h"
 #include <algorithm>
+
 namespace Gdiplus
 {
 	using std::min;
@@ -37,7 +38,7 @@ GDIPlusManager::GDIPlusManager()
 	if( refCount++ == 0 )
 	{
 		Gdiplus::GdiplusStartupInput input;
-		input.GdiplusVersion = 1;
+		input.GdiplusVersion = 2;
 		input.DebugEventCallback = nullptr;
 		input.SuppressBackgroundThread = false;
 		Gdiplus::GdiplusStartup( &token,&input,nullptr );

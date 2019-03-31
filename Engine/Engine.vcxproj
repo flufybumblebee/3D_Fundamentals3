@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BasePhongShader.h" />
+    <ClInclude Include="Benchmark.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliMath.h" />
