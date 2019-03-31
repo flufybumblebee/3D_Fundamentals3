@@ -8,6 +8,7 @@
 #include <chrono>
 #include <fstream>
 #include <cmath>
+#include <cassert>
 
 #include "Block.h"
 #include "Keyboard.h"
@@ -25,6 +26,7 @@ private:
 
 private:
 	typedef unsigned int uint;
+	typedef unsigned char uchar;
 	
 	static constexpr uint	fieldW		= 12u;
 	static constexpr uint	fieldH		= 18u;
@@ -193,11 +195,12 @@ private:
 	int		Random(const int min, const int max);
 	int		Rotate(int px, int py, int r);
 	bool	DoesTetrisFit(int tetrisID, int rotation, int posX, int posY);
-	void	ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num);
+	void	ExtractDigits(std::vector<uint>& ints, const uint num);
 	Color	ConvertCharToColor(const char value);
 	uint	ConvertCharToInt(const char value);
 	void	Benchmark(void* pFunction);
 
 	void Blur(const Surface& input, std::vector<Color>& output);
+	void BoxBlur(const Surface& input, std::vector<Color>& output);
 };
 

@@ -696,19 +696,19 @@ void Tetris::DrawBlur()
 {
 	if (gameIsPaused || gameIsOver) 
 	{
-		Surface copy = gfx.CopySysBuffer();
-		uint width =  copy.GetWidth();
-		uint height = copy.GetHeight();
+		Surface input = gfx.CopySysBuffer();
+		uint width =  input.GetWidth();
+		uint height = input.GetHeight();
 
-		std::vector<Color> col;
+		std::vector<Color> output;
 
-		Blur(copy,col);
+		Blur(input,output);
 
 		for (uint y = 0; y < height; y++)
 		{
 			for (uint x = 0; x < width; x++)
 			{
-				gfx.PutPixel(x, y, col[y * width + x]);
+				gfx.PutPixel(x, y, output[y * width + x]);
 			}
 		}
 	}
@@ -784,7 +784,7 @@ int Tetris::Random(const int min, const int max)
 	return dist(rng);
 }
 
-void Tetris::ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num)
+void Tetris::ExtractDigits(std::vector<uint>& ints, const uint num)
 {
 	ints.clear();
 	unsigned int result = num;
@@ -870,16 +870,16 @@ void Tetris::Blur( const Surface& input, std::vector<Color>& output)
 	m.elements[0][1] = 0.111;	// 1
 	m.elements[0][2] = 0.111;	// 2
 	m.elements[1][0] = 0.111;	// 3
-	m.elements[1][1] = 0.111;	// 4
+	m.elements[1][1] = 0.111;	// 4 center pixel
 	m.elements[1][2] = 0.111;	// 5
 	m.elements[2][0] = 0.111;	// 6
 	m.elements[2][1] = 0.111;	// 7
 	m.elements[2][2] = 0.111;	// 8
 
 	/*
-	012
-	345
-	678
+	0 1 2
+	3 4 5
+	6 7 8
 	*/
 
 	const uint height	= input.GetHeight();
@@ -887,117 +887,109 @@ void Tetris::Blur( const Surface& input, std::vector<Color>& output)
 
 	output.assign(width*height, Colors::White);
 	
-	Vec3 c = { 1.0f,1.0f,1.0f };
-
-	float red[3][3];
-	float green[3][3];
-	float blue[3][3];
-	Vec3 color[3][3];
-
-	//std::array<std::array<Vec3, 3>, 3> color;
-	std::vector<Color> colorArray;
+	Vec3 c = { 0.0f,0.0f,0.0f };
 
 	typedef unsigned char uchar;
-	float redA, greenA, blueA;
-	float redB = 0, greenB = 0, blueB = 0;
-	float redC, greenC, blueC;
 
-	for (uint y = 1; y < height-1; y++)
+	float redA = 0.0f;
+	float greenA = 0.0f;
+	float blueA = 0.0f;
+	float redB = 0.0f;
+	float greenB = 0.0f;
+	float blueB = 0.0f;
+
+    for (uint y = 0; y < height; y++)
 	{
-		for (uint x = 1; x < width-1; x++)
-		{				
-			color[0][0] = Vec3(input.GetPixel(x - 1, y - 1));
-			color[0][1] = Vec3(input.GetPixel(x + 0, y - 1));
-			color[0][2] = Vec3(input.GetPixel(x + 1, y - 1));
-			color[1][0] = Vec3(input.GetPixel(x - 1, y + 0));
-			color[1][1] = Vec3(input.GetPixel(x + 0, y + 0));
-			color[1][2] = Vec3(input.GetPixel(x + 1, y + 0));
-			color[2][0] = Vec3(input.GetPixel(x - 1, y + 1));
-			color[2][1] = Vec3(input.GetPixel(x + 0, y + 1));
-			color[2][2] = Vec3(input.GetPixel(x + 1, y + 1));
+		for (uint x = 0; x < width; x++)
+		{
+			float rTotal = 0;
+			float gTotal = 0;
+			float bTotal = 0;
 
-			for (int i = 0; i < 3; i++)
+			for (int row = -1; row <= 1; row++)
 			{
-				for (int j = 0; j < 3; j++)
+				for (int col = -1; col <= 1; col++)
 				{
-					red[i][j] = (color[i][j].x / 255.0f) * m.elements[i][j];
-					green[i][j] = (color[i][j].y / 255.0f) * m.elements[i][j];
-					blue[i][j] = (color[i][j].z / 255.0f) * m.elements[i][j];
-					  redB +=   red[i][j];
-					greenB += green[i][j];
-					 blueB +=  blue[i][j];
+					int cx = x + col;
+					int cy = y + row;
+
+					if (cx > 0 && cx < (int)width && cy > 0 && cy < (int)height)
+					{
+						Color c = input.GetPixel(cx, cy);
+
+						float r = c.GetR();
+						float g = c.GetG();
+						float b = c.GetB();
+
+						rTotal += (r *= m.elements[row + 1][col + 1]);
+						gTotal += (g *= m.elements[row + 1][col + 1]);
+						bTotal += (b *= m.elements[row + 1][col + 1]);
+					}
 				}
-			}			
-			
-			/*color[0][0] = Vec3(input.GetPixel(x - 1, y - 1));
-			color[0][1] = Vec3(input.GetPixel(x + 0, y - 1));
-			color[0][2] = Vec3(input.GetPixel(x + 1, y - 1));
-			color[1][0] = Vec3(input.GetPixel(x - 1, y + 0));
-			color[1][1] = Vec3(input.GetPixel(x + 0, y + 0));
-			color[1][2] = Vec3(input.GetPixel(x + 1, y + 0)); 
-			color[2][0] = Vec3(input.GetPixel(x - 1, y + 1));
-			color[2][1] = Vec3(input.GetPixel(x + 0, y + 1));
-			color[2][2] = Vec3(input.GetPixel(x + 1, y + 1));
-			
-			const float red0	= color[0][0].x * m.elements[0][0];
-			const float green0	= color[0][0].y * m.elements[0][0];
-			const float blue0	= color[0][0].z * m.elements[0][0];
+			}
 
-			const float red1	= color[0][1].x * m.elements[0][1];
-			const float green1	= color[0][1].y * m.elements[0][1];
-			const float blue1	= color[0][1].z * m.elements[0][1];
+			c = { rTotal,gTotal,bTotal };
 
-			const float red2	= color[0][2].x * m.elements[0][2];
-			const float green2	= color[0][2].y * m.elements[0][2];
-			const float blue2	= color[0][2].z * m.elements[0][2];
+			c /= 2.0f;
 
-			const float red3	= color[1][0].x * m.elements[1][0];
-			const float green3	= color[1][0].y * m.elements[1][0];
-			const float blue3	= color[1][0].z * m.elements[1][0];
+			redB	= (c.x > 255.0f) ? 255.0f : c.x;
+			greenB	= (c.y > 255.0f) ? 255.0f : c.y;
+			blueB	= (c.z > 255.0f) ? 255.0f : c.z;
+			redB	= (c.x < 0.0f) ? 0.0f : c.x;
+			greenB	= (c.y < 0.0f) ? 0.0f : c.y;
+			blueB	= (c.z < 0.0f) ? 0.0f : c.z;
 
-			const float red4	= color[1][1].x * m.elements[1][1];
-			const float green4	= color[1][1].y * m.elements[1][1];
-			const float blue4	= color[1][1].z * m.elements[1][1];
-
-			const float red5	= color[1][2].x * m.elements[1][2];
-			const float green5	= color[1][2].y * m.elements[1][2];
-			const float blue5	= color[1][2].z * m.elements[1][2];
-
-			const float red6	= color[2][0].x * m.elements[2][0];
-			const float green6	= color[2][0].y * m.elements[2][0];
-			const float blue6	= color[2][0].z * m.elements[2][0];
-
-			const float red7	= color[2][1].x * m.elements[2][1];
-			const float green7	= color[2][1].y * m.elements[2][1];
-			const float blue7	= color[2][1].z * m.elements[2][1];
-
-			const float red8	= color[2][2].x * m.elements[2][2];
-			const float green8	= color[2][2].y * m.elements[2][2];
-			const float blue8	= color[2][2].z * m.elements[2][2];
-
-			redA	= red0 + red1 + red2 + red3 + red4 + red5 + red6 + red7 + red8;
-			greenA	= green0 + green1 + green2 + green3 + green4 + green5 + green6 + green7 + green8;
-			blueA	= blue0 + blue1 + blue2 + blue3 + blue4 + blue5 + blue6 + blue7 + blue8;*/
-
-			c = { redB,greenB,blueB };
-			/*for (uint i = 0; i < 3; i++)
-			{
-				for (uint j = 0; j < 3; j++)
-				{
-					c += color[i][j] * m;
-				}
-			}*/
-
-			c /= 50.0f;
-			
-			  redC	= (c.x > 1.0f) ? 1.0f : c.x;
-			greenC	= (c.y > 1.0f) ? 1.0f : c.y;
-			 blueC	= (c.z > 1.0f) ? 1.0f : c.z;
-			  redC	= (c.x < 0.0f) ? 0.0f : c.x;
-			greenC	= (c.y < 0.0f) ? 0.0f : c.y;
-			 blueC	= (c.z < 0.0f) ? 0.0f : c.z;
-
-			output[y * width + x] = { uchar(redC * 255.0f), uchar(greenC * 255.0f), uchar(blueC * 255.0f) };
+			output[y * width + x] = { uchar(redB), uchar(greenB), uchar(blueB) };
 		}
 	}
+}
+
+void Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
+{
+	output.clear();
+
+	const uint height = input.GetHeight();
+	const uint width = input.GetWidth();
+
+	for (uint y = 0; y < height; y++)
+	{
+		for (uint x = 0; x < width; x++)
+		{
+			uchar rTotal = 0;
+			uchar gTotal = 0;
+			uchar bTotal = 0;
+
+			for (int row = -1; row <= 1; row++)
+			{
+				for (int col = -1; col <= 1; col++)
+				{
+					int currentX = x + col;
+					int currentY = y + row;
+
+					if (currentX > 0 && currentX < (int)width && currentY > 0 && currentY < (int)height)
+					{
+						Color c = input.GetPixel(currentX, currentY);
+
+						uchar r = c.GetR();
+						uchar g = c.GetG();
+						uchar b = c.GetB();
+
+						rTotal += r;
+						gTotal += g;
+						bTotal += b;
+					}
+				}
+			}
+
+			uint div = 3;
+
+			uchar rFinal = rTotal / div;
+			uchar gFinal = gTotal / div;
+			uchar bFinal = bTotal / div;
+
+			output.push_back( Color(rFinal, gFinal, bFinal) );
+			
+		}
+	}
+	assert(output.size() == (input.GetWidth() * input.GetHeight()));
 }
