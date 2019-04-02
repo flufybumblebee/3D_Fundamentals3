@@ -16,69 +16,76 @@
 #include "Benchmark.h"
 #include "Mat.h"
 
-
-
 class Tetris
 {
 private:
 	Keyboard& kbd;
 	Graphics& gfx;
 
-private:
-	typedef unsigned int uint;
-	typedef unsigned char uchar;
+private:	
+	static constexpr unsigned int	fieldW		= 12u;
+	static constexpr unsigned int	fieldH		= 18u;
+	static constexpr unsigned int	tetroW		= 4u;
+	static constexpr unsigned int	tetroH		= 4u;
+	static constexpr unsigned int	bloW		= 7u;
+	static constexpr unsigned int	bloH		= 7u;
+	static constexpr unsigned int	blocksW		= 20u;
+	static constexpr unsigned int	blocksH		= 20u;
+	static constexpr unsigned int	levelW		= 37u;
+	static constexpr unsigned int	levelH		= 7u;
+	static constexpr unsigned int	scoreW		= 200u;
+	static constexpr unsigned int	scoreH		= 50u;
+	static constexpr unsigned int	digitW		= 50u;
+	static constexpr unsigned int	digitH		= 50u;
+	static constexpr unsigned int	pauseW		= 35u;
+	static constexpr unsigned int	pauseH		= 7u;
+	static constexpr unsigned int	gameOverW	= 29u;
+	static constexpr unsigned int	gameOverH	= 13u;
+	static constexpr unsigned int	rows		= 10u;
+	static constexpr unsigned int	cols		= 10u;
+
+	const unsigned int offsetWidth	= (gfx.ScreenWidth  / 2) - ((fieldW / 2) * blocksW);
+	const unsigned int offsetHeight	= (gfx.ScreenHeight / 2) - ((fieldH / 2) * blocksH);
+	const unsigned int scrW = gfx.ScreenWidth;
+	const unsigned int scrH = gfx.ScreenHeight;
 	
-	static constexpr uint	fieldW		= 12u;
-	static constexpr uint	fieldH		= 18u;
-	static constexpr uint	tetroW		= 4u;
-	static constexpr uint	tetroH		= 4u;
-	static constexpr uint	bloW		= 7u;
-	static constexpr uint	bloH		= 7u;
-	static constexpr uint	blocksW		= 20u;
-	static constexpr uint	blocksH		= 20u;
-	static constexpr uint	levelW		= 37u;
-	static constexpr uint	levelH		= 7u;
-	static constexpr uint	scoreW		= 37u;
-	static constexpr uint	scoreH		= 7u;
-	static constexpr uint	digitW		= 6u;
-	static constexpr uint	digitH		= 7u;
-	static constexpr uint	pauseW		= 35u;
-	static constexpr uint	pauseH		= 7u;
-	static constexpr uint	gameOverW	= 29u;
-	static constexpr uint	gameOverH	= 13u;
+	Surface	tex_background	= Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg");
 
-	const uint offsetWidth	= (gfx.ScreenWidth  / 2) - ((fieldW / 2) * blocksW);
-	const uint offsetHeight	= (gfx.ScreenHeight / 2) - ((fieldH / 2) * blocksH);
-	
-	Surface	tex_background	= Surface::FromFile(L"Textures\\Backgrounds\\Street.bmp");
+	Surface tex_tileBlack	= Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png");
+	Surface tex_tileOrange	= Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png");
+	Surface tex_tileCyan	= Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png");
+	Surface tex_tileGreen	= Surface::FromFile(L"Textures\\Blocks\\Block_Green.png");
+	Surface tex_tileRed		= Surface::FromFile(L"Textures\\Blocks\\Block_Red.png");
+	Surface tex_tileBlue	= Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png");
+	Surface tex_tileMagenta = Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png");
+	Surface tex_tileYellow	= Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png");
+	Surface tex_tileGrey	= Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png");
 
-	Surface tex_tileBlack	= Surface::FromFile(L"Textures\\Blocks\\TileBlack.bmp");
-	Surface tex_tileOrange	= Surface::FromFile(L"Textures\\Blocks\\TileOrange.bmp");
-	Surface tex_tileCyan	= Surface::FromFile(L"Textures\\Blocks\\TileCyan.bmp");
-	Surface tex_tileGreen	= Surface::FromFile(L"Textures\\Blocks\\TileGreen.bmp");
-	Surface tex_tileRed		= Surface::FromFile(L"Textures\\Blocks\\TileRed.bmp");
-	Surface tex_tileBlue	= Surface::FromFile(L"Textures\\Blocks\\TileBlue.bmp");
-	Surface tex_tileMagenta = Surface::FromFile(L"Textures\\Blocks\\TileMagenta.bmp");
-	Surface tex_tileYellow	= Surface::FromFile(L"Textures\\Blocks\\TileYellow.bmp");
-	Surface tex_tileGrey	= Surface::FromFile(L"Textures\\Blocks\\TileGrey.bmp");
+	Surface tex_tileZeroG	= Surface::FromFile(L"Digits\\Digit - 0.png");
+	Surface tex_tileOneG	= Surface::FromFile(L"Digits\\Digit - 1.png");
+	Surface tex_tileTwoG	= Surface::FromFile(L"Digits\\Digit - 2.png");
+	Surface tex_tileThreeG	= Surface::FromFile(L"Digits\\Digit - 3.png");
+	Surface tex_tileFourG	= Surface::FromFile(L"Digits\\Digit - 4.png");
+	Surface tex_tileFiveG	= Surface::FromFile(L"Digits\\Digit - 5.png");
+	Surface tex_tileSixG	= Surface::FromFile(L"Digits\\Digit - 6.png");
+	Surface tex_tileSevenG	= Surface::FromFile(L"Digits\\Digit - 7.png");
+	Surface tex_tileEightG	= Surface::FromFile(L"Digits\\Digit - 8.png");
+	Surface tex_tileNineG	= Surface::FromFile(L"Digits\\Digit - 9.png");
 
-	Surface tex_tileZeroG	= Surface::FromFile(L"Textures\\Digits\\tileZeroG.bmp");
-	Surface tex_tileOneG	= Surface::FromFile(L"Textures\\Digits\\tileOneG.bmp");
-	Surface tex_tileTwoG	= Surface::FromFile(L"Textures\\Digits\\tileTwoG.bmp");
-	Surface tex_tileThreeG	= Surface::FromFile(L"Textures\\Digits\\tileThreeG.bmp");
-	Surface tex_tileFourG	= Surface::FromFile(L"Textures\\Digits\\tileFourG.bmp");
-	Surface tex_tileFiveG	= Surface::FromFile(L"Textures\\Digits\\tileFiveG.bmp");
-	Surface tex_tileSixG	= Surface::FromFile(L"Textures\\Digits\\tileSixG.bmp");
-	Surface tex_tileSevenG	= Surface::FromFile(L"Textures\\Digits\\tileSevenG.bmp");
-	Surface tex_tileEightG	= Surface::FromFile(L"Textures\\Digits\\tileEightG.bmp");
-	Surface tex_tileNineG	= Surface::FromFile(L"Textures\\Digits\\tileNineG.bmp");
+	Surface digit_A			= Surface::FromFile(L"Digits\\Digit - A.png");
+	Surface digit_B			= Surface::FromFile(L"Digits\\Digit - B.png");
+	Surface digit_C			= Surface::FromFile(L"Digits\\Digit - C.png");
+	Surface digit_D			= Surface::FromFile(L"Digits\\Digit - D.png");
+
+	Surface words_Score		= Surface::FromFile(L"Words\\Words - Score.png");
+	Surface words_Pause		= Surface::FromFile(L"Words\\Words - Pause.png");
+	Surface words_GameOver	= Surface::FromFile(L"Words\\Words - Game Over.png");
 
 	Block background;
 
 	std::array<Color, 10>		block_Colors;
 
-	const std::array<Surface*, 10>	block_Textures = {
-														&tex_tileBlack,
+	const std::array<Surface*, 10>	block_Textures = {	&tex_tileBlack,
 														&tex_tileOrange,
 														&tex_tileCyan,
 														&tex_tileGreen,
@@ -89,8 +96,7 @@ private:
 														&tex_tileRed,
 														&tex_tileGrey };
 
-	const std::array<Surface*, 10>	digit_Textures = {
-														&tex_tileZeroG,
+	const std::array<Surface*, 10>	digit_Textures = {	&tex_tileZeroG,
 														&tex_tileOneG,
 														&tex_tileTwoG,
 														&tex_tileThreeG,
@@ -101,54 +107,50 @@ private:
 														&tex_tileEightG,
 														&tex_tileNineG };
 
-	
-
-	static constexpr uint rows = 10u;
-	static constexpr uint cols = 10u;
-
 	//std::array<std::array<Block,digitW*digitH>,10>	blocks_Digits;
 	//Block blocks_Digits[rows][cols];
-
 	std::array<std::array<Block, cols>, rows> blocks_Digits;
 
 	std::string			tetromino[7];
-	std::string			text_Digits[10];
+	//std::string			text_Digits[10];
 	std::string			text_Level;
-	std::string			text_Score;
+	//std::string			text_Score;
 	std::string			text_Pause;
-	std::string			text_GameOver;
+	//std::string			text_GameOver;
 
 	std::vector<int>	lines;
 
 	std::vector<Block>	blocks;
 	std::vector<Block>	blocks_Next;
-	//std::array<Block,>	blocks_Text_Number;
+
 	std::array<Block, levelW*levelH>		blocks_Text_Level;
 	std::array<Block, scoreW*scoreH>		blocks_Text_Score;
 	std::array<Block, pauseW*pauseH>		blocks_Text_Pause;
 	std::array<Block, gameOverW*gameOverH>	blocks_Text_GameOver;
 		 
-	std::vector<char>	blockBuffer_Fixed;
-	std::vector<char>	blockBuffer_Shown;
-	std::vector<uint>	blockBuffer_Digits;
+	std::vector<char>			blockBuffer_Fixed;
+	std::vector<char>			blockBuffer_Shown;
+	std::vector<unsigned int>	blockBuffer_Digits;
 
-	uint	speed				= 20;
-	uint	score				= 0;
-	uint	level				= 0;
-	uint	tetrominoCounter	= 0;
-	uint	speedCounter		= 0;
-
-	uint	tetrominoNext		= 0;
-	uint	tetrominoCurrent	= 0;
-	uint	currentRotation		= 0;
-	uint	currentX			= fieldW / 2 - 2;
-	uint	currentY			= 0;
+	unsigned int	speed				= 20;
+	unsigned int	score				= 0;
+	unsigned int	level				= 0;
+	unsigned int	tetrominoCounter	= 0;
+	unsigned int	speedCounter		= 0;
+	
+	unsigned int	tetrominoNext		= 0;
+	unsigned int	tetrominoCurrent	= 0;
+	unsigned int	currentRotation		= 0;
+	unsigned int	currentX			= fieldW / 2 - 2;
+	unsigned int	currentY			= 0;
 
 	bool	keyIsPressed		= false;
 	bool	spaceIsPressed		= false;
 	bool	forceDown			= false;
 	bool	gameIsPaused		= false;
 	bool	gameIsOver			= false;
+
+	bool	isTesting			= true;
 	
 public:
 	Tetris(Keyboard& kbd, Graphics& gfx);
@@ -172,13 +174,8 @@ private:
 
 	void	SetFieldBuffer();
 	void	SetFieldBlocks();
-
 	void	SetNextTetromino();
 	void	SetScore();
-	void	UpdateDigits(std::array<Block,digitW*digitH>& blocks_Digit, const std::string& text_Digit);
-	void	ResetLevel();
-	void	ResetScore();
-	void	ResetField();
 
 	void	DrawBackground();
 	void	DrawField();
@@ -189,18 +186,29 @@ private:
 	void	DrawTextPause();
 	void	DrawTextGameOver();
 
+	void	DrawDigit(unsigned int xOff, unsigned int yOff, const Surface& digit);
 	void	DrawBlur();
 
 private:
 	int		Random(const int min, const int max);
 	int		Rotate(int px, int py, int r);
 	bool	DoesTetrisFit(int tetrisID, int rotation, int posX, int posY);
-	void	ExtractDigits(std::vector<uint>& ints, const uint num);
+	void	ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num);
 	Color	ConvertCharToColor(const char value);
-	uint	ConvertCharToInt(const char value);
+	unsigned int	ConvertCharToInt(const char value);
 	void	Benchmark(void* pFunction);
 
-	void Blur(const Surface& input, std::vector<Color>& output);
+	const std::vector<Color> Blur(
+		const unsigned int width,
+		const unsigned int height,
+		const std::vector<Color>& input);
 	void BoxBlur(const Surface& input, std::vector<Color>& output);
+
+	auto boxesForGauss(int sigma, int n);
+	void gaussBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
+	void boxBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
+	void boxBlurH_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
+	void boxBlurT_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
+	void gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 };
 

@@ -283,7 +283,7 @@ void Graphics::EndFrame()
 
 void Graphics::BeginFrame()
 {
-	sysBuffer.Clear( Colors::Red );
+	sysBuffer.Clear( Color(255,255,55) );
 }
 
 
@@ -537,11 +537,28 @@ void Graphics::DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, con
 
 		for (int x = xStart; x < xEnd; x++, itcLine += dtcLine)
 		{
-			PutPixel(x, y, tex.GetPixel(
+			PutPixelAlpha(x, y, tex.GetPixel(
 				int(std::min(itcLine.x * tex_width, tex_clamp_x)),
 				int(std::min(itcLine.y * tex_height, tex_clamp_y))));
 			// need std::min b/c tc.x/y == 1.0, we'll read off edge of tex
 			// and with fp err, tc.x/y can be > 1.0 (by a tiny amount)
 		}
 	}
+}
+
+void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
+{
+	assert(x >= 0);
+	assert(y >= 0);
+	assert(x < ScreenWidth);
+	assert(y < ScreenHeight);
+
+	const Color src = sysBuffer.GetPixel(x, y);
+	// blend channels
+	const unsigned char rsltRed = (dst.GetR() * dst.GetA() + src.GetR() * (255u - dst.GetA())) / 256u;
+	const unsigned char rsltGreen = (dst.GetG() * dst.GetA() + src.GetG() * (255u - dst.GetA())) / 256u;
+	const unsigned char rsltBlue = (dst.GetB() * dst.GetA() + src.GetB() * (255u - dst.GetA())) / 256u;
+
+	// pack channels back into pixel and fire pixel onto surface
+	PutPixel(x, y, { rsltRed,rsltGreen,rsltBlue });
 }

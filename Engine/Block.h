@@ -8,18 +8,16 @@
 
 class Block
 {
+private:
+	RectF pos;
+	const Vec2 tc0 = { 0.0f,0.0f };
+	const Vec2 tc1 = { 1.0f,0.0f };
+	const Vec2 tc2 = { 1.0f,1.0f };
+	const Vec2 tc3 = { 0.0f,1.0f };
+	Surface* pTex;
+
 public:
 	Block() = default;
-	/*Block(const RectI& pos, std::unique_ptr<Surface> pTex)
-		:
-		pos(std::move(pos)),
-		pTex(std::move(pTex))
-	{
-		tl = { this->pos.left,this->pos.top,0.0f };
-		tr = { this->pos.right,this->pos.top,0.0f };
-		br = { this->pos.right,this->pos.bottom,0.0f };
-		bl = { this->pos.left,this->pos.bottom,0.0f };
-	}*/
 	Block(const RectI& position, Surface* pTex)
 		:
 		pos(std::move(position)),
@@ -39,6 +37,14 @@ public:
 	}
 	
 public:
+	void SetPosition(RectI new_position)
+	{
+		pos = new_position;
+	}
+	void SetTexture(Surface* new_texture)
+	{
+		pTex = new_texture;
+	}
 	void Draw(Graphics& gfx)
 	{		
 		gfx.DrawTriangleTex(
@@ -52,12 +58,4 @@ public:
 			{ {pos.left,	pos.bottom,	0.0f},tc3 },
 			*pTex);
 	}
-private:
-	RectF pos;
-	const Vec2 tc0 = { 0.0f,0.0f };
-	const Vec2 tc1 = { 1.0f,0.0f };
-	const Vec2 tc2 = { 1.0f,1.0f };
-	const Vec2 tc3 = { 0.0f,1.0f };
-	Surface* pTex;
-	//std::unique_ptr<Surface> pTex;
 };

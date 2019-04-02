@@ -138,6 +138,7 @@ public:
 	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,
 		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
 
+	void PutPixelAlpha(unsigned int x, unsigned int y, const Color src);
 
 private:
 	GDIPlusManager										gdipMan;

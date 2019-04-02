@@ -1,18 +1,21 @@
 #include "Tetris.h"
 
+typedef unsigned int uint;
+typedef unsigned char uchar;
+
 Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	:
 	kbd(kbd),
 	gfx(gfx)
 {
-	InitialiseDigits();
+	//InitialiseDigits();
 	InitialiseTextDigits();	
 	InitialiseBackground();
 	InitialiseTetrominos();
-	InitialiseTextScore();		
-	InitialiseTextLevel();
-	InitialiseTextPause();
-	InitialiseTextGameOver();	
+	//InitialiseTextScore();		
+	//InitialiseTextLevel();
+	//InitialiseTextPause();
+	//InitialiseTextGameOver();	
 }
 
 Tetris::~Tetris()
@@ -234,85 +237,7 @@ void Tetris::Draw()
 
 void Tetris::InitialiseDigits()
 {
-	text_Digits[0].append("......");
-	text_Digits[0].append("XXXXX.");
-	text_Digits[0].append("X...X.");
-	text_Digits[0].append("X...X.");
-	text_Digits[0].append("X...X.");
-	text_Digits[0].append("XXXXX.");
-	text_Digits[0].append("......");
-
-	text_Digits[1].append("......");
-	text_Digits[1].append(".XX...");
-	text_Digits[1].append("..X...");
-	text_Digits[1].append("..X...");
-	text_Digits[1].append("..X...");
-	text_Digits[1].append("XXXXX.");
-	text_Digits[1].append("......");
-
-	text_Digits[2].append("......");
-	text_Digits[2].append("XXXXX.");
-	text_Digits[2].append("....X.");
-	text_Digits[2].append("XXXXX.");
-	text_Digits[2].append("X.....");
-	text_Digits[2].append("XXXXX.");
-	text_Digits[2].append("......");
-
-	text_Digits[3].append("......");
-	text_Digits[3].append("XXXXX.");
-	text_Digits[3].append("....X.");
-	text_Digits[3].append("XXXXX.");
-	text_Digits[3].append("....X.");
-	text_Digits[3].append("XXXXX.");
-	text_Digits[3].append("......");
-
-	text_Digits[4].append("......");
-	text_Digits[4].append("X.....");
-	text_Digits[4].append("X..X..");
-	text_Digits[4].append("X..X..");
-	text_Digits[4].append("XXXXX.");
-	text_Digits[4].append("...X..");
-	text_Digits[4].append("......");
-
-	text_Digits[5].append("......");
-	text_Digits[5].append("XXXXX.");
-	text_Digits[5].append("X.....");
-	text_Digits[5].append("XXXXX.");
-	text_Digits[5].append("....X.");
-	text_Digits[5].append("XXXXX.");
-	text_Digits[5].append("......");
-
-	text_Digits[6].append("......");
-	text_Digits[6].append("X.....");
-	text_Digits[6].append("X.....");
-	text_Digits[6].append("XXXXX.");
-	text_Digits[6].append("X...X.");
-	text_Digits[6].append("XXXXX.");
-	text_Digits[6].append("......");
-
-	text_Digits[7].append("......");
-	text_Digits[7].append("XXXXX.");
-	text_Digits[7].append("....X.");
-	text_Digits[7].append("....X.");
-	text_Digits[7].append("....X.");
-	text_Digits[7].append("....X.");
-	text_Digits[7].append("......");
-
-	text_Digits[8].append("......");
-	text_Digits[8].append("XXXXX.");
-	text_Digits[8].append("X...X.");
-	text_Digits[8].append("XXXXX.");
-	text_Digits[8].append("X...X.");
-	text_Digits[8].append("XXXXX.");
-	text_Digits[8].append("......");
-
-	text_Digits[9].append("......");
-	text_Digits[9].append("XXXXX.");
-	text_Digits[9].append("X...X.");
-	text_Digits[9].append("XXXXX.");
-	text_Digits[9].append("....X.");
-	text_Digits[9].append("XXXXX.");
-	text_Digits[9].append("......");
+	
 }
 
 void Tetris::InitialiseBackground()
@@ -361,7 +286,7 @@ void Tetris::InitialiseTetrominos()
 
 void Tetris::InitialiseTextLevel()
 {
-	text_Level.append(".....................................");
+	/*text_Level.append(".....................................");
 	text_Level.append("...X.....XXXXX.X...X.XXXXX.X.........");
 	text_Level.append("...X.....X.....X...X.X.....X.....X...");
 	text_Level.append("...X.....XXXXX.X...X.XXXXX.X.........");
@@ -383,20 +308,20 @@ void Tetris::InitialiseTextLevel()
 
 			blocks_Text_Level[y * scoreW + x] = Block(rect, block_Textures[i]);
 		}
-	}
+	}*/
 }
 
 void Tetris::InitialiseTextScore()
 {
-	text_Score.append(".....................................");
+	/*text_Score.append(".....................................");
 	text_Score.append("...XXXXX.XXXXX.XXXXX.XXXX..XXXXX.....");
 	text_Score.append("...X.....X.....X...X.X...X.X.....X...");
 	text_Score.append("...XXXXX.X.....X...X.X...X.XXXXX.....");
 	text_Score.append(".......X.X.....X...X.XXXX..X.....X...");
 	text_Score.append("...XXXXX.XXXXX.XXXXX.X...X.XXXXX.....");
-	text_Score.append(".....................................");
+	text_Score.append(".....................................");*/
 	
-	int color;
+	/*int color;
 	for (int y = 0; y < scoreH; y++)
 	{
 		for (int x = 0; x < scoreW; x++)
@@ -416,32 +341,35 @@ void Tetris::InitialiseTextScore()
 				(x * bloW) + (bloW * 10) + bloW	);
 			blocks_Text_Score[y * scoreW + x] =	Block(rect,	block_Textures[color]);
 		}
-	}
+	}*/
 }
 
 void Tetris::InitialiseTextDigits()
-{
-	const uint texW = digitW * bloW;
-	const uint texH = digitH * bloH;
-
+{	
 	for (uint y = 0; y < rows; y++)
 	{
 		for (uint x = 0; x < cols; x++)
 		{
+			/*RectI rect = RectI(
+				(digitH / 5),
+				(digitH / 5) + digitH,
+				scoreW + (digitW * (9 - x)) + (digitW / 5 * (9 - x)),
+				scoreW + (digitW * (9 - x)) + (digitW / 5 * (9 - x)) + digitW);*/
+
 			RectI rect = RectI(
-				(0),
-				(texH),
-				(scoreW*bloW) + (texW * (9 - x)),
-				(scoreW*bloW) + (texW * (9 - x)) + texW);
-					
-			blocks_Digits[y][x] = Block(rect, digit_Textures[y]);							
+				(digitH / 5),
+				(digitH / 5) + digitH,
+				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)) - digitW,
+				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)));
+
+			blocks_Digits[y][x] = Block(rect, digit_Textures[y]);
 		}
-	}
+	}	
 }
 
 void Tetris::InitialiseTextPause()
 {
-	text_Pause.append("...................................");
+	/*text_Pause.append("...................................");
 	text_Pause.append("...XXXXX.XXXXX.X...X.XXXXX.XXXXX...");
 	text_Pause.append("...X...X.X...X.X...X.X.....X.......");
 	text_Pause.append("...X...X.X...X.X...X.XXXXX.XXXXX...");
@@ -463,12 +391,12 @@ void Tetris::InitialiseTextPause()
 
 			blocks_Text_Pause[y * pauseW + x] = Block(rect, block_Textures[i]);
 		}
-	}
+	}*/
 }
 
 void Tetris::InitialiseTextGameOver()
 {
-	text_GameOver.append(".............................");
+	/*text_GameOver.append(".............................");
 	text_GameOver.append("...XXXXX.XXXXX.XXXXX.XXXXX...");
 	text_GameOver.append("...X.....X...X.X.X.X.X.......");
 	text_GameOver.append("...X..XX.X...X.X.X.X.XXXXX...");
@@ -496,7 +424,7 @@ void Tetris::InitialiseTextGameOver()
 
 			blocks_Text_GameOver[y * gameOverW + x] = Block(rect, block_Textures[i]);
 		}
-	}
+	}*/
 }
 
 /*-------------------------------------------*/
@@ -620,21 +548,28 @@ void Tetris::DrawNextTetromino()
 
 void Tetris::DrawTextScore()
 {
-	// Draw Score Text
-	for (int y = 0; y < scoreH; y++)
-	{
-		for (int x = 0; x < scoreW; x++)
-		{
-			if (text_Score[y * scoreW + x] == '.')
-			{
-				continue;
-			}
-			else
-			{
-				blocks_Text_Score[y * scoreW + x].Draw(gfx);
-			}
-		}
-	}	
+	//// Draw Score Text
+	//if (isTesting)
+	//{
+	//	DrawDigit(150, 0, words_Score);
+	//}
+	//else
+	//{
+	//	for (uint y = 0; y < scoreH; y++)
+	//	{
+	//		for (uint x = 0; x < scoreW; x++)
+	//		{
+	//			if (text_Score[y * scoreW + x] == '.')
+	//			{
+	//				continue;
+	//			}
+	//			else
+	//			{
+	//				blocks_Text_Score[y * scoreW + x].Draw(gfx);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void Tetris::DrawLevel()
@@ -644,50 +579,82 @@ void Tetris::DrawLevel()
 
 void Tetris::DrawTextDigits()
 {
-	for (uint i = 0; i < blockBuffer_Digits.size(); i++)
+	if (!isTesting)
+	{	
+		Vec3 pos0 = { 0.0f,0.0f,0.0f };
+		Vec3 pos1 = { 100.0f,0.0f,0.0f };
+		Vec3 pos2 = { 100.0f,100.0f,0.0f };
+		Vec3 pos3 = { 0.0f,100.0f,0.0f };
+
+		Vec2 tc0 = { 0.0f,0.0f };
+		Vec2 tc1 = { 1.0f,0.0f };
+		Vec2 tc2 = { 1.0f,1.0f };
+		Vec2 tc3 = { 0.0f,1.0f };
+
+		TexVertex tv0 = { pos0,tc0 };
+		TexVertex tv1 = { pos1,tc1 };
+		TexVertex tv2 = { pos2,tc2 };
+		TexVertex tv3 = { pos3,tc3 };
+
+		gfx.DrawTriangleTex(tv0, tv1, tv2, digit_A);
+		gfx.DrawTriangleTex(tv0, tv2, tv3, digit_A);		
+	}
+	else
 	{
-		blocks_Digits[blockBuffer_Digits[i]][i].Draw(gfx);
-	}	
+		for (uint i = 0; i < blockBuffer_Digits.size(); i++)
+		{
+			blocks_Digits[blockBuffer_Digits[i]][i].Draw(gfx);
+		}
+	}
+	//const uint height = digit_Textures[0][0].GetHeight();
+	//const uint width = digit_Textures[0][0].GetWidth();
+	//
+	//const Color key = { 255,1,255 };
+	//
+	//for (uint i = 0; i < blockBuffer_Digits.size(); i++)
+	//{
+	//	for (uint y = 0; y < height; y++)
+	//	{
+	//		for (uint x = 0; x < width; x++)
+	//		{
+	//			const Color color = digit_Textures[i]->GetPixel(x, y);
+	//
+	//			if (color == key)
+	//			{
+	//				continue;
+	//			}
+	//			else
+	//			{
+	//				gfx.PutPixel(x, y, color);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void Tetris::DrawTextPause()
 {
 	if (gameIsPaused)
-	{
-		for (int y = 0; y < pauseH; y++)
-		{
-			for (int x = 0; x < pauseW; x++)
-			{
-				if (text_Pause[y * pauseW + x] == '.')
-				{
-					continue;
-				}
-				else
-				{
-					blocks_Text_Pause[y * pauseW + x].Draw(gfx);
-				}
-			}
-		}
+	{		
+		DrawDigit(250, 250, words_Pause);
 	}
 }
 
 void Tetris::DrawTextGameOver()
 {
 	if (gameIsOver)
+	{		
+		DrawDigit(250, 200, words_GameOver);
+	}
+}
+
+void Tetris::DrawDigit(unsigned int xOff, unsigned int yOff, const Surface& digit)
+{
+	for (uint y = 0; y < digit.GetHeight(); y++)
 	{
-		for (int y = 0; y < gameOverH; y++)
+		for (uint x = 0; x < digit.GetWidth(); x++)
 		{
-			for (int x = 0; x < gameOverW; x++)
-			{
-				if (text_GameOver[y * gameOverW + x] == '.')
-				{
-					continue;
-				}
-				else
-				{
-					blocks_Text_GameOver[y * gameOverW + x].Draw(gfx);
-				}
-			}
+			gfx.PutPixelAlpha(x + xOff, y + yOff, digit.GetPixel(x, y));
 		}
 	}
 }
@@ -696,21 +663,82 @@ void Tetris::DrawBlur()
 {
 	if (gameIsPaused || gameIsOver) 
 	{
-		Surface input = gfx.CopySysBuffer();
-		uint width =  input.GetWidth();
-		uint height = input.GetHeight();
-
-		std::vector<Color> output;
-
-		Blur(input,output);
-
-		for (uint y = 0; y < height; y++)
+		if (!isTesting)
 		{
-			for (uint x = 0; x < width; x++)
+			Surface copy = gfx.CopySysBuffer();
+			uint width = copy.GetWidth();
+			uint height = copy.GetHeight();
+
+			std::vector<Color> input;
+
+			for (uint y = 0; y < height; y++)
 			{
-				gfx.PutPixel(x, y, output[y * width + x]);
+				for (uint x = 0; x < width; x++)
+				{
+					input.push_back(copy.GetPixel(x, y));
+				}
+			}
+
+			std::vector<uchar> in_red;
+			std::vector<uchar> in_green;
+			std::vector<uchar> in_blue;
+
+			for (int i = 0; i < input.size(); i++)
+			{
+				in_red.push_back(input[i].GetR());
+				in_green.push_back(input[i].GetG());
+				in_blue.push_back(input[i].GetB());
+			}
+
+			std::vector<uchar> out_red(in_red.size());
+			std::vector<uchar> out_green(in_green.size());
+			std::vector<uchar> out_blue(in_blue.size());
+
+			gaussBlur_4(in_red, out_red, width, height, 1);
+			gaussBlur_4(in_green, out_green, width, height, 1);
+			gaussBlur_4(in_blue, out_blue, width, height, 1);
+
+			for (uint y = 0; y < height; y++)
+			{
+				for (uint x = 0; x < width; x++)
+				{
+					const uchar r = out_red[y * width + x];
+					const uchar g = out_green[y * width + x];
+					const uchar b = out_blue[y * width + x];
+
+					gfx.PutPixel(x, y, Color(r, g, b));
+				}
 			}
 		}
+		else
+		{
+			Surface surface = gfx.CopySysBuffer();
+			uint w = surface.GetWidth();
+			uint h = surface.GetHeight();
+
+			std::vector<Color> input;
+
+			for (uint y = 0; y < h; y++)
+			{
+				for (uint x = 0; x < w; x++)
+				{
+					input.push_back(surface.GetPixel(x, y));
+				}
+			}
+
+			std::vector<Color> output;
+				
+			output = Blur(w, h, Blur(w, h, Blur(w, h, Blur(w, h, Blur(w,h,Blur(w, h, Blur(w, h, input)))))));
+
+			for (uint y = 0; y < h; y++)
+			{
+				for (uint x = 0; x < w; x++)
+				{
+					gfx.PutPixel(x, y, output[y * w + x]);
+				}
+			}			
+		}
+		
 	}
 }
 
@@ -784,7 +812,7 @@ int Tetris::Random(const int min, const int max)
 	return dist(rng);
 }
 
-void Tetris::ExtractDigits(std::vector<uint>& ints, const uint num)
+void Tetris::ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num)
 {
 	ints.clear();
 	unsigned int result = num;
@@ -822,7 +850,7 @@ Color Tetris::ConvertCharToColor(const char value)
 	return Colors::Black;
 }
 
-Tetris::uint Tetris::ConvertCharToInt(const char value)
+uint Tetris::ConvertCharToInt(const char value)
 {
 	for (int i = 0; i < 10; i++)
 	{
@@ -860,43 +888,52 @@ void Tetris::Benchmark(void* pFunction)
 	}
 }
 
-void Tetris::Blur( const Surface& input, std::vector<Color>& output)
+const std::vector<Color> Tetris::Blur(
+	const unsigned int width,
+	const unsigned int height,
+	const std::vector<Color>& input)
 {
-	output.clear();
+	assert(width * height == input.size());
 
 	Mat3 m;
+	
+	const float val = 1.0f / 9.0f;
 
-	m.elements[0][0] = 0.111;	// 0
-	m.elements[0][1] = 0.111;	// 1
-	m.elements[0][2] = 0.111;	// 2
-	m.elements[1][0] = 0.111;	// 3
-	m.elements[1][1] = 0.111;	// 4 center pixel
-	m.elements[1][2] = 0.111;	// 5
-	m.elements[2][0] = 0.111;	// 6
-	m.elements[2][1] = 0.111;	// 7
-	m.elements[2][2] = 0.111;	// 8
+	m.elements[0][0] = val;	// 0
+	m.elements[0][1] = val;	// 1
+	m.elements[0][2] = val;	// 2
+	m.elements[1][0] = val;	// 3
+	m.elements[1][1] = val;	// 4 center pixel
+	m.elements[1][2] = val;	// 5
+	m.elements[2][0] = val;	// 6
+	m.elements[2][1] = val;	// 7
+	m.elements[2][2] = val;	// 8
+
+	//m.elements[0][0] = 0.1;	// 0
+	//m.elements[0][1] = 0.4;	// 1
+	//m.elements[0][2] = 0.1;	// 2
+	//m.elements[1][0] = 0.4;	// 3
+	//m.elements[1][1] = -2.0;	// 4 center pixel
+	//m.elements[1][2] = 0.4;	// 5
+	//m.elements[2][0] = 0.1;	// 6
+	//m.elements[2][1] = 0.4;	// 7
+	//m.elements[2][2] = 0.1;	// 8
 
 	/*
-	0 1 2
-	3 4 5
-	6 7 8
+	0 1 2	00 01 02
+	3 4 5	10 11 12
+	6 7 8	20 21 22
 	*/
-
-	const uint height	= input.GetHeight();
-	const uint width	= input.GetWidth();
-
-	output.assign(width*height, Colors::White);
 	
-	Vec3 c = { 0.0f,0.0f,0.0f };
+	std::vector<Color> output(width*height, Colors::Black);
+	
+	Vec3 color = { 0.0f,0.0f,0.0f };
 
 	typedef unsigned char uchar;
 
-	float redA = 0.0f;
-	float greenA = 0.0f;
-	float blueA = 0.0f;
-	float redB = 0.0f;
-	float greenB = 0.0f;
-	float blueB = 0.0f;
+	float red = 0.0f;
+	float green = 0.0f;
+	float blue = 0.0f;
 
     for (uint y = 0; y < height; y++)
 	{
@@ -915,7 +952,7 @@ void Tetris::Blur( const Surface& input, std::vector<Color>& output)
 
 					if (cx > 0 && cx < (int)width && cy > 0 && cy < (int)height)
 					{
-						Color c = input.GetPixel(cx, cy);
+						Color c = input[cy * width + cx];
 
 						float r = c.GetR();
 						float g = c.GetG();
@@ -928,20 +965,28 @@ void Tetris::Blur( const Surface& input, std::vector<Color>& output)
 				}
 			}
 
-			c = { rTotal,gTotal,bTotal };
+			color = { rTotal,gTotal,bTotal };
 
-			c /= 2.0f;
+			color /= 1.0f;
 
-			redB	= (c.x > 255.0f) ? 255.0f : c.x;
+			red		= std::min<float>(255.0f, std::max<float>(0.0f, color.x));
+			green	= std::min<float>(255.0f, std::max<float>(0.0f, color.y));
+			blue	= std::min<float>(255.0f, std::max<float>(0.0f, color.z));
+
+			/*redB	= (c.x > 255.0f) ? 255.0f : c.x;
 			greenB	= (c.y > 255.0f) ? 255.0f : c.y;
 			blueB	= (c.z > 255.0f) ? 255.0f : c.z;
 			redB	= (c.x < 0.0f) ? 0.0f : c.x;
 			greenB	= (c.y < 0.0f) ? 0.0f : c.y;
-			blueB	= (c.z < 0.0f) ? 0.0f : c.z;
+			blueB	= (c.z < 0.0f) ? 0.0f : c.z;*/
 
-			output[y * width + x] = { uchar(redB), uchar(greenB), uchar(blueB) };
+			output[y * width + x] = { uchar(red), uchar(green), uchar(blue) };			
 		}
 	}
+
+	assert(input.size() == output.size());
+
+	return output;
 }
 
 void Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
@@ -981,7 +1026,7 @@ void Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
 				}
 			}
 
-			uint div = 3;
+			uint div = 9;
 
 			uchar rFinal = rTotal / div;
 			uchar gFinal = gTotal / div;
@@ -992,4 +1037,143 @@ void Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
 		}
 	}
 	assert(output.size() == (input.GetWidth() * input.GetHeight()));
+}
+
+auto Tetris::boxesForGauss(int sigma, int n)  // standard deviation, number of boxes
+{
+	float wIdeal = std::sqrt((12 * sigma*sigma / (float)n) + 1);  // Ideal averaging filter width 
+	int wl = (int)std::floor(wIdeal);  if (wl % 2 == 0) wl--;
+	int wu = wl + 2;
+
+	float mIdeal = (12 * sigma*sigma - (float)n * wl*wl - 4 * (float)n*wl - 3 * (float)n) / (-4 * wl - 4);
+	int m = (int)std::round(mIdeal);
+	// float sigmaActual = std::sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
+
+	std::vector<int> sizes;  
+	
+	for (int i = 0; i < n; i++) 
+		sizes.push_back(i < m ? wl : wu);
+
+	return sizes;
+}
+
+void Tetris::gaussBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto bxs = boxesForGauss(r, 3);
+
+	boxBlur_4(scl, tcl, w, h, (bxs[0] - 1) / 2);
+	boxBlur_4(tcl, scl, w, h, (bxs[1] - 1) / 2);
+	boxBlur_4(scl, tcl, w, h, (bxs[2] - 1) / 2);
+}
+void Tetris::boxBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	for (auto i = 0; i < scl.size(); i++) tcl[i] = scl[i];
+
+	boxBlurH_4(tcl, scl, w, h, r);
+	boxBlurT_4(scl, tcl, w, h, r);
+}
+
+void Tetris::boxBlurH_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto iarr = 1 / (r + r + 1);
+
+	for (auto i = 0; i < h; i++) 
+	{
+		auto ti = i * w;
+		auto li = ti;
+		auto ri = ti + r;
+		auto fv = scl[ti];
+		auto lv = scl[ti + w - 1];
+		auto val = (r + 1)*fv;
+
+		for (auto j = 0; j < r; j++)
+		{
+			val += scl[ti + j];
+		}
+
+		for (auto j = 0; j <= r; j++) 
+		{ 
+			val += scl[ri++] - fv;
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+
+		for (auto j = r + 1; j < w - r; j++)
+		{ 
+			val += scl[ri++] - scl[li++];
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+
+		for (auto j = w - r; j < w; j++) 
+		{ 
+			val += lv - scl[li++];
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+	}
+}
+
+void Tetris::boxBlurT_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto iarr = 1 / (r + r + 1);
+
+	for (auto i = 0; i < w; i++) 
+	{
+		auto ti = i, li = ti, ri = ti + r * w;
+		auto fv = scl[ti];
+		auto lv = scl[ti + w * (h - 1)];
+		auto val = (r + 1)*fv;
+
+		for (auto j = 0; j < r; j++)
+		{
+			val += scl[ti + j * w];
+		}
+
+		for (auto j = 0; j <= r; j++)
+		{ 
+			val += scl[ri] - fv;
+			tcl[ti] = (int)std::round(val*iarr);
+			ri += w; ti += w;
+		}
+
+		for (auto j = r + 1; j < h - r; j++)
+		{ 
+			val += scl[ri] - scl[li];
+			tcl[ti] = (int)std::round(val*iarr);
+			li += w; ri += w; ti += w; 
+		}
+
+		for (auto j = h - r; j < h; j++)
+		{ 
+			val += lv - scl[li];  
+			tcl[ti] = (int)std::round(val*iarr);
+			li += w; ti += w;
+		}
+	}
+}
+
+
+// source channel, target channel, width, height, radius
+void Tetris::gaussBlur_1(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	int rs = (int)std::ceil(r * 2.57);     // significant radius
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			int val = 0, wsum = 0;
+
+			for (int iy = i - rs; iy < i + rs + 1; iy++)
+			{
+				for (int ix = j - rs; ix < j + rs + 1; ix++)
+				{
+					int x = std::min<int>(w - 1, std::max<int>(0, ix));
+					int y = std::min<int>(h - 1, std::max<int>(0, iy));
+					int dsq = (ix - j)*(ix - j) + (iy - i)*(iy - i);
+					int wght = (int)(std::exp(-dsq / (2 * r*r)) / (PI * 2 * r*r));
+					val += scl[y*w + x] * wght;  wsum += wght;
+				}
+			}
+			tcl[i*w + j] = (uchar)std::round(val / wsum);
+		}
+	}
 }

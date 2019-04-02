@@ -48,6 +48,8 @@ public:
 		:
 		Color( (x << 24u) | col.dword )
 	{}
+
+public:
 	explicit Color( const Vec3& cf )
 		:
 		Color( unsigned char( cf.x ),unsigned char( cf.y ),unsigned char( cf.z ) )
@@ -56,6 +58,8 @@ public:
 	{
 		return{ float( GetR() ),float( GetG() ), float( GetB() ) };
 	}
+
+public:
 	Color& operator =( Color color )
 	{
 		dword = color.dword;
@@ -100,6 +104,29 @@ public:
 	void SetB( unsigned char b )
 	{
 		dword = (dword & 0xFFFFFF00u) | b;
+	}
+
+	bool operator ==(const Color rhs) const
+	{
+		if (GetR() == rhs.GetR() && GetG() == rhs.GetG() && GetB() == rhs.GetB())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	bool operator !=(const Color rhs) const
+	{
+		if (GetR() != rhs.GetR() || GetG() != rhs.GetG() || GetB() != rhs.GetB())
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 };
 
