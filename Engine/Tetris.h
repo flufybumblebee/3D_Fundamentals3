@@ -37,8 +37,8 @@ private:
 	static constexpr unsigned int	scoreH		= 50u;
 	static constexpr unsigned int	digitW		= 50u;
 	static constexpr unsigned int	digitH		= 50u;
-	static constexpr unsigned int	pauseW		= 35u;
-	static constexpr unsigned int	pauseH		= 7u;
+	static constexpr unsigned int	pauseW		= 580u;
+	static constexpr unsigned int	pauseH		= 100u;
 	static constexpr unsigned int	gameOverW	= 29u;
 	static constexpr unsigned int	gameOverH	= 13u;
 	static constexpr unsigned int	rows		= 10u;
@@ -49,84 +49,99 @@ private:
 	const unsigned int scrW = gfx.ScreenWidth;
 	const unsigned int scrH = gfx.ScreenHeight;
 	
-	Surface	tex_background	= Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg");
+	Surface* tex_background = new Surface(Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg"));
 
-	Surface tex_tileBlack	= Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png");
-	Surface tex_tileOrange	= Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png");
-	Surface tex_tileCyan	= Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png");
-	Surface tex_tileGreen	= Surface::FromFile(L"Textures\\Blocks\\Block_Green.png");
-	Surface tex_tileRed		= Surface::FromFile(L"Textures\\Blocks\\Block_Red.png");
-	Surface tex_tileBlue	= Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png");
-	Surface tex_tileMagenta = Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png");
-	Surface tex_tileYellow	= Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png");
-	Surface tex_tileGrey	= Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png");
+	Surface* tex_Black		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
+	Surface* tex_Orange		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
+	Surface* tex_Cyan		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
+	Surface* tex_Green		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Green.png"));
+	Surface* tex_Red		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
+	Surface* tex_Blue		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png"));
+	Surface* tex_Magenta	= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png"));
+	Surface* tex_Yellow		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png"));
+	Surface* tex_Grey		= new Surface(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
 
-	Surface tex_tileZeroG	= Surface::FromFile(L"Digits\\Digit - 0.png");
-	Surface tex_tileOneG	= Surface::FromFile(L"Digits\\Digit - 1.png");
-	Surface tex_tileTwoG	= Surface::FromFile(L"Digits\\Digit - 2.png");
-	Surface tex_tileThreeG	= Surface::FromFile(L"Digits\\Digit - 3.png");
-	Surface tex_tileFourG	= Surface::FromFile(L"Digits\\Digit - 4.png");
-	Surface tex_tileFiveG	= Surface::FromFile(L"Digits\\Digit - 5.png");
-	Surface tex_tileSixG	= Surface::FromFile(L"Digits\\Digit - 6.png");
-	Surface tex_tileSevenG	= Surface::FromFile(L"Digits\\Digit - 7.png");
-	Surface tex_tileEightG	= Surface::FromFile(L"Digits\\Digit - 8.png");
-	Surface tex_tileNineG	= Surface::FromFile(L"Digits\\Digit - 9.png");
+	//Surface* digits;
 
-	Surface digit_A			= Surface::FromFile(L"Digits\\Digit - A.png");
-	Surface digit_B			= Surface::FromFile(L"Digits\\Digit - B.png");
-	Surface digit_C			= Surface::FromFile(L"Digits\\Digit - C.png");
-	Surface digit_D			= Surface::FromFile(L"Digits\\Digit - D.png");
+	Surface* digit_0 = new Surface(Surface::FromFile(L"Digits\\Digit - 0.png"));
+	Surface* digit_1 = new Surface(Surface::FromFile(L"Digits\\Digit - 1.png"));
+	Surface* digit_2 = new Surface(Surface::FromFile(L"Digits\\Digit - 2.png"));
+	Surface* digit_3 = new Surface(Surface::FromFile(L"Digits\\Digit - 3.png"));
+	Surface* digit_4 = new Surface(Surface::FromFile(L"Digits\\Digit - 4.png"));
+	Surface* digit_5 = new Surface(Surface::FromFile(L"Digits\\Digit - 5.png"));
+	Surface* digit_6 = new Surface(Surface::FromFile(L"Digits\\Digit - 6.png"));
+	Surface* digit_7 = new Surface(Surface::FromFile(L"Digits\\Digit - 7.png"));
+	Surface* digit_8 = new Surface(Surface::FromFile(L"Digits\\Digit - 8.png"));
+	Surface* digit_9 = new Surface(Surface::FromFile(L"Digits\\Digit - 9.png"));
 
-	Surface words_Score		= Surface::FromFile(L"Words\\Words - Score.png");
-	Surface words_Pause		= Surface::FromFile(L"Words\\Words - Pause.png");
-	Surface words_GameOver	= Surface::FromFile(L"Words\\Words - Game Over.png");
+	/*Surface* digit_A = new Surface(Surface::FromFile(L"Digits\\Digit - A.png"));
+	Surface* digit_E = new Surface(Surface::FromFile(L"Digits\\Digit - E.png"));
+	Surface* digit_G = new Surface(Surface::FromFile(L"Digits\\Digit - G.png"));
+	Surface* digit_M = new Surface(Surface::FromFile(L"Digits\\Digit - M.png"));
+	Surface* digit_O = new Surface(Surface::FromFile(L"Digits\\Digit - O.png"));
+	Surface* digit_P = new Surface(Surface::FromFile(L"Digits\\Digit - P.png"));
+	Surface* digit_R = new Surface(Surface::FromFile(L"Digits\\Digit - R.png"));
+	Surface* digit_S = new Surface(Surface::FromFile(L"Digits\\Digit - S.png"));
+	Surface* digit_V = new Surface(Surface::FromFile(L"Digits\\Digit - V.png"));
+	Surface* digit_U = new Surface(Surface::FromFile(L"Digits\\Digit - U.png"));*/
+
+	const Surface* word_Pause = new Surface(Surface::FromFile(L"Words\\Word - Pause.png"));
+	//const Surface* word_GameOver; // = Surface::FromFile(L"Words\\Words - Game Over.png");
 
 	Block background;
 
-	std::array<Color, 10>		block_Colors;
+	//std::array<Color, 10> block_Colors;
 
-	const std::array<Surface*, 10>	block_Textures = {	&tex_tileBlack,
-														&tex_tileOrange,
-														&tex_tileCyan,
-														&tex_tileGreen,
-														&tex_tileRed,
-														&tex_tileBlue,
-														&tex_tileMagenta,
-														&tex_tileYellow,
-														&tex_tileRed,
-														&tex_tileGrey };
+	const std::array<Surface*, 10>	block_Textures = {	tex_Black,
+														tex_Orange,
+														tex_Cyan,
+														tex_Green,
+														tex_Red,
+														tex_Blue,
+														tex_Magenta,
+														tex_Yellow,
+														tex_Red,
+														tex_Grey };
 
-	const std::array<Surface*, 10>	digit_Textures = {	&tex_tileZeroG,
-														&tex_tileOneG,
-														&tex_tileTwoG,
-														&tex_tileThreeG,
-														&tex_tileFourG,
-														&tex_tileFiveG,
-														&tex_tileSixG,
-														&tex_tileSevenG,
-														&tex_tileEightG,
-														&tex_tileNineG };
+	std::array<Surface*, 10>		digit_Numbers = {	digit_0,
+														digit_1,
+														digit_2,
+														digit_3,
+														digit_4,
+														digit_5,
+														digit_6,
+														digit_7,
+														digit_8,
+														digit_9 };
+													
+
+	/*const std::array<Surface*, 10>	digit_Letters = {	digit_A,
+														digit_E,
+														digit_G,
+														digit_M,
+														digit_O,
+														digit_P,
+														digit_R,
+														digit_S,
+														digit_V,
+														digit_U };*/
 
 	//std::array<std::array<Block,digitW*digitH>,10>	blocks_Digits;
 	//Block blocks_Digits[rows][cols];
 	std::array<std::array<Block, cols>, rows> blocks_Digits;
 
 	std::string			tetromino[7];
-	//std::string			text_Digits[10];
 	std::string			text_Level;
-	//std::string			text_Score;
-	std::string			text_Pause;
-	//std::string			text_GameOver;
 
 	std::vector<int>	lines;
 
 	std::vector<Block>	blocks;
 	std::vector<Block>	blocks_Next;
 
-	std::array<Block, levelW*levelH>		blocks_Text_Level;
-	std::array<Block, scoreW*scoreH>		blocks_Text_Score;
-	std::array<Block, pauseW*pauseH>		blocks_Text_Pause;
-	std::array<Block, gameOverW*gameOverH>	blocks_Text_GameOver;
+	//std::array<Block, levelW*levelH>		blocks_Text_Level;
+	//std::array<Block, scoreW*scoreH>		blocks_Text_Score;
+	//std::array<Block, pauseW*pauseH>		blocks_Text_Pause;
+	//std::array<Block, gameOverW*gameOverH>	blocks_Text_GameOver;
 		 
 	std::vector<char>			blockBuffer_Fixed;
 	std::vector<char>			blockBuffer_Shown;

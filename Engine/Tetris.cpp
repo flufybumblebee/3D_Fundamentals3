@@ -7,7 +7,11 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	:
 	kbd(kbd),
 	gfx(gfx)
-{
+{	
+	tex_background = new Surface(Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg"));
+
+	word_Pause = new Surface(Surface::FromFile(L"Words\\Word - Pause.png"));
+	
 	//InitialiseDigits();
 	InitialiseTextDigits();	
 	InitialiseBackground();
@@ -79,7 +83,7 @@ void Tetris::Update()
 		if (!gameIsOver)
 		{
 			// game timing
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(200));
 			speedCounter++;
 			forceDown = (speedCounter == speed);
 
@@ -242,8 +246,8 @@ void Tetris::InitialiseDigits()
 
 void Tetris::InitialiseBackground()
 {
-	const RectI rect = { 0,(int)gfx.ScreenHeight,0,(int)gfx.ScreenWidth };
-	background = Block(rect, &tex_background);
+	const RectI rect = { 0,(int)scrH,0,(int)scrW };
+	background = Block(rect, tex_background);
 }
 
 void Tetris::InitialiseTetrominos()
@@ -286,15 +290,7 @@ void Tetris::InitialiseTetrominos()
 
 void Tetris::InitialiseTextLevel()
 {
-	/*text_Level.append(".....................................");
-	text_Level.append("...X.....XXXXX.X...X.XXXXX.X.........");
-	text_Level.append("...X.....X.....X...X.X.....X.....X...");
-	text_Level.append("...X.....XXXXX.X...X.XXXXX.X.........");
-	text_Level.append("...X.....X......X.X..X.....X.....X...");
-	text_Level.append("...XXXXX.XXXXX...X...XXXXX.XXXXX.....");
-	text_Level.append(".....................................");
-	
-	for (int y = 0; y < levelH; y++)
+	/*for (int y = 0; y < levelH; y++)
 	{
 		for (int x = 0; x < levelW; x++)
 		{
@@ -313,14 +309,6 @@ void Tetris::InitialiseTextLevel()
 
 void Tetris::InitialiseTextScore()
 {
-	/*text_Score.append(".....................................");
-	text_Score.append("...XXXXX.XXXXX.XXXXX.XXXX..XXXXX.....");
-	text_Score.append("...X.....X.....X...X.X...X.X.....X...");
-	text_Score.append("...XXXXX.X.....X...X.X...X.XXXXX.....");
-	text_Score.append(".......X.X.....X...X.XXXX..X.....X...");
-	text_Score.append("...XXXXX.XXXXX.XXXXX.X...X.XXXXX.....");
-	text_Score.append(".....................................");*/
-	
 	/*int color;
 	for (int y = 0; y < scoreH; y++)
 	{
@@ -350,67 +338,25 @@ void Tetris::InitialiseTextDigits()
 	{
 		for (uint x = 0; x < cols; x++)
 		{
-			/*RectI rect = RectI(
-				(digitH / 5),
-				(digitH / 5) + digitH,
-				scoreW + (digitW * (9 - x)) + (digitW / 5 * (9 - x)),
-				scoreW + (digitW * (9 - x)) + (digitW / 5 * (9 - x)) + digitW);*/
-
 			RectI rect = RectI(
 				(digitH / 5),
 				(digitH / 5) + digitH,
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)) - digitW,
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)));
 
-			blocks_Digits[y][x] = Block(rect, digit_Textures[y]);
+			blocks_Digits[y][x] = Block(rect, digit_Numbers[y]);
 		}
 	}	
 }
 
 void Tetris::InitialiseTextPause()
 {
-	/*text_Pause.append("...................................");
-	text_Pause.append("...XXXXX.XXXXX.X...X.XXXXX.XXXXX...");
-	text_Pause.append("...X...X.X...X.X...X.X.....X.......");
-	text_Pause.append("...X...X.X...X.X...X.XXXXX.XXXXX...");
-	text_Pause.append("...XXXXX.XXXXX.X...X.....X.X.......");
-	text_Pause.append("...X.....X...X.XXXXX.XXXXX.XXXXX...");
-	text_Pause.append("...................................");
-
-	for (int x = 0; x < pauseW; x++)
-	{
-		for (int y = 0; y < pauseH; y++)
-		{
-			uint i = (text_Pause[y * pauseW + x] != '.') ? Random(1, 7) : 0;
-			
-			RectI rect = RectI(
-				(gfx.ScreenHeight / 2) - ((pauseH / 2)*blocksH) + (y * blocksH),
-				(gfx.ScreenHeight / 2) - ((pauseH / 2)*blocksH) + (y * blocksH) + blocksH,
-				(gfx.ScreenWidth / 2) - ((pauseW / 2)*blocksW) + (x * blocksW),
-				(gfx.ScreenWidth / 2) - ((pauseW / 2)*blocksW) + (x * blocksW) + blocksW);
-
-			blocks_Text_Pause[y * pauseW + x] = Block(rect, block_Textures[i]);
-		}
-	}*/
+	
 }
 
 void Tetris::InitialiseTextGameOver()
 {
-	/*text_GameOver.append(".............................");
-	text_GameOver.append("...XXXXX.XXXXX.XXXXX.XXXXX...");
-	text_GameOver.append("...X.....X...X.X.X.X.X.......");
-	text_GameOver.append("...X..XX.X...X.X.X.X.XXXXX...");
-	text_GameOver.append("...X...X.XXXXX.X.X.X.X.......");
-	text_GameOver.append("...XXXXX.X...X.X.X.X.XXXXX...");
-	text_GameOver.append(".............................");
-	text_GameOver.append("...XXXXX.X...X.XXXXX.XXXX....");
-	text_GameOver.append("...X...X.X...X.X.....X...X...");
-	text_GameOver.append("...X...X.X...X.XXXXX.X...X...");
-	text_GameOver.append("...X...X..X.X..X.....XXXX....");
-	text_GameOver.append("...XXXXX...X...XXXXX.X...X...");
-	text_GameOver.append(".............................");
-
-	for (int x = 0; x < gameOverW; x++)
+	/*for (int x = 0; x < gameOverW; x++)
 	{
 		for (int y = 0; y < gameOverH; y++)
 		{
@@ -579,64 +525,38 @@ void Tetris::DrawLevel()
 
 void Tetris::DrawTextDigits()
 {
-	if (!isTesting)
-	{	
-		Vec3 pos0 = { 0.0f,0.0f,0.0f };
-		Vec3 pos1 = { 100.0f,0.0f,0.0f };
-		Vec3 pos2 = { 100.0f,100.0f,0.0f };
-		Vec3 pos3 = { 0.0f,100.0f,0.0f };
-
-		Vec2 tc0 = { 0.0f,0.0f };
-		Vec2 tc1 = { 1.0f,0.0f };
-		Vec2 tc2 = { 1.0f,1.0f };
-		Vec2 tc3 = { 0.0f,1.0f };
-
-		TexVertex tv0 = { pos0,tc0 };
-		TexVertex tv1 = { pos1,tc1 };
-		TexVertex tv2 = { pos2,tc2 };
-		TexVertex tv3 = { pos3,tc3 };
-
-		gfx.DrawTriangleTex(tv0, tv1, tv2, digit_A);
-		gfx.DrawTriangleTex(tv0, tv2, tv3, digit_A);		
-	}
-	else
+	for (uint i = 0; i < blockBuffer_Digits.size(); i++)
 	{
-		for (uint i = 0; i < blockBuffer_Digits.size(); i++)
-		{
-			blocks_Digits[blockBuffer_Digits[i]][i].Draw(gfx);
-		}
+		blocks_Digits[blockBuffer_Digits[i]][i].Draw(gfx);
 	}
-	//const uint height = digit_Textures[0][0].GetHeight();
-	//const uint width = digit_Textures[0][0].GetWidth();
-	//
-	//const Color key = { 255,1,255 };
-	//
-	//for (uint i = 0; i < blockBuffer_Digits.size(); i++)
-	//{
-	//	for (uint y = 0; y < height; y++)
-	//	{
-	//		for (uint x = 0; x < width; x++)
-	//		{
-	//			const Color color = digit_Textures[i]->GetPixel(x, y);
-	//
-	//			if (color == key)
-	//			{
-	//				continue;
-	//			}
-	//			else
-	//			{
-	//				gfx.PutPixel(x, y, color);
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 void Tetris::DrawTextPause()
 {
+	const float left = float(scrW / 2 - pauseW / 2);
+	const float top = float(scrH / 2 - pauseH / 2);
+	const float right = float(scrW / 2 - pauseW / 2 + pauseW);
+	const float bottom = float(scrH / 2 - pauseH / 2 + pauseH);
+
+	Vec3 pos0 = { left,top,0.0f };
+	Vec3 pos1 = { right,top,0.0f };
+	Vec3 pos2 = { right,bottom,0.0f };
+	Vec3 pos3 = { left,bottom,0.0f };
+
+	Vec2 tc0 = { 0.0f,0.0f };
+	Vec2 tc1 = { 1.0f,0.0f };
+	Vec2 tc2 = { 1.0f,1.0f };
+	Vec2 tc3 = { 0.0f,1.0f };
+
+	TexVertex tv0 = TexVertex(pos0, tc0);
+	TexVertex tv1 = TexVertex(pos1, tc1);
+	TexVertex tv2 = TexVertex(pos2, tc2);
+	TexVertex tv3 = TexVertex(pos3, tc3);
+
 	if (gameIsPaused)
 	{		
-		DrawDigit(250, 250, words_Pause);
+		gfx.DrawTriangleTex(tv0, tv1, tv2, *word_Pause);
+		gfx.DrawTriangleTex(tv0, tv2, tv3, *word_Pause);
 	}
 }
 
@@ -644,7 +564,7 @@ void Tetris::DrawTextGameOver()
 {
 	if (gameIsOver)
 	{		
-		DrawDigit(250, 200, words_GameOver);
+		//DrawDigit(250, 200, words_GameOver);
 	}
 }
 
@@ -833,7 +753,7 @@ void Tetris::ExtractDigits(std::vector<unsigned int>& ints, const unsigned int n
 
 Color Tetris::ConvertCharToColor(const char value)
 {
-	Color color;
+	/*Color color;
 	for (int i = 0; i < 10; i++)
 	{
 		if (value == " ABCDEFG=#"[i])
@@ -845,7 +765,7 @@ Color Tetris::ConvertCharToColor(const char value)
 		{
 			continue;
 		}
-	}
+	}*/
 
 	return Colors::Black;
 }
@@ -1072,7 +992,6 @@ void Tetris::boxBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, in
 	boxBlurH_4(tcl, scl, w, h, r);
 	boxBlurT_4(scl, tcl, w, h, r);
 }
-
 void Tetris::boxBlurH_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
 {
 	auto iarr = 1 / (r + r + 1);
@@ -1110,7 +1029,6 @@ void Tetris::boxBlurH_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, i
 		}
 	}
 }
-
 void Tetris::boxBlurT_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
 {
 	auto iarr = 1 / (r + r + 1);
@@ -1150,10 +1068,10 @@ void Tetris::boxBlurT_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, i
 	}
 }
 
-
-// source channel, target channel, width, height, radius
 void Tetris::gaussBlur_1(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
 {
+	// scl = source channel, tcl = target channel, width, height, radius
+
 	int rs = (int)std::ceil(r * 2.57);     // significant radius
 
 	for (int i = 0; i < h; i++)
