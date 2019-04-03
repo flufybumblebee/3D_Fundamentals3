@@ -41,7 +41,7 @@ public:
 public:
 	Surface( unsigned int width,unsigned int height,unsigned int pitch )
 		:
-		pBuffer( std::make_unique<Color[]>( pitch * height ) ),
+		pBuffer( std::make_unique<Color[]>( size_t(pitch) * height ) ),
 		width( width ),
 		height( height ),
 		pitch( pitch )
@@ -50,7 +50,7 @@ public:
 		:
 		Surface( width,height,width )
 	{}
-	Surface( Surface&& source )
+	Surface( Surface&& source ) noexcept
 		:
 		pBuffer( std::move( source.pBuffer ) ),
 		width( source.width ),
@@ -58,7 +58,7 @@ public:
 		pitch( source.pitch )
 	{}
 	Surface( Surface& ) = delete;
-	Surface& operator=( Surface&& donor )
+	Surface& operator=( Surface&& donor ) noexcept
 	{
 		width = donor.width;
 		height = donor.height;
@@ -72,13 +72,13 @@ public:
 	{}
 	void Clear( Color fillValue  )
 	{
-		memset( pBuffer.get(),fillValue.dword,pitch * height * sizeof( Color ) );
+		memset( pBuffer.get(),fillValue.dword,size_t(pitch) * size_t(height) * sizeof( Color ) );
 	}
 	void Present( unsigned int dstPitch,BYTE* const pDst ) const
 	{
 		for( unsigned int y = 0; y < height; y++ )
 		{
-			memcpy( &pDst[dstPitch * y],&pBuffer[pitch * y],sizeof(Color) * width );
+			memcpy( &pDst[dstPitch * y],&pBuffer[size_t(pitch) * y],sizeof(Color) * width );
 		}
 	}
 	void PutPixel( unsigned int x,unsigned int y,Color c )
@@ -96,7 +96,7 @@ public:
 		assert( y >= 0 );
 		assert( x < width );
 		assert( y < height );
-		return pBuffer[y * pitch + x];
+		return pBuffer[y * size_t(pitch) + x];
 	}
 	unsigned int GetWidth() const
 	{

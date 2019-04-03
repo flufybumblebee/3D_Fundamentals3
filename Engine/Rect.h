@@ -96,10 +96,10 @@ public:
 		return p.top >= top && p.bottom <= bottom && p.left >= left && p.right <= right;
 	}
 public:
-	T top;
-	T bottom;
-	T left;
-	T right;
+	T top = 0;
+	T bottom = 0;
+	T left = 0;
+	T right = 0;
 };
 
 typedef _Rect< int > RectI;

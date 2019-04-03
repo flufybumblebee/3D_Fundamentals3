@@ -14,7 +14,7 @@ private:
 	const Vec2 tc1 = { 1.0f,0.0f };
 	const Vec2 tc2 = { 1.0f,1.0f };
 	const Vec2 tc3 = { 0.0f,1.0f };
-	Surface* pTex;
+	Surface* pTex = nullptr;
 
 public:
 	Block() = default;

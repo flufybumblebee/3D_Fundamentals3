@@ -71,7 +71,7 @@ Surface Surface::FromFile( const std::wstring & name )
 
 		pitch = width = bitmap.GetWidth();
 		height = bitmap.GetHeight();
-		pBuffer = std::make_unique<Color[]>( width * height );
+		pBuffer = std::make_unique<Color[]>(size_t(width) * height );
 
 		for( unsigned int y = 0; y < height; y++ )
 		{
@@ -79,7 +79,7 @@ Surface Surface::FromFile( const std::wstring & name )
 			{
 				Gdiplus::Color c;
 				bitmap.GetPixel( x,y,&c );
-				pBuffer[y * pitch + x] = c.GetValue();
+				pBuffer[y * size_t(pitch) + x] = c.GetValue();
 			}
 		}
 	}
@@ -148,13 +148,13 @@ void Surface::Copy( const Surface & src )
 	assert( height == src.height );
 	if( pitch == src.pitch )
 	{
-		memcpy( pBuffer.get(),src.pBuffer.get(),pitch * height * sizeof( Color ) );
+		memcpy( pBuffer.get(),src.pBuffer.get(),size_t(pitch) * size_t(height) * sizeof( Color ) );
 	}
 	else
 	{
 		for( unsigned int y = 0; y < height; y++ )
 		{
-			memcpy( &pBuffer[pitch * y],&src.pBuffer[pitch * y],sizeof( Color )* width );
+			memcpy( &pBuffer[size_t(pitch) * y],&src.pBuffer[size_t(pitch) * y],sizeof( Color )* width );
 		}
 	}
 }
