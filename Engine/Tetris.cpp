@@ -1,5 +1,13 @@
 #include "Tetris.h"
 
+#include <thread>
+#include <random>
+#include <chrono>
+#include <fstream>
+#include <cmath>
+#include <cassert>
+#include <utility>
+
 typedef unsigned int uint;
 typedef unsigned char uchar;
 
@@ -7,23 +15,9 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	:
 	kbd(kbd),
 	gfx(gfx)
-{		
-	file_Background.emplace_back( L"Textures\\Backgrounds\\Nature0.jpg" );
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature1.jpg");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature2.png");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature3.jpg");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature4.jpg");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature5.jpg");
-	file_Background.emplace_back( L"Textures\\Backgrounds\\BlocksBlue.jpg" );
-	file_Background.emplace_back(L"Textures\\Backgrounds\\BlocksGreen.jpg");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\BlocksRainbow.jpg");
-	file_Background.emplace_back( L"Textures\\Backgrounds\\Street0.bmp" );
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Space0.jpg");
-	file_Background.emplace_back(L"Textures\\Backgrounds\\Space1.jpg");
-
-	int size = (int)file_Background.size();
-	tex_Background = new Surface(Surface::FromFile(file_Background[Random(0,size)]));
+{
 	InitialiseBackground();
+	InitialiseBlocks();
 	InitialiseTetrominos();
 	InitialiseScore();
 	InitialisePause();
@@ -31,55 +25,6 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 }
 Tetris::~Tetris()
 {
-	delete[] tex_Black;
-	delete[] tex_Orange;
-	delete[] tex_Cyan;
-	delete[] tex_Green;
-	delete[] tex_Red;
-	delete[] tex_Blue;
-	delete[] tex_Magenta;
-	delete[] tex_Yellow;
-	delete[] tex_Grey;
-	
-	delete[] tex_digit_0;
-	delete[] tex_digit_1;
-	delete[] tex_digit_2;
-	delete[] tex_digit_3;
-	delete[] tex_digit_4;
-	delete[] tex_digit_5;
-	delete[] tex_digit_6;
-	delete[] tex_digit_7;
-	delete[] tex_digit_8;
-	delete[] tex_digit_9;
-	
-	delete[] tex_Background;
-	delete[] tex_Pause;
-	delete[] tex_GameOver;
-
-	tex_Black	= nullptr;
-	tex_Orange	= nullptr;
-	tex_Cyan	= nullptr;
-	tex_Green	= nullptr;
-	tex_Red		= nullptr;
-	tex_Blue	= nullptr;
-	tex_Magenta = nullptr;
-	tex_Yellow	= nullptr;
-	tex_Grey	= nullptr;
-
-	tex_digit_0 = nullptr;
-	tex_digit_1 = nullptr;
-	tex_digit_2 = nullptr;
-	tex_digit_3 = nullptr;
-	tex_digit_4 = nullptr;
-	tex_digit_5 = nullptr;
-	tex_digit_6 = nullptr;
-	tex_digit_7 = nullptr;
-	tex_digit_8 = nullptr;
-	tex_digit_9 = nullptr;
-
-	tex_Background	= nullptr;
-	tex_Pause		= nullptr;
-	tex_GameOver	= nullptr;
 }
 
 /*-------------------------------------------*/
@@ -93,17 +38,15 @@ void Tetris::Setup()
 	currentY			= 0;
 	currentRotation		= 0;
 	speed				= 20;
-	score				= 0;
 	level				= 0;
 	tetrominoCounter	= 0;
 	speedCounter		= 0;
 
-	blockBuffer_Score.clear();
-
+	ClearScore();	
+	SetBackground();
 	SetFieldBuffer();
 	SetFieldBlocks();
 	SetNextTetromino();
-	SetScore();
 }
 void Tetris::Update()
 {
@@ -168,7 +111,7 @@ void Tetris::Update()
 				if (tetrominoCounter % 50 == 0)
 				{
 					if (speed >= 10) speed--;
-					level++;
+					SetLevel();
 				}
 
 				if (DoesTetrisFit(tetrominoCurrent, currentRotation, currentX, currentY + 1))
@@ -216,8 +159,7 @@ void Tetris::Update()
 					}
 
 					// calculate score
-					score += 25;
-					if (!lines.empty()) score += (1 << lines.size()) * 100;
+					
 
 					SetScore();
 
@@ -302,8 +244,39 @@ void Tetris::Draw()
 
 void Tetris::InitialiseBackground()
 {
-	const RectI rect = { 0,(int)scrH,0,(int)scrW };
-	block_Background = Block(rect, tex_Background);
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.jpg"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
+	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
+
+	sizeBG = tex_Background.size();
+
+	RectI rect = { 0,static_cast<int>(scrH),0,static_cast<int>(scrW) };
+
+	size_t min = static_cast<size_t>(0);
+	size_t max = static_cast<size_t>(tex_Background.size() - 1);
+	randomBG = static_cast<size_t>(Random(min, max));
+	block_Background = Block(rect, &tex_Background[randomBG]);
+}
+void Tetris::InitialiseBlocks()
+{
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Green.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
+	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
 }
 void Tetris::InitialiseTetrominos()
 {
@@ -344,43 +317,74 @@ void Tetris::InitialiseTetrominos()
 }
 void Tetris::InitialiseScore()
 {	
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
+	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
+
 	for (int y = 0; y < rows; y++)
 	{
 		for (int x = 0; x < cols; x++)
 		{
-			RectI rect = RectI(
+			RectI position = RectI(
 				(digitH / 5),
 				(digitH / 5) + digitH,
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)) - digitW,
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)));
 
-			blocks_Digits[y][x] = Block(rect, number_Textures[y]);
+			blocks_Digits[y][x] = Block(position, &tex_Digits[y]);
 		}
 	}	
 }
 void Tetris::InitialisePause()
 {
+	tex_Pause.push_back(Surface::FromFile(L"Textures\\Words\\word - Pause.png"));
+
 	RectI rect = RectI(
 		(scrH / 2) - (pauseH / 2),
 		(scrH / 2) + (pauseH / 2),
 		(scrW / 2) - (pauseW / 2),
 		(scrW / 2) + (pauseW / 2));
 
-	block_Pause = Block(rect, tex_Pause);
+	size_t size = tex_Pause.size();
+	size_t i = (size > 1) ? Random(static_cast<size_t>(0), size - 1) : 0;
+	block_Pause = Block(rect, &tex_Pause[i]);
 }
 void Tetris::InitialiseGameOver()
 {	
+	tex_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\word - GameOver.png"));
+
 	RectI rect = RectI(
 		(scrH / 2) - (gameOverH / 2),
 		(scrH / 2) + (gameOverH / 2),
 		(scrW / 2) - (gameOverW / 2),
 		(scrW / 2) + (gameOverW / 2));
 
-	block_GameOver = Block(rect, tex_GameOver);
+	size_t size = tex_GameOver.size();
+	size_t i = (size > 1) ? Random(static_cast<size_t>(0), size - 1) : 0;
+	block_GameOver = Block(rect, &tex_GameOver[i]);
 }
 
 /*-------------------------------------------*/
 
+void Tetris::SetBackground()
+{
+	randomBG = (randomBG >= tex_Background.size()) ? 0 : randomBG++;
+
+	block_Background.SetTexture( &tex_Background[randomBG] );
+}
+void Tetris::ClearScore()
+{
+	blockBuffer_Score.clear();
+	score = 0;
+	ExtractDigits(blockBuffer_Score, score);
+}
 void Tetris::SetFieldBuffer()
 {
 	blockBuffer_Fixed.clear();
@@ -417,14 +421,15 @@ void Tetris::SetFieldBlocks()
 	{
 		for (int x = 0; x < fieldW; x++)
 		{
-			RectI rect = RectI(
-				offsetHeight + (y * blocksH),
-				offsetHeight + (y * blocksH) + blocksH,
-				offsetWidth + (x * blocksW),
-				offsetWidth + (x * blocksW) + blocksW);
+			RectI pos = RectI(
+				offsetHeight + (y * blockH),
+				offsetHeight + (y * blockH) + blockH,
+				offsetWidth + (x * blockW),
+				offsetWidth + (x * blockW) + blockW);
 			int i = y * fieldW + x;
 			int j = ConvertCharToInt(blockBuffer_Shown[i]);
-			blocks.push_back(Block(rect, block_Textures[j]));
+
+			blocks.push_back(Block(pos, &tex_Blocks[j]));
 		}
 	}
 }
@@ -437,20 +442,27 @@ void Tetris::SetNextTetromino()
 		for (int x = 0; x < tetroW; x++)
 		{			
 			RectI rect = RectI(
-				offsetHeight + (y * blocksH),
-				offsetHeight + (y * blocksH) + blocksH,
-				offsetWidth + (blocksW * fieldW) + (x * blocksW),
-				offsetWidth + (blocksW * fieldW) + (x * blocksW) + blocksW);
+				offsetHeight + (y * blockH),
+				offsetHeight + (y * blockH) + blockH,
+				offsetWidth + (blockW * fieldW) + (x * blockW),
+				offsetWidth + (blockW * fieldW) + (x * blockW) + blockW);
 			int i = y * tetroW + x;
 			int j = (tetromino[tetrominoNext][i] != '.') ? tetrominoNext + 1 : 0;
 
-			blocks_Next.push_back(Block(rect,block_Textures[j]));
+			blocks_Next.push_back(Block(rect,&tex_Blocks[j]));
 		}
 	}
 }
 void Tetris::SetScore()
 {
+	score += 25;
+	if (!lines.empty()) score += (1 << lines.size()) * 100;
 	ExtractDigits(blockBuffer_Score, score);	
+}
+void Tetris::SetLevel()
+{
+	prevLevel = level;
+	level++;
 }
 
 /*-------------------------------------------*/
@@ -520,87 +532,23 @@ void Tetris::DrawBlur()
 {
 	if (gameIsPaused || gameIsOver) 
 	{
-		if (!isTesting)
+		std::vector<Color> input;
+		input = ConvertSurfaceToColorVector(gfx.CopySysBuffer());
+
+		int w = scrW;
+		int h = scrH;
+
+		std::vector<Color> output;				
+		output = Blur(w, h, Blur(w, h, Blur(w, h, Blur(w, h, Blur(w,h,Blur(w, h, Blur(w, h, input)))))));
+
+		for (int y = 0; y < h; y++)
 		{
-			Surface copy = gfx.CopySysBuffer();
-			int width = copy.GetWidth();
-			int height = copy.GetHeight();
-
-			std::vector<Color> input;
-
-			for (int y = 0; y < height; y++)
+			for (int x = 0; x < w; x++)
 			{
-				for (int x = 0; x < width; x++)
-				{
-					input.push_back(copy.GetPixel(x, y));
-				}
+				uint i = y * w + x;
+				gfx.PutPixel(x, y, output[i]);
 			}
-
-			std::vector<uchar> in_red;
-			std::vector<uchar> in_green;
-			std::vector<uchar> in_blue;
-
-			for (int i = 0; i < input.size(); i++)
-			{
-				in_red.push_back(input[i].GetR());
-				in_green.push_back(input[i].GetG());
-				in_blue.push_back(input[i].GetB());
-			}
-
-			std::vector<uchar> out_red(in_red.size());
-			std::vector<uchar> out_green(in_green.size());
-			std::vector<uchar> out_blue(in_blue.size());
-
-			//gaussBlur_4(in_red, out_red, width, height, 1);
-			//gaussBlur_4(in_green, out_green, width, height, 1);
-			//gaussBlur_4(in_blue, out_blue, width, height, 1);
-
-			for (int y = 0; y < height; y++)
-			{
-				for (int x = 0; x < width; x++)
-				{
-					uint i = y * width + x;
-
-					const uchar r = out_red[i];
-					const uchar g = out_green[i];
-					const uchar b = out_blue[i];
-
-					gfx.PutPixel(x, y, Color(r, g, b));
-				}
-			}
-		}
-		else
-		{
-			Surface* surface = new Surface(gfx.CopySysBuffer());
-			int w = surface->GetWidth();
-			int h = surface->GetHeight();
-
-			std::vector<Color> input;
-
-			for (int y = 0; y < h; y++)
-			{
-				for (int x = 0; x < w; x++)
-				{
-					input.push_back(surface->GetPixel(x, y));
-				}
-			}             
-
-			delete surface;
-
-			std::vector<Color> output;
-				
-			output = Blur(w, h, Blur(w, h, Blur(w, h, Blur(w, h, Blur(w,h,Blur(w, h, Blur(w, h, input)))))));
-
-			for (int y = 0; y < h; y++)
-			{
-				for (int x = 0; x < w; x++)
-				{
-					uint i = y * w + x;
-					gfx.PutPixel(x, y, output[i]);
-				}
-			}			
-		}
-		
+		}			
 	}
 }
 
@@ -663,14 +611,6 @@ bool	Tetris::DoesTetrisFit(int tetrisID, int rotation, int posX, int posY)
 	}
 	return true;
 }
-int		Tetris::Random(const int min, const int max)
-{
-	std::mt19937 rng;
-	rng.seed(std::random_device()());
-	std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
-
-	return dist(rng);
-}
 void	Tetris::ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num)
 {
 	ints.clear();
@@ -707,7 +647,7 @@ Color	Tetris::ConvertCharToColor(const char value)
 
 	return Colors::Black;
 }
-uint	Tetris::ConvertCharToInt(const char value)
+int	Tetris::ConvertCharToInt(const char value)
 {
 	for (int i = 0; i < 10; i++)
 	{
@@ -793,7 +733,25 @@ void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
 	assert(output.size() == (input.GetWidth() * input.GetHeight()));
 }
 
-const std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>& input)
+std::vector<Color> Tetris::ConvertSurfaceToColorVector(Surface surface)
+{
+	int w = surface.GetWidth();
+	int h = surface.GetHeight();
+
+	std::vector<Color> output;
+
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			output.push_back(surface.GetPixel(x, y));
+		}
+	}
+
+	return output;
+}
+
+std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>& input)
 {
 	const size_t sizeA = size_t(w) * h;
 	const size_t sizeB = input.size();
