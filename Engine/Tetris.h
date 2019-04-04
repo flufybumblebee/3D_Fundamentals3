@@ -70,7 +70,8 @@ private:
 	Surface* tex_digit_8	= new Surface(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
 	Surface* tex_digit_9	= new Surface(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
 
-	Surface* tex_Background = new Surface(Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg"));
+	std::vector<std::wstring> file_Background;
+	Surface* tex_Background;// = new Surface(Surface::FromFile(L"Textures\\Backgrounds\\Nature.jpg"));
 	Surface* tex_Pause		= new Surface(Surface::FromFile(L"Textures\\Words\\word - Pause.png"));
 	Surface* tex_GameOver	= new Surface(Surface::FromFile(L"Textures\\Words\\word - GameOver.png"));	
 

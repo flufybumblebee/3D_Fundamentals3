@@ -8,45 +8,84 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	kbd(kbd),
 	gfx(gfx)
 {		
+	file_Background.emplace_back( L"Textures\\Backgrounds\\Nature0.jpg" );
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature1.jpg");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature2.png");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature3.jpg");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature4.jpg");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Nature5.jpg");
+	file_Background.emplace_back( L"Textures\\Backgrounds\\BlocksBlue.jpg" );
+	file_Background.emplace_back(L"Textures\\Backgrounds\\BlocksGreen.jpg");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\BlocksRainbow.jpg");
+	file_Background.emplace_back( L"Textures\\Backgrounds\\Street0.bmp" );
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Space0.jpg");
+	file_Background.emplace_back(L"Textures\\Backgrounds\\Space1.jpg");
+
+	int size = (int)file_Background.size();
+	tex_Background = new Surface(Surface::FromFile(file_Background[Random(0,size)]));
 	InitialiseBackground();
 	InitialiseTetrominos();
 	InitialiseScore();
 	InitialisePause();
-	InitialiseGameOver();	
+	InitialiseGameOver();
 }
-
 Tetris::~Tetris()
 {
-	delete tex_Black;
-	delete tex_Orange;
-	delete tex_Cyan;
-	delete tex_Green;
-	delete tex_Red;
-	delete tex_Blue;
-	delete tex_Magenta;
-	delete tex_Yellow;
-	delete tex_Grey;
+	delete[] tex_Black;
+	delete[] tex_Orange;
+	delete[] tex_Cyan;
+	delete[] tex_Green;
+	delete[] tex_Red;
+	delete[] tex_Blue;
+	delete[] tex_Magenta;
+	delete[] tex_Yellow;
+	delete[] tex_Grey;
+	
+	delete[] tex_digit_0;
+	delete[] tex_digit_1;
+	delete[] tex_digit_2;
+	delete[] tex_digit_3;
+	delete[] tex_digit_4;
+	delete[] tex_digit_5;
+	delete[] tex_digit_6;
+	delete[] tex_digit_7;
+	delete[] tex_digit_8;
+	delete[] tex_digit_9;
+	
+	delete[] tex_Background;
+	delete[] tex_Pause;
+	delete[] tex_GameOver;
 
-	delete tex_digit_0;
-	delete tex_digit_1;
-	delete tex_digit_2;
-	delete tex_digit_3;
-	delete tex_digit_4;
-	delete tex_digit_5;
-	delete tex_digit_6;
-	delete tex_digit_7;
-	delete tex_digit_8;
-	delete tex_digit_9;
+	tex_Black	= nullptr;
+	tex_Orange	= nullptr;
+	tex_Cyan	= nullptr;
+	tex_Green	= nullptr;
+	tex_Red		= nullptr;
+	tex_Blue	= nullptr;
+	tex_Magenta = nullptr;
+	tex_Yellow	= nullptr;
+	tex_Grey	= nullptr;
 
-	delete tex_Background;
-	delete tex_Pause;
-	delete tex_GameOver;
+	tex_digit_0 = nullptr;
+	tex_digit_1 = nullptr;
+	tex_digit_2 = nullptr;
+	tex_digit_3 = nullptr;
+	tex_digit_4 = nullptr;
+	tex_digit_5 = nullptr;
+	tex_digit_6 = nullptr;
+	tex_digit_7 = nullptr;
+	tex_digit_8 = nullptr;
+	tex_digit_9 = nullptr;
+
+	tex_Background	= nullptr;
+	tex_Pause		= nullptr;
+	tex_GameOver	= nullptr;
 }
 
 /*-------------------------------------------*/
 
 void Tetris::Setup()
-{
+{	
 	gameIsOver			= false;
 	tetrominoNext		= Random(0, 6);
 	tetrominoCurrent	= Random(0, 6);
@@ -753,12 +792,10 @@ void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
 	}
 	assert(output.size() == (input.GetWidth() * input.GetHeight()));
 }
-const std::vector<Color> Tetris::Blur(
-	const int width,
-	const int height,
-	const std::vector<Color>& input)
+
+const std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>& input)
 {
-	const size_t sizeA = size_t(width) * height;
+	const size_t sizeA = size_t(w) * h;
 	const size_t sizeB = input.size();
 	assert( sizeA == sizeB );
 
@@ -792,8 +829,7 @@ const std::vector<Color> Tetris::Blur(
 	6 7 8 - 20 21 22
 	*/
 
-	uint size = width * height;
-	std::vector<Color> output(size, Colors::Black);
+	std::vector<Color> output(sizeA, Colors::Black);
 	
 	Vec3 color = { 0.0f,0.0f,0.0f };
 
@@ -803,9 +839,9 @@ const std::vector<Color> Tetris::Blur(
 	float green = 0.0f;
 	float blue = 0.0f;
 
-    for (int y = 0; y < height; y++)
+    for (int y = 0; y < h; y++)
 	{
-		for (int x = 0; x < width; x++)
+		for (int x = 0; x < w; x++)
 		{
 			float rTotal = 0;
 			float gTotal = 0;
@@ -818,9 +854,9 @@ const std::vector<Color> Tetris::Blur(
 					int cx = x + col;
 					int cy = y + row;
 
-					if (cx > 0 && cx < width && cy > 0 && cy < height)
+					if (cx > 0 && cx < w && cy > 0 && cy < h)
 					{
-						uint i = cy * width + cx;
+						uint i = cy * w + cx;
 						Color c = input[i];
 
 						float r = c.GetR();
@@ -849,7 +885,7 @@ const std::vector<Color> Tetris::Blur(
 			greenB	= (c.y < 0.0f) ? 0.0f : c.y;
 			blueB	= (c.z < 0.0f) ? 0.0f : c.z;*/
 
-			uint i = y * width + x;
+			uint i = y * w + x;
 
 			output[i] = { uchar(red), uchar(green), uchar(blue) };			
 		}
