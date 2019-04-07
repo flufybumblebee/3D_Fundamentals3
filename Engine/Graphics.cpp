@@ -573,3 +573,207 @@ void Graphics::DrawRect(int x, int y, int width, int height, Color c)
 		}
 	}
 }
+
+std::vector<Color> Graphics::Blur(const int w, const int h, const std::vector<Color>& input)
+{
+	const size_t sizeA = size_t(w) * h;
+	const size_t sizeB = input.size();
+	assert(sizeA == sizeB);
+
+	Mat3 m;
+
+	const float val = 1.0f / 9.0f;
+
+	m.elements[0][0] = val;	// 0
+	m.elements[0][1] = val;	// 1
+	m.elements[0][2] = val;	// 2
+	m.elements[1][0] = val;	// 3
+	m.elements[1][1] = val;	// 4 center pixel
+	m.elements[1][2] = val;	// 5
+	m.elements[2][0] = val;	// 6
+	m.elements[2][1] = val;	// 7
+	m.elements[2][2] = val;	// 8
+
+	//m.elements[0][0] = 0.1;	// 0
+	//m.elements[0][1] = 0.4;	// 1
+	//m.elements[0][2] = 0.1;	// 2
+	//m.elements[1][0] = 0.4;	// 3
+	//m.elements[1][1] = -2.0;	// 4 center pixel
+	//m.elements[1][2] = 0.4;	// 5
+	//m.elements[2][0] = 0.1;	// 6
+	//m.elements[2][1] = 0.4;	// 7
+	//m.elements[2][2] = 0.1;	// 8
+
+	/*
+	0 1 2 - 00 01 02
+	3 4 5 - 10 11 12
+	6 7 8 - 20 21 22
+	*/
+
+	std::vector<Color> output(sizeA, Colors::Black);
+
+	Vec3 color = { 0.0f,0.0f,0.0f };
+
+	typedef unsigned char uchar;
+
+	float red = 0.0f;
+	float green = 0.0f;
+	float blue = 0.0f;
+
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			float rTotal = 0;
+			float gTotal = 0;
+			float bTotal = 0;
+
+			for (int row = -1; row <= 1; row++)
+			{
+				for (int col = -1; col <= 1; col++)
+				{
+					int cx = x + col;
+					int cy = y + row;
+
+					if (cx > 0 && cx < w && cy > 0 && cy < h)
+					{
+						unsigned int i = cy * w + cx;
+						Color c = input[i];
+
+						float r = c.GetR();
+						float g = c.GetG();
+						float b = c.GetB();
+
+						rTotal += (r *= m.elements[row + 1][col + 1]);
+						gTotal += (g *= m.elements[row + 1][col + 1]);
+						bTotal += (b *= m.elements[row + 1][col + 1]);
+					}
+				}
+			}
+
+			color = { rTotal,gTotal,bTotal };
+
+			color /= 1.0f;
+
+			red = std::min<float>(255.0f, std::max<float>(0.0f, color.x));
+			green = std::min<float>(255.0f, std::max<float>(0.0f, color.y));
+			blue = std::min<float>(255.0f, std::max<float>(0.0f, color.z));
+
+			/*redB	= (c.x > 255.0f) ? 255.0f : c.x;
+			greenB	= (c.y > 255.0f) ? 255.0f : c.y;
+			blueB	= (c.z > 255.0f) ? 255.0f : c.z;
+			redB	= (c.x < 0.0f) ? 0.0f : c.x;
+			greenB	= (c.y < 0.0f) ? 0.0f : c.y;
+			blueB	= (c.z < 0.0f) ? 0.0f : c.z;*/
+
+			unsigned int i = y * w + x;
+
+			output[i] = { uchar(red), uchar(green), uchar(blue) };
+		}
+	}
+
+	assert(input.size() == output.size());
+
+	return output;
+}
+
+Surface Graphics::Blur(const Surface& input)
+{
+	Mat3 m;
+
+	const float val = 1.0f / 9.0f;
+
+	m.elements[0][0] = val;	// 0
+	m.elements[0][1] = val;	// 1
+	m.elements[0][2] = val;	// 2
+	m.elements[1][0] = val;	// 3
+	m.elements[1][1] = val;	// 4 center pixel
+	m.elements[1][2] = val;	// 5
+	m.elements[2][0] = val;	// 6
+	m.elements[2][1] = val;	// 7
+	m.elements[2][2] = val;	// 8
+
+	//m.elements[0][0] = 0.1;	// 0
+	//m.elements[0][1] = 0.4;	// 1
+	//m.elements[0][2] = 0.1;	// 2
+	//m.elements[1][0] = 0.4;	// 3
+	//m.elements[1][1] = -2.0;	// 4 center pixel
+	//m.elements[1][2] = 0.4;	// 5
+	//m.elements[2][0] = 0.1;	// 6
+	//m.elements[2][1] = 0.4;	// 7
+	//m.elements[2][2] = 0.1;	// 8
+
+	/*
+	0 1 2 - 00 01 02
+	3 4 5 - 10 11 12
+	6 7 8 - 20 21 22
+	*/
+
+	Vec3 color = { 0.0f,0.0f,0.0f };
+
+	typedef unsigned char uchar;
+
+	float red = 0.0f;
+	float green = 0.0f;
+	float blue = 0.0f;
+
+	float rTotal = 0;
+	float gTotal = 0;
+	float bTotal = 0;
+
+	int h = input.GetHeight();
+	int w = input.GetWidth();
+
+	Surface output(w, h);
+
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			rTotal = 0;
+			gTotal = 0;
+			bTotal = 0;
+
+			for (int row = -1; row <= 1; row++)
+			{
+				for (int col = -1; col <= 1; col++)
+				{
+					int cx = x + col;
+					int cy = y + row;
+
+					if (cx > 0 && cx < w && cy > 0 && cy < h)
+					{
+						Color c = input.GetPixel(cx,cy);
+
+						float r = c.GetR();
+						float g = c.GetG();
+						float b = c.GetB();
+
+						rTotal += (r *= m.elements[row + 1][col + 1]);
+						gTotal += (g *= m.elements[row + 1][col + 1]);
+						bTotal += (b *= m.elements[row + 1][col + 1]);
+					}
+				}
+			}
+
+			color = { rTotal,gTotal,bTotal };
+
+			color /= 1.0f;
+
+			red = std::min<float>(255.0f, std::max<float>(0.0f, color.x));
+			green = std::min<float>(255.0f, std::max<float>(0.0f, color.y));
+			blue = std::min<float>(255.0f, std::max<float>(0.0f, color.z));
+
+			/*redB	= (c.x > 255.0f) ? 255.0f : c.x;
+			greenB	= (c.y > 255.0f) ? 255.0f : c.y;
+			blueB	= (c.z > 255.0f) ? 255.0f : c.z;
+			redB	= (c.x < 0.0f) ? 0.0f : c.x;
+			greenB	= (c.y < 0.0f) ? 0.0f : c.y;
+			blueB	= (c.z < 0.0f) ? 0.0f : c.z;*/
+			
+			output.PutPixel(x,y, { uchar(red), uchar(green), uchar(blue) });
+		}
+	}
+
+	return std::move(output);
+}

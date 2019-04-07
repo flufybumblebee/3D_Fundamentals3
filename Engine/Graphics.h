@@ -28,6 +28,9 @@
 #include "Vec2.h"
 #include "ZBuffer.h"
 #include "TexVertex.h"
+#include "Mat.h"
+
+#include <vector>
 
 #define CHILI_GFX_EXCEPTION( hr,note ) Graphics::Exception( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
@@ -141,8 +144,8 @@ public:
 	void DrawFlatBottomTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,
 		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
-
-
+	std::vector<Color> Blur(const int w, const int h, const std::vector<Color>& input);
+	Surface Blur(const Surface& surface);
 private:
 	GDIPlusManager										gdipMan;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;

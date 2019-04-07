@@ -23,6 +23,7 @@
 #include "Graphics.h"
 
 #include <array>
+#include <vector>
 
 class Game
 {
@@ -31,18 +32,23 @@ private:
 	Graphics gfx;
 
 private:
-	int lineW = 20;
-	int lineH = gfx.ScreenHeight - (2 * lineW);
-	int block_size = (gfx.ScreenHeight - (4 * lineW)) / 3;
+	int chunk_size = 600 / 16;
+	int line_thickness = chunk_size;
+	int line_length = chunk_size * 14;
+	int block_size = chunk_size * 4;
+
+	int origin_x = (800 / 2) - (block_size / 2) - line_thickness - block_size;
+	int origin_y = line_thickness;
 
 	Color c = Colors::White;
-	int line0X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW;
-	int line0Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW - block_size;
+
+	int line0X = (gfx.ScreenWidth / 2) - (block_size / 2) - line_thickness;
+	int line0Y = (gfx.ScreenHeight / 2) - (block_size / 2) - line_thickness - block_size;
 	int line1X = (gfx.ScreenWidth / 2) + (block_size / 2);
-	int line1Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW - block_size;
-	int line2X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW - block_size;
-	int line2Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW;
-	int line3X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW - block_size;
+	int line1Y = (gfx.ScreenHeight / 2) - (block_size / 2) - line_thickness - block_size;
+	int line2X = (gfx.ScreenWidth / 2) - (block_size / 2) - line_thickness - block_size;
+	int line2Y = (gfx.ScreenHeight / 2) - (block_size / 2) - line_thickness;
+	int line3X = (gfx.ScreenWidth / 2) - (block_size / 2) - line_thickness - block_size;
 	int line3Y = (gfx.ScreenHeight / 2) + (block_size / 2);
 
 	enum XOState
@@ -53,6 +59,18 @@ private:
 	};
 
 	std::array<XOState, 9> blocks;
+
+	int cols = 3;
+	int rows = 3;
+	int currentX = 1;
+	int currentY = 1;
+
+	bool keyIsPressed = false;
+
+	/*------------------------------------------------*/
+
+	Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp");
+	Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
 public:
 	Game( class MainWindow& wnd );
 	Game( const Game& ) = delete;
@@ -64,7 +82,19 @@ private:
 	void ComposeFrame();
 
 private:
-	void ClearBlocks();
-	void Input();
-	void DrawGrid();
+	void	ClearBlocks();
+	void	Input();
+	void	DrawGrid();
+	void	SetState(int i, XOState state);
+	void	SetState(int ix, int iy,XOState state);
+	XOState	GetState(int i);
+	XOState GetState(int ix, int iy);
+	int		ConvertArrayAddress(int x, int y, int w);
+	std::vector<Color> ConvertSurfaceToColorVector(const Surface& surface);
+	Surface ConvertColorVectorToSurface(int width, int height, const std::vector<Color>& colors);
+
+	void	DrawBackground();
+	void	DrawX();
+	void	DrawO();
+	void	DrawCursor(int x, int y);
 };

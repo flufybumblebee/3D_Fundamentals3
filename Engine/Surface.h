@@ -87,7 +87,7 @@ public:
 		assert( y >= 0 );
 		assert( x < width );
 		assert( y < height );
-		pBuffer[y * pitch + x] = c;
+		pBuffer[y * static_cast<size_t>(pitch) + x] = c;
 	}
 	void PutPixelAlpha( unsigned int x,unsigned int y,Color c );
 	Color GetPixel( unsigned int x,unsigned int y ) const
