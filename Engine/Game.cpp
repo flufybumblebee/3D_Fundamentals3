@@ -25,10 +25,9 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd ),
-	tetris(wnd.kbd,gfx)
+	gfx( wnd )
 {
-	tetris.Setup();
+	
 }
 
 void Game::Go()
@@ -41,10 +40,27 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	tetris.Update();
+	
 }
 
 void Game::ComposeFrame()
-{
-	tetris.Draw();
+{	
+	DrawGrid();
 }
+
+void Game::ClearBlocks()
+{
+	for (int i = 0; i < blocks.size(); i++)
+	{
+		blocks[i] = EMPTY;
+	}
+}
+
+void Game::DrawGrid()
+{
+	gfx.DrawRect(line0X, line0Y, lineW, lineH, Colors::Gray);
+	gfx.DrawRect(line1X, line1Y, lineW, lineH, Colors::Green);
+	gfx.DrawRect(line2X, line2Y, lineH, lineW, Colors::White);
+	gfx.DrawRect(line3X, line3Y, lineH, lineW, Colors::Yellow);
+}
+

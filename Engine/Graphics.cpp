@@ -562,3 +562,14 @@ void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
 	// pack channels back into pixel and fire pixel onto surface
 	PutPixel(x, y, { rsltRed,rsltGreen,rsltBlue });
 }
+
+void Graphics::DrawRect(int x, int y, int width, int height, Color c)
+{
+	for (int iy = 0; iy < height; iy++)
+	{
+		for (int ix = 0; ix < width; ix++)
+		{
+			PutPixel(ix + x, iy + y, c);
+		}
+	}
+}

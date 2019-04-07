@@ -56,6 +56,7 @@ public:
 	Graphics( class HWNDKey& key );
 	Graphics( const Graphics& ) = delete;
 	Graphics& operator=( const Graphics& ) = delete;
+	~Graphics();
 	void EndFrame();
 	void BeginFrame();
 	void PutPixel( int x,int y,int r,int g,int b )
@@ -66,13 +67,14 @@ public:
 	{
 		sysBuffer.PutPixel( x,y,c );
 	}
+	void PutPixelAlpha(unsigned int x, unsigned int y, const Color src);
+
 	Surface CopySysBuffer() const
 	{
 		Surface copy(ScreenWidth, ScreenHeight);
 		copy.Copy(sysBuffer);
 		return std::move(copy);
 	}
-	~Graphics();
 	void DrawLineDepth( ZBuffer& zb,Vec3& v0,Vec3& v1,Color c )
 	{
 		float dx = v1.x - v0.x;
@@ -127,6 +129,8 @@ public:
 			}
 		}
 	}
+
+	void DrawRect(int x, int y, int width, int height, Color c);
 	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	
@@ -138,7 +142,6 @@ public:
 	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,
 		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
 
-	void PutPixelAlpha(unsigned int x, unsigned int y, const Color src);
 
 private:
 	GDIPlusManager										gdipMan;

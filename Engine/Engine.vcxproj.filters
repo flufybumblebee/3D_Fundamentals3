@@ -225,12 +225,6 @@
     <ClInclude Include="NormiePipe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Tetris.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Block.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TexVertex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -273,9 +267,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tiny_obj_loader.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Tetris.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

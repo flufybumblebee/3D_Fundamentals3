@@ -21,7 +21,8 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Tetris.h"
+
+#include <array>
 
 class Game
 {
@@ -30,7 +31,28 @@ private:
 	Graphics gfx;
 
 private:
-	Tetris tetris;
+	int lineW = 20;
+	int lineH = gfx.ScreenHeight - (2 * lineW);
+	int block_size = (gfx.ScreenHeight - (4 * lineW)) / 3;
+
+	Color c = Colors::White;
+	int line0X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW;
+	int line0Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW - block_size;
+	int line1X = (gfx.ScreenWidth / 2) + (block_size / 2);
+	int line1Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW - block_size;
+	int line2X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW - block_size;
+	int line2Y = (gfx.ScreenHeight / 2) - (block_size / 2) - lineW;
+	int line3X = (gfx.ScreenWidth / 2) - (block_size / 2) - lineW - block_size;
+	int line3Y = (gfx.ScreenHeight / 2) + (block_size / 2);
+
+	enum XOState
+	{
+		EMPTY = 0,
+		X = 1,
+		O = 2
+	};
+
+	std::array<XOState, 9> blocks;
 public:
 	Game( class MainWindow& wnd );
 	Game( const Game& ) = delete;
@@ -40,4 +62,9 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
+
+private:
+	void ClearBlocks();
+	void Input();
+	void DrawGrid();
 };
