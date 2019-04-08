@@ -4,6 +4,13 @@
 
 #include <memory>
 
+TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
+	:
+	kbd(kbd),
+	gfx(gfx)
+{}
+
+
 void TickTackToe::Setup()
 {
 	for (int i = 0; i < 9; i++)
@@ -32,38 +39,38 @@ void TickTackToe::Input()
 {
 	if (!keyIsPressed)
 	{
-		if (wnd.kbd.KeyIsPressed(VK_LEFT) && currentX > 0)
+		if (kbd.KeyIsPressed(VK_LEFT) && currentX > 0)
 		{
 			currentX--;
 			keyIsPressed = true;
 		}
-		if (wnd.kbd.KeyIsPressed(VK_RIGHT) && currentX < 2)
+		if (kbd.KeyIsPressed(VK_RIGHT) && currentX < 2)
 		{
 			currentX++;
 			keyIsPressed = true;
 		}
-		if (wnd.kbd.KeyIsPressed(VK_UP) && currentY > 0)
+		if (kbd.KeyIsPressed(VK_UP) && currentY > 0)
 		{
 			currentY--;
 			keyIsPressed = true;
 		}
-		if (wnd.kbd.KeyIsPressed(VK_DOWN) && currentY < 2)
+		if (kbd.KeyIsPressed(VK_DOWN) && currentY < 2)
 		{
 			currentY++;
 			keyIsPressed = true;
 		}
-		if (wnd.kbd.KeyIsPressed(VK_SPACE))
+		if (kbd.KeyIsPressed(VK_SPACE))
 		{
 			keyIsPressed = true;
 		}
 	}
 	else
 	{
-		if (!wnd.kbd.KeyIsPressed(VK_LEFT) &&
-			!wnd.kbd.KeyIsPressed(VK_RIGHT) &&
-			!wnd.kbd.KeyIsPressed(VK_UP) &&
-			!wnd.kbd.KeyIsPressed(VK_DOWN) &&
-			!wnd.kbd.KeyIsPressed(VK_SPACE))
+		if (!kbd.KeyIsPressed(VK_LEFT) &&
+			!kbd.KeyIsPressed(VK_RIGHT) &&
+			!kbd.KeyIsPressed(VK_UP) &&
+			!kbd.KeyIsPressed(VK_DOWN) &&
+			!kbd.KeyIsPressed(VK_SPACE))
 		{
 			keyIsPressed = false;
 		}
@@ -124,7 +131,7 @@ void TickTackToe::DrawCursor(int x, int y)
 	int xOut = ((w / 2) - (size * 7)) + (((size * 4) * x) + (x * (size)));
 	int yOut = ((h / 2) - (size * 7)) + (((size * 4) * y) + (y * (size)));
 
-	gfx.DrawRect(xOut, yOut, block_size, block_size, Colors::Red);
+	gfx.DrawRect(xOut, yOut, chunk_size * 4, chunk_size * 4, Colors::Red);
 }
 
 //void TickTackToe::DrawCursor(int x, int y)

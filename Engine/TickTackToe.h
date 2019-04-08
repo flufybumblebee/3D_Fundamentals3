@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Graphics.h"
+#include "Keyboard.h"
 #include "Colors.h"
 #include "Surface.h"
 
@@ -9,9 +10,11 @@
 
 class TickTackToe
 {
-private:
+public:
 	Graphics& gfx;
+	Keyboard& kbd;
 
+private:
 	int scrW = 800;
 	int scrH = 600;
 
@@ -28,7 +31,7 @@ private:
 
 	enum XOState { EMPTY, X, O };
 
-	std::array<XOState, 9> blocks;
+	std::array<XOState, 9> blocks = { EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY };
 
 	int cols = 3;
 	int rows = 3;
@@ -41,11 +44,9 @@ private:
 
 	Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp");
 	Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
+
 public:
-	TickTackToe(Graphics& gfx)
-		:
-		gfx(gfx)
-	{}
+	TickTackToe(Keyboard& kbd, Graphics& gfx);
 
 public:
 	void Setup();

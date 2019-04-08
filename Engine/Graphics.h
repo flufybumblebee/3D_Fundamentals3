@@ -62,6 +62,7 @@ public:
 	~Graphics();
 	void EndFrame();
 	void BeginFrame();
+
 	void PutPixel( int x,int y,int r,int g,int b )
 	{
 		PutPixel( x,y,{ unsigned char( r ),unsigned char( g ),unsigned char( b ) } );
@@ -71,13 +72,7 @@ public:
 		sysBuffer.PutPixel( x,y,c );
 	}
 	void PutPixelAlpha(unsigned int x, unsigned int y, const Color src);
-
-	Surface CopySysBuffer() const
-	{
-		Surface copy(ScreenWidth, ScreenHeight);
-		copy.Copy(sysBuffer);
-		return std::move(copy);
-	}
+	
 	void DrawLineDepth( ZBuffer& zb,Vec3& v0,Vec3& v1,Color c )
 	{
 		float dx = v1.x - v0.x;
@@ -146,6 +141,12 @@ public:
 		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
 	std::vector<Color> Blur(const int w, const int h, const std::vector<Color>& input);
 	Surface Blur(const Surface& surface);
+	Surface CopySysBuffer() const
+	{
+		Surface copy(ScreenWidth, ScreenHeight);
+		copy.Copy(sysBuffer);
+		return std::move(copy);
+	}
 private:
 	GDIPlusManager										gdipMan;
 	Microsoft::WRL::ComPtr<IDXGISwapChain>				pSwapChain;

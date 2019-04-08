@@ -26,7 +26,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	ttt(gfx)
+	ttt(wnd.kbd,gfx)
 {
 	ttt.Setup();
 }
