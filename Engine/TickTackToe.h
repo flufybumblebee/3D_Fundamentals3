@@ -4,6 +4,7 @@
 #include "Keyboard.h"
 #include "Colors.h"
 #include "Surface.h"
+#include "Vec3.h"
 
 #include <array>
 #include <vector>
@@ -15,39 +16,48 @@ public:
 	Keyboard& kbd;
 
 private:
-	int scrW = 800;
-	int scrH = 600;
+	int scrW = gfx.ScreenWidth;
+	int scrH = gfx.ScreenHeight;
 
-	int chunk_size = scrH / 16;
-
-	int line0X = (scrW / 2) - (chunk_size * 3);
-	int line0Y = (scrH / 2) - (chunk_size * 7);
-	int line1X = (scrW / 2) + (chunk_size * 2);
-	int line1Y = (scrH / 2) - (chunk_size * 7);
-	int line2X = (scrW / 2) - (chunk_size * 7);
-	int line2Y = (scrH / 2) - (chunk_size * 3);
-	int line3X = (scrW / 2) - (chunk_size * 7);
-	int line3Y = (scrH / 2) + (chunk_size * 2);
+	int size = scrH / 16;
+	
+	/*------------------------------------------------*/
 
 	enum XOState { EMPTY, X, O };
 
-	std::array<XOState, 9> blocks = { EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY };
+	static const int cols = 3;
+	static const int rows = 3;
 
-	int cols = 3;
-	int rows = 3;
+	std::array<XOState, (rows*cols)> blocks = { EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY };
+		
 	int current_x = 1;
 	int current_y = 1;
-	int current_player = 0;
 	XOState current_player_state = EMPTY;
 
 	bool keyIsPressed = false;
 
 	/*------------------------------------------------*/
 
-	Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp");
-	Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
+	const Vec2 tc0 = { 0.0f,0.0f };
+	const Vec2 tc1 = { 1.0f,0.0f };
+	const Vec2 tc2 = { 1.0f,1.0f };
+	const Vec2 tc3 = { 0.0f,1.0f };
+
+	std::vector<Surface> tex_backgrounds;
+	std::vector<Surface> tex_grids;
+	std::vector<Surface> tex_Xs;
+	std::vector<Surface> tex_Os;
+	
+	Surface* tex_background;
+	Surface* tex_grid;
+	Surface* tex_X;
+	Surface* tex_O;
+
+	//Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg");
+	/*Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
+	Surface tex_grid = Surface::FromFile(L"Textures\\TickTackToe\\grid(16x16).png");
 	Surface tex_X = Surface::FromFile(L"Textures\\TickTackToe\\X.png");
-	Surface tex_O = Surface::FromFile(L"Textures\\TickTackToe\\O.png");
+	Surface tex_O = Surface::FromFile(L"Textures\\TickTackToe\\O.png");*/
 
 public:
 	TickTackToe(Keyboard& kbd, Graphics& gfx);
@@ -58,19 +68,21 @@ public:
 	void Draw();
 
 public:
+	void	SetGrid();
+	void	SetPlayers();
+	void	ChangePlayer();
 	void	Input();
 	void	SetState(int i, XOState state);
 	void	SetState(int ix, int iy, XOState state);
 	XOState	GetState(int i);
 	XOState GetState(int ix, int iy);
-	void	SetPlayers();
+	void	GameOver();
 
 	/*----------------------------------------*/
 
 	void	DrawBackground();
-	void	DrawX();
-	void	DrawO();
-	void	DrawCursor(int x, int y);
+	void	DrawXOState();
+	void	DrawCursor();
 	void	DrawGrid();
 
 	/*----------------------------------------*/
