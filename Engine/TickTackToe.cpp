@@ -12,12 +12,6 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	kbd(kbd),
 	gfx(gfx)
 {
-	//Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg");
-	/*Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
-	Surface tex_grid = Surface::FromFile(L"Textures\\TickTackToe\\grid(16x16).png");
-	Surface tex_X = Surface::FromFile(L"Textures\\TickTackToe\\X.png");
-	Surface tex_O = Surface::FromFile(L"Textures\\TickTackToe\\O.png");*/
-
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
@@ -26,10 +20,16 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	tex_Xs.push_back(Surface::FromFile(L"Textures\\TickTackToe\\X.png"));
 	tex_Os.push_back(Surface::FromFile(L"Textures\\TickTackToe\\O.png"));
 
-	tex_background = &tex_backgrounds[RND::Random(static_cast<size_t>(0), tex_backgrounds.size() - 1)];
-	tex_grid = &tex_grids[RND::Random(static_cast<size_t>(0), tex_grids.size() - 1)];
-	tex_X = &tex_Xs[RND::Random(static_cast<size_t>(0), tex_Xs.size() - 1)];
-	tex_O = &tex_Os[RND::Random(static_cast<size_t>(0), tex_Os.size() - 1)];
+	size_t zero = 0;
+	size_t random_backgrounds = RND::Random(zero,tex_backgrounds.size() - 1);
+	size_t random_grids = RND::Random(zero,tex_grids.size() - 1);
+	size_t random_Xs = RND::Random(zero,tex_Xs.size() - 1);
+	size_t random_Os = RND::Random(zero,tex_Os.size() - 1);
+
+	tex_background = &tex_backgrounds[random_backgrounds];
+	tex_grid = &tex_grids[random_grids];
+	tex_X = &tex_Xs[random_Xs];
+	tex_O = &tex_Os[random_Os];
 }
 
 /*-----------------------------------------------------*/
@@ -45,12 +45,18 @@ void TickTackToe::Setup()
 }
 void TickTackToe::Update()
 {
-	Input();	
+	if (!GameOver())
+	{
+		Input();
+	}
 }
 void TickTackToe::Draw()
 {
 	DrawBackground();
-	DrawCursor();
+	if (!gameIsOver)
+	{
+		DrawCursor();
+	}
 	DrawGrid();
 	DrawXOState();
 }
@@ -139,7 +145,32 @@ TickTackToe::XOState	TickTackToe::GetState(int i)
 }
 TickTackToe::XOState	TickTackToe::GetState(int ix, int iy)
 {
-	return blocks[iy * cols + ix];
+	size_t i = static_cast<size_t>(iy) * static_cast<size_t>(cols) + ix;
+	return blocks[i];
+}
+
+bool TickTackToe::GameOver()
+{
+	XOState state = X;
+	for (int i = 0; i < 2; i++)
+	{
+		if (blocks[0] == state && blocks[1] == state && blocks[2] == state ||
+			blocks[3] == state && blocks[4] == state && blocks[5] == state ||
+			blocks[6] == state && blocks[7] == state && blocks[8] == state ||
+
+			blocks[0] == state && blocks[3] == state && blocks[6] == state ||
+			blocks[1] == state && blocks[4] == state && blocks[7] == state ||
+			blocks[2] == state && blocks[5] == state && blocks[8] == state ||
+
+			blocks[0] == state && blocks[4] == state && blocks[8] == state ||
+			blocks[2] == state && blocks[4] == state && blocks[6] == state)
+		{
+			gameIsOver = true;
+			return true;
+		}
+		state = O;
+	}
+	return false;
 }
 
 /*-----------------------------------------------------*/
@@ -163,21 +194,17 @@ void TickTackToe::DrawBackground()
 	gfx.DrawTriangleTex(tv0, tv2, tv3, *tex_background);
 }
 void TickTackToe::DrawXOState()
-{
-	int wi = gfx.ScreenWidth;
-	int hi = gfx.ScreenHeight;
-	int si = hi / 16;
-
+{	
 	Surface* pSurf;
 
 	for (int y = 0; y < rows; y++)
 	{
 		for (int x = 0; x < cols; x++)
 		{
-			float left = static_cast<float>(((wi / 2) - (si * 7)) + ((si * 5) * x));
-			float top = static_cast<float>(((hi / 2) - (si * 7)) + ((si * 5) * y));
-			float right = static_cast<float>(((wi / 2) - (si * 7)) + (((si * 5) * x) + (si * 4)));
-			float bottom = static_cast<float>(((hi / 2) - (si * 7)) + (((si * 5) * y) + (si * 4)));
+			float left		= static_cast<float>(((scrW / 2) - (size * 7)) +  ((size * 5) * x));
+			float top		= static_cast<float>(((scrH / 2) - (size * 7)) +  ((size * 5) * y));
+			float right		= static_cast<float>(((scrW / 2) - (size * 7)) + (((size * 5) * x) + (size * 4)));
+			float bottom	= static_cast<float>(((scrH / 2) - (size * 7)) + (((size * 5) * y) + (size * 4)));
 
 			Vec3 pos0 = { left,top,0.0f };
 			Vec3 pos1 = { right,top,0.0f };
@@ -237,11 +264,6 @@ void TickTackToe::DrawGrid()
 
 	gfx.DrawTriangleTex(tv0, tv1, tv2, *tex_grid);
 	gfx.DrawTriangleTex(tv0, tv2, tv3, *tex_grid);
-
-	/*gfx.DrawRect(line0X, line0Y, size * 1, size * 14, Colors::Gray);
-	gfx.DrawRect(line1X, line1Y, size * 1, size * 14, Colors::Green);
-	gfx.DrawRect(line2X, line2Y, size * 14, size * 1, Colors::White);
-	gfx.DrawRect(line3X, line3Y, size * 14, size * 1, Colors::Yellow);*/
 }
 
 /*-----------------------------------------------------*/
@@ -266,11 +288,12 @@ Surface				TickTackToe::ConvertColorVectorToSurface(int w, int h, const std::vec
 {
 	Surface surface(w, h);
 
-	for (int iy = 0; iy < h; iy++)
+	for (size_t iy = 0; iy < h; iy++)
 	{
-		for (int ix = 0; ix < w; ix++)
+		for (size_t ix = 0; ix < w; ix++)
 		{
-			surface.PutPixel(ix, iy, colors[iy * w + ix]);
+			size_t i = iy * static_cast<size_t>(w) + ix;
+			surface.PutPixel(static_cast<unsigned int>(ix), static_cast<unsigned int>(iy), colors[i]);
 		}
 	}
 

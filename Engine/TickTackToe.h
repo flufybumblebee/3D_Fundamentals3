@@ -53,11 +53,7 @@ private:
 	Surface* tex_X;
 	Surface* tex_O;
 
-	//Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg");
-	/*Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
-	Surface tex_grid = Surface::FromFile(L"Textures\\TickTackToe\\grid(16x16).png");
-	Surface tex_X = Surface::FromFile(L"Textures\\TickTackToe\\X.png");
-	Surface tex_O = Surface::FromFile(L"Textures\\TickTackToe\\O.png");*/
+	bool gameIsOver = false;
 
 public:
 	TickTackToe(Keyboard& kbd, Graphics& gfx);
@@ -68,7 +64,6 @@ public:
 	void Draw();
 
 public:
-	void	SetGrid();
 	void	SetPlayers();
 	void	ChangePlayer();
 	void	Input();
@@ -76,7 +71,7 @@ public:
 	void	SetState(int ix, int iy, XOState state);
 	XOState	GetState(int i);
 	XOState GetState(int ix, int iy);
-	void	GameOver();
+	bool	GameOver();
 
 	/*----------------------------------------*/
 
