@@ -194,6 +194,7 @@
     <ClInclude Include="TestTriangle.h" />
     <ClInclude Include="TextureEffect.h" />
     <ClInclude Include="TexVertex.h" />
+    <ClInclude Include="TickTackToe.h" />
     <ClInclude Include="tiny_obj_loader.h" />
     <ClInclude Include="Triangle.h" />
     <ClInclude Include="Vec2.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Surface.cpp" />
+    <ClCompile Include="TickTackToe.cpp" />
     <ClCompile Include="tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>

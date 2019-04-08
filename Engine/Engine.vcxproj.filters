@@ -234,6 +234,9 @@
     <ClInclude Include="Random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TickTackToe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp">
@@ -267,6 +270,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tiny_obj_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TickTackToe.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
