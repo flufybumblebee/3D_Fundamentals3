@@ -574,6 +574,17 @@ void Graphics::DrawRect(int x, int y, int width, int height, Color c)
 	}
 }
 
+void Graphics::DrawRectAlpha(int x, int y, int width, int height, Color c)
+{
+	for (int iy = 0; iy < height; iy++)
+	{
+		for (int ix = 0; ix < width; ix++)
+		{
+			PutPixelAlpha(ix + x, iy + y, c);
+		}
+	}
+}
+
 std::vector<Color> Graphics::Blur(const int w, const int h, const std::vector<Color>& input)
 {
 	const size_t sizeA = size_t(w) * h;

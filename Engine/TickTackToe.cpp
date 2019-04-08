@@ -2,6 +2,7 @@
 
 #include "TickTackToe.h"
 
+#include "Random.h"
 #include <memory>
 
 TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
@@ -17,50 +18,74 @@ void TickTackToe::Setup()
 	{
 		SetState(i, EMPTY);
 	}
+
+	SetPlayers();
 }
 
 void TickTackToe::Update()
 {
-	Input();
+	Input();	
 }
 
 void TickTackToe::Draw()
 {
 	DrawBackground();
-	DrawCursor(currentX, currentY);
+	DrawCursor(current_x, current_y);
 	DrawGrid();
+	DrawX();
 }
 
 /*----------------------------------------*/
-
-
 
 void TickTackToe::Input()
 {
 	if (!keyIsPressed)
 	{
-		if (kbd.KeyIsPressed(VK_LEFT) && currentX > 0)
+		if (kbd.KeyIsPressed(VK_LEFT) && current_x > 0)
 		{
-			currentX--;
+			current_x--;
 			keyIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_RIGHT) && currentX < 2)
+		if (kbd.KeyIsPressed(VK_RIGHT) && current_x < 2)
 		{
-			currentX++;
+			current_x++;
 			keyIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_UP) && currentY > 0)
+		if (kbd.KeyIsPressed(VK_UP) && current_y > 0)
 		{
-			currentY--;
+			current_y--;
 			keyIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_DOWN) && currentY < 2)
+		if (kbd.KeyIsPressed(VK_DOWN) && current_y < 2)
 		{
-			currentY++;
+			current_y++;
 			keyIsPressed = true;
 		}
 		if (kbd.KeyIsPressed(VK_SPACE))
 		{
+			XOState state = GetState(current_x, current_y);
+			if ( state == EMPTY )
+			{
+				SetState(current_x, current_y, current_player_state);
+			}
+
+			if (current_player_state == X)
+			{
+				current_player_state = O;
+			}
+			else
+			{
+				current_player_state = X;
+			}
+
+			if (current_player == 0)
+			{
+				current_player = 1;
+			}
+			else
+			{
+				current_player = 0;
+			}
 			keyIsPressed = true;
 		}
 	}
@@ -84,7 +109,7 @@ void TickTackToe::SetState(int i, XOState state)
 
 void TickTackToe::SetState(int ix, int iy, XOState state)
 {
-	SetState(ConvertArrayAddress(ix, iy, cols), state);
+	SetState((iy * cols + ix), state);
 }
 
 TickTackToe::XOState TickTackToe::GetState(int i)
@@ -94,9 +119,15 @@ TickTackToe::XOState TickTackToe::GetState(int i)
 
 TickTackToe::XOState TickTackToe::GetState(int ix, int iy)
 {
-	return blocks[ConvertArrayAddress(ix, iy, cols)];
+	return blocks[iy * cols + ix];
 }
 
+void TickTackToe::SetPlayers()
+{
+	current_player = RND::Random(0, 1);
+	int randomNum = RND::Random(0, 1);
+	current_player_state = (randomNum > 0) ? X : O;
+}
 
 /*-----------------------------------------------------*/
 
@@ -122,6 +153,62 @@ void TickTackToe::DrawBackground()
 	gfx.DrawTriangleTex(tv0, tv2, tv3, tex_background2);
 }
 
+void TickTackToe::DrawX()
+{
+	int wi = gfx.ScreenWidth;
+	int hi = gfx.ScreenHeight;
+	int si = hi / 16;
+
+	Surface* pSurf;
+
+	for (int y = 0; y < rows; y++)
+	{
+		for (int x = 0; x < cols; x++)
+		{
+			float left = static_cast<float>(((wi / 2) - (si * 7)) + ((si * 5) * x));
+			float top = static_cast<float>(((hi / 2) - (si * 7)) + ((si * 5) * y));
+			float right = static_cast<float>(((wi / 2) - (si * 7)) + (((si * 5) * x) + (si * 4)));
+			float bottom = static_cast<float>(((hi / 2) - (si * 7)) + (((si * 5) * y) + (si * 4)));
+
+			Vec3 pos0 = { left,top,0.0f };
+			Vec3 pos1 = { right,top,0.0f };
+			Vec3 pos2 = { right,bottom,0.0f };
+			Vec3 pos3 = { left,bottom,0.0f };
+
+			Vec2 tc0 = { 0.0f,0.0f }; // top left
+			Vec2 tc1 = { 1.0f,0.0f }; // top right
+			Vec2 tc2 = { 1.0f,1.0f }; // bottom right
+			Vec2 tc3 = { 0.0f,1.0f }; // bottom left
+
+			TexVertex tv0 = { pos0,tc0 };
+			TexVertex tv1 = { pos1,tc1 };
+			TexVertex tv2 = { pos2,tc2 };
+			TexVertex tv3 = { pos3,tc3 };
+
+			XOState state = GetState(x, y);
+
+			if ( state == X)
+			{
+				pSurf = &tex_X;
+			}
+			else if (state == O)
+			{
+				pSurf = &tex_O;
+			}            
+			else
+			{
+				continue;
+			}
+			gfx.DrawTriangleTex(tv0, tv1, tv2, *pSurf);
+			gfx.DrawTriangleTex(tv0, tv2, tv3, *pSurf);
+		}
+	}
+}
+
+void TickTackToe::DrawO()
+{
+}
+
 void TickTackToe::DrawCursor(int x, int y)
 {
 	int w = gfx.ScreenWidth;
@@ -131,7 +218,8 @@ void TickTackToe::DrawCursor(int x, int y)
 	int xOut = ((w / 2) - (size * 7)) + (((size * 4) * x) + (x * (size)));
 	int yOut = ((h / 2) - (size * 7)) + (((size * 4) * y) + (y * (size)));
 
-	gfx.DrawRect(xOut, yOut, chunk_size * 4, chunk_size * 4, Colors::Red);
+	Color c = Color( 155, 255, 255, 255 );
+	gfx.DrawRectAlpha(xOut, yOut, chunk_size * 4, chunk_size * 4, c);
 }
 
 //void TickTackToe::DrawCursor(int x, int y)
@@ -214,11 +302,6 @@ void TickTackToe::DrawGrid()
 }
 
 /*--------------------------------------------------------------*/
-
-int TickTackToe::ConvertArrayAddress(int ix, int iy, int w)
-{
-	return iy * w + ix;
-}
 
 std::vector<Color> TickTackToe::ConvertSurfaceToColorVector(const Surface & surface)
 {

@@ -129,6 +129,7 @@ public:
 	}
 
 	void DrawRect(int x, int y, int width, int height, Color c);
+	void DrawRectAlpha(int x, int y, int width, int height, Color c);
 	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	

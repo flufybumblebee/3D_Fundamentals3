@@ -35,8 +35,10 @@ private:
 
 	int cols = 3;
 	int rows = 3;
-	int currentX = 1;
-	int currentY = 1;
+	int current_x = 1;
+	int current_y = 1;
+	int current_player = 0;
+	XOState current_player_state = EMPTY;
 
 	bool keyIsPressed = false;
 
@@ -44,6 +46,8 @@ private:
 
 	Surface tex_background = Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp");
 	Surface tex_background2 = Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg");
+	Surface tex_X = Surface::FromFile(L"Textures\\TickTackToe\\X.png");
+	Surface tex_O = Surface::FromFile(L"Textures\\TickTackToe\\O.png");
 
 public:
 	TickTackToe(Keyboard& kbd, Graphics& gfx);
@@ -59,6 +63,7 @@ public:
 	void	SetState(int ix, int iy, XOState state);
 	XOState	GetState(int i);
 	XOState GetState(int ix, int iy);
+	void	SetPlayers();
 
 	/*----------------------------------------*/
 
@@ -70,7 +75,6 @@ public:
 
 	/*----------------------------------------*/
 
-	int					ConvertArrayAddress(int x, int y, int w);
 	std::vector<Color>	ConvertSurfaceToColorVector(const Surface& surface);
 	Surface				ConvertColorVectorToSurface(int w, int h, const std::vector<Color>& colors);
 };

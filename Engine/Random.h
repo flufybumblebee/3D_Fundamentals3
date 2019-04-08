@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 namespace RND
 {
 	template <typename T>
@@ -8,8 +10,8 @@ namespace RND
 		std::mt19937 rng;
 		rng.seed(std::random_device()());
 		std::uniform_int_distribution<T> dist(min, max);
-
-		return dist(rng);
+		T result = dist(rng);
+		return result;
 	}
 }
 
