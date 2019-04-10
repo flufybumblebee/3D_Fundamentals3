@@ -15,10 +15,12 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
-	tex_grids.push_back(Surface::FromFile(L"Textures\\TickTackToe\\grid0.png"));
-	tex_grids.push_back(Surface::FromFile(L"Textures\\TickTackToe\\grid1.png"));
+	tex_grids.push_back(Surface::FromFile(L"Textures\\TickTackToe\\grid6.png"));
+	//tex_grids.push_back(Surface::FromFile(L"Textures\\TickTackToe\\grid1.png"));
 	tex_Xs.push_back(Surface::FromFile(L"Textures\\TickTackToe\\X.png"));
 	tex_Os.push_back(Surface::FromFile(L"Textures\\TickTackToe\\O.png"));
+	tex_Xs_red.push_back(Surface::FromFile(L"Textures\\TickTackToe\\XRed.png"));
+	tex_Os_red.push_back(Surface::FromFile(L"Textures\\TickTackToe\\ORed.png"));
 
 	size_t zero = 0;
 	size_t random_backgrounds = RND::Random(zero,tex_backgrounds.size() - 1);
@@ -30,25 +32,37 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	tex_grid = &tex_grids[random_grids];
 	tex_X = &tex_Xs[random_Xs];
 	tex_O = &tex_Os[random_Os];
+	tex_X_red = &tex_Xs_red[random_Xs];
+	tex_O_red = &tex_Os_red[random_Os];
 }
 
 /*-----------------------------------------------------*/
 
 void TickTackToe::Setup()
 {
-	for (int i = 0; i < 9; i++)
+	nTurns = 0;
+
+	winner[0] = 0;
+	winner[1] = 0;
+	winner[2] = 0;
+
+	for (int i = 0; i < blocks.size(); i++)
 	{
 		SetState(i, EMPTY);
 	}
 
-	SetPlayers();
+	gameIsOver = false;
+
+	current_x = 1;
+	current_y = 1;
+
+	int randomNum = RND::Random(0, 1);
+	current_player_state = (randomNum > 0) ? X : O;
 }
 void TickTackToe::Update()
-{
-	if (!GameOver())
-	{
-		Input();
-	}
+{	
+	GameOver();
+	Input();	
 }
 void TickTackToe::Draw()
 {
@@ -63,12 +77,7 @@ void TickTackToe::Draw()
 
 /*-----------------------------------------------------*/
 
-void TickTackToe::SetPlayers()
-{
-	int randomNum = RND::Random(0, 1);
-	current_player_state = (randomNum > 0) ? X : O;
-}
-void TickTackToe::ChangePlayer()
+void TickTackToe::EndTurn()
 {
 	if (current_player_state == X)
 	{
@@ -78,53 +87,99 @@ void TickTackToe::ChangePlayer()
 	{
 		current_player_state = X;
 	}
+	nTurns++;
 }
 void TickTackToe::Input()
 {
-	if (!keyIsPressed)
+	if (!gameIsOver)
 	{
-		if (kbd.KeyIsPressed(VK_LEFT) && current_x > 0)
+		if (!leftIsPressed && kbd.KeyIsPressed(VK_LEFT) && current_x > 0)
 		{
 			current_x--;
-			keyIsPressed = true;
+			leftIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_RIGHT) && current_x < 2)
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_LEFT))
+			{
+				leftIsPressed = false;
+			}
+		}
+
+		if (!rightIsPressed && kbd.KeyIsPressed(VK_RIGHT) && current_x < 2)
 		{
 			current_x++;
-			keyIsPressed = true;
+			rightIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_UP) && current_y > 0)
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_RIGHT))
+			{
+				rightIsPressed = false;
+			}
+		}
+
+		if (!upIsPressed && kbd.KeyIsPressed(VK_UP) && current_y > 0)
 		{
 			current_y--;
-			keyIsPressed = true;
+			upIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_DOWN) && current_y < 2)
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_UP))
+			{
+				upIsPressed = false;
+			}
+		}
+
+		if (!downIsPressed && kbd.KeyIsPressed(VK_DOWN) && current_y < 2)
 		{
 			current_y++;
-			keyIsPressed = true;
+			downIsPressed = true;
 		}
-		if (kbd.KeyIsPressed(VK_SPACE))
+		else
 		{
+			if (!kbd.KeyIsPressed(VK_DOWN))
+			{
+				downIsPressed = false;
+			}
+		}
+
+		if (!spaceIsPressed && kbd.KeyIsPressed(VK_SPACE))
+		{
+			spaceIsPressed = true;
+
 			XOState state = GetState(current_x, current_y);
-			if ( state == EMPTY )
+
+			if (state == EMPTY)
 			{
 				SetState(current_x, current_y, current_player_state);
 			}
 
-			ChangePlayer();
-
-			keyIsPressed = true;
+			EndTurn();
+		}
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_SPACE))
+			{
+				spaceIsPressed = false;
+			}
 		}
 	}
 	else
 	{
-		if (!kbd.KeyIsPressed(VK_LEFT) &&
-			!kbd.KeyIsPressed(VK_RIGHT) &&
-			!kbd.KeyIsPressed(VK_UP) &&
-			!kbd.KeyIsPressed(VK_DOWN) &&
-			!kbd.KeyIsPressed(VK_SPACE))
+		if (!returnIsPressed && kbd.KeyIsPressed(VK_RETURN))
 		{
-			keyIsPressed = false;
+			Setup();
+
+			returnIsPressed = true;			
+		}
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_RETURN))
+			{
+				returnIsPressed = false;
+			}
 		}
 	}
 }
@@ -149,28 +204,89 @@ TickTackToe::XOState	TickTackToe::GetState(int ix, int iy)
 	return blocks[i];
 }
 
-bool TickTackToe::GameOver()
+TickTackToe::XOState TickTackToe::GameOver()
 {
-	XOState state = X;
-	for (int i = 0; i < 2; i++)
+	if (nTurns > 8)
 	{
-		if (blocks[0] == state && blocks[1] == state && blocks[2] == state ||
-			blocks[3] == state && blocks[4] == state && blocks[5] == state ||
-			blocks[6] == state && blocks[7] == state && blocks[8] == state ||
+		gameIsOver = true;
+	}	
 
-			blocks[0] == state && blocks[3] == state && blocks[6] == state ||
-			blocks[1] == state && blocks[4] == state && blocks[7] == state ||
-			blocks[2] == state && blocks[5] == state && blocks[8] == state ||
+	if (blocks[0] == blocks[1] && blocks[1] == blocks[2] && blocks[0] != EMPTY)
+	{
+		winner[0] = 0;
+		winner[1] = 1;
+		winner[2] = 2;
 
-			blocks[0] == state && blocks[4] == state && blocks[8] == state ||
-			blocks[2] == state && blocks[4] == state && blocks[6] == state)
-		{
-			gameIsOver = true;
-			return true;
-		}
-		state = O;
+		gameIsOver = true;
+		return blocks[0];
 	}
-	return false;
+	else if (blocks[3] == blocks[4] && blocks[4] == blocks[5] && blocks[3] != EMPTY)
+	{
+		winner[0] = 3;
+		winner[1] = 4;
+		winner[2] = 5;
+
+		gameIsOver = true;
+		return blocks[3];
+	}
+	else if (blocks[6] == blocks[7] && blocks[7] == blocks[8] && blocks[6] != EMPTY)
+	{
+		winner[0] = 6;
+		winner[1] = 7;
+		winner[2] = 8;
+
+		gameIsOver = true;
+		return blocks[6];
+	}
+	else if (blocks[0] == blocks[3] && blocks[3] == blocks[6] && blocks[0] != EMPTY)
+	{
+		winner[0] = 0;
+		winner[1] = 3;
+		winner[2] = 6;
+
+		gameIsOver = true;
+		return blocks[0];
+	}
+	else if (blocks[1] == blocks[4] && blocks[4] == blocks[7] && blocks[1] != EMPTY)
+	{
+		winner[0] = 1;
+		winner[1] = 4;
+		winner[2] = 7;
+
+		gameIsOver = true;
+		return blocks[1];
+	}
+	else if (blocks[2] == blocks[5] && blocks[5] == blocks[8] && blocks[2] != EMPTY)
+	{
+		winner[0] = 2;
+		winner[1] = 5;
+		winner[2] = 8;
+
+		gameIsOver = true;
+		return blocks[2];
+	}
+	else if (blocks[0] == blocks[4] && blocks[4] == blocks[8] && blocks[0] != EMPTY)
+	{
+		winner[0] = 0;
+		winner[1] = 4;
+		winner[2] = 8;
+
+		gameIsOver = true;
+		return blocks[0];
+	}
+	else if (blocks[2] == blocks[4] && blocks[4] == blocks[6] && blocks[2] != EMPTY)
+	{
+		winner[0] = 2;
+		winner[1] = 4;
+		winner[2] = 6;
+
+		gameIsOver = true;
+		return blocks[2];
+	}
+	else
+	{
+		return EMPTY;
+	}
 }
 
 /*-----------------------------------------------------*/
@@ -195,7 +311,7 @@ void TickTackToe::DrawBackground()
 }
 void TickTackToe::DrawXOState()
 {	
-	Surface* pSurf;
+	Surface* pSurf = nullptr;
 
 	for (int y = 0; y < rows; y++)
 	{
@@ -217,21 +333,61 @@ void TickTackToe::DrawXOState()
 			TexVertex tv3 = { pos3,tc3 };
 
 			XOState state = GetState(x, y);
+			size_t i = static_cast<size_t>(y) * cols + x;
 
-			if ( state == X)
+			if (GameOver() != EMPTY)
 			{
-				pSurf = tex_X;
+				if (
+					i == winner[0] ||
+					i == winner[1] ||
+					i == winner[2])
+				{
+					if (state == X)
+					{
+						pSurf = tex_X_red;
+					}
+					else if (state == O)
+					{
+						pSurf = tex_O_red;
+					}
+					else
+					{
+						continue;
+					}
+				}
+				else
+				{
+					if (state == X)
+					{
+						pSurf = tex_X;
+					}
+					else if (state == O)
+					{
+						pSurf = tex_O;
+					}
+					else
+					{
+						continue;
+					}
+				}
 			}
-			else if (state == O)
-			{
-				pSurf = tex_O;
-			}            
 			else
 			{
-				continue;
+				if (state == X)
+				{
+					pSurf = tex_X;
+				}
+				else if (state == O)
+				{
+					pSurf = tex_O;
+				}
+				else
+				{
+					continue;
+				}
 			}
 
-			gfx.DrawTriangleTex(tv0, tv1, tv2, *pSurf);
+            gfx.DrawTriangleTex(tv0, tv1, tv2, *pSurf);
 			gfx.DrawTriangleTex(tv0, tv2, tv3, *pSurf);
 		}
 	}
