@@ -231,10 +231,10 @@
     <ClInclude Include="Benchmark.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Random.h">
+    <ClInclude Include="TickTackToe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TickTackToe.h">
+    <ClInclude Include="BumbleLibrary.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

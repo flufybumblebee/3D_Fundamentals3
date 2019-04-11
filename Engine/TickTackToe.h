@@ -2,6 +2,7 @@
 
 #include "Graphics.h"
 #include "Keyboard.h"
+#include "Mouse.h"
 #include "Colors.h"
 #include "Surface.h"
 #include "Vec3.h"
@@ -14,12 +15,13 @@ class TickTackToe
 public:
 	Graphics& gfx;
 	Keyboard& kbd;
+	Mouse& mouse;
 
 private:
-	int scrW = gfx.ScreenWidth;
-	int scrH = gfx.ScreenHeight;
+	const int scrW = gfx.ScreenWidth;
+	const int scrH = gfx.ScreenHeight;
 
-	int size = scrH / 16;
+	const int size = scrH / 16;
 	
 	/*------------------------------------------------*/
 
@@ -35,15 +37,19 @@ private:
 	int current_y = 1;
 	XOState current_player_state = EMPTY;
 
+	unsigned int nTurns = 0;
+
 	bool leftIsPressed		= false;
 	bool rightIsPressed		= false;
 	bool upIsPressed		= false;
 	bool downIsPressed		= false;
 	bool spaceIsPressed		= false;
 	bool returnIsPressed	= false;
+
+	bool mouseLeftIsPressed = false;
+
 	bool gameIsOver			= false;
 
-	unsigned int nTurns = 0;
 	/*------------------------------------------------*/
 
 	const Vec2 tc0 = { 0.0f,0.0f };
@@ -66,7 +72,7 @@ private:
 	Surface* tex_O_red		= nullptr;
 
 public:
-	TickTackToe(Keyboard& kbd, Graphics& gfx);
+	TickTackToe(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
 
 public:
 	void	Setup();
@@ -75,7 +81,8 @@ public:
 
 public:
 	void	EndTurn();
-	void	Input();
+	void	InputA();
+	void	InputB();
 	XOState	GameOver();
 
 	XOState	GetState(int i);
@@ -87,9 +94,4 @@ public:
 	void	DrawXOState();
 	void	DrawCursor();
 	void	DrawGrid();
-
-	/*----------------------------------------*/
-
-	std::vector<Color>	ConvertSurfaceToColorVector(const Surface& surface);
-	Surface				ConvertColorVectorToSurface(int w, int h, const std::vector<Color>& colors);
 };

@@ -26,7 +26,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	ttt(wnd.kbd,gfx)
+	ttt(wnd.kbd,wnd.mouse,gfx)
 {
 	ttt.Setup();
 }

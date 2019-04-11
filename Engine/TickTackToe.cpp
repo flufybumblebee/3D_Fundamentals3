@@ -2,14 +2,17 @@
 
 #include "TickTackToe.h"
 
-#include "Random.h"
+#include "BumbleLibrary.h"
 #include <memory>
+
+using namespace Bumble;
 
 /*-----------------------------------------------------*/
 
-TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
+TickTackToe::TickTackToe(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	:
 	kbd(kbd),
+	mouse(mouse),
 	gfx(gfx)
 {
 	tex_backgrounds.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
@@ -22,11 +25,18 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	tex_Xs_red.push_back(Surface::FromFile(L"Textures\\TickTackToe\\XRed.png"));
 	tex_Os_red.push_back(Surface::FromFile(L"Textures\\TickTackToe\\ORed.png"));
 
+	
+}
+
+/*-----------------------------------------------------*/
+
+void TickTackToe::Setup()
+{
 	size_t zero = 0;
-	size_t random_backgrounds = RND::Random(zero,tex_backgrounds.size() - 1);
-	size_t random_grids = RND::Random(zero,tex_grids.size() - 1);
-	size_t random_Xs = RND::Random(zero,tex_Xs.size() - 1);
-	size_t random_Os = RND::Random(zero,tex_Os.size() - 1);
+	size_t random_backgrounds = RandomInt(zero,tex_backgrounds.size() - 1);
+	size_t random_grids = RandomInt(zero,tex_grids.size() - 1);
+	size_t random_Xs = RandomInt(zero,tex_Xs.size() - 1);
+	size_t random_Os = RandomInt(zero,tex_Os.size() - 1);
 
 	tex_background = &tex_backgrounds[random_backgrounds];
 	tex_grid = &tex_grids[random_grids];
@@ -34,12 +44,7 @@ TickTackToe::TickTackToe(Keyboard& kbd, Graphics& gfx)
 	tex_O = &tex_Os[random_Os];
 	tex_X_red = &tex_Xs_red[random_Xs];
 	tex_O_red = &tex_Os_red[random_Os];
-}
 
-/*-----------------------------------------------------*/
-
-void TickTackToe::Setup()
-{
 	nTurns = 0;
 
 	winner[0] = 0;
@@ -53,16 +58,24 @@ void TickTackToe::Setup()
 
 	gameIsOver = false;
 
-	current_x = 1;
-	current_y = 1;
+	/*current_x = 1;
+	current_y = 1;*/
 
-	int randomNum = RND::Random(0, 1);
+	int randomNum = RandomInt(0, 1);
 	current_player_state = (randomNum > 0) ? X : O;
 }
 void TickTackToe::Update()
 {	
 	GameOver();
-	Input();	
+	InputA();
+	/*if (current_player_state == X)
+	{
+		InputA();
+	}
+	else
+	{
+		InputB();
+	}*/		
 }
 void TickTackToe::Draw()
 {
@@ -89,9 +102,9 @@ void TickTackToe::EndTurn()
 	}
 	nTurns++;
 }
-void TickTackToe::Input()
+void TickTackToe::InputA()
 {
-	if (!gameIsOver)
+	/*if (!gameIsOver)
 	{
 		if (!leftIsPressed && kbd.KeyIsPressed(VK_LEFT) && current_x > 0)
 		{
@@ -154,9 +167,9 @@ void TickTackToe::Input()
 			if (state == EMPTY)
 			{
 				SetState(current_x, current_y, current_player_state);
+				EndTurn();
 			}
 
-			EndTurn();
 		}
 		else
 		{
@@ -181,7 +194,90 @@ void TickTackToe::Input()
 				returnIsPressed = false;
 			}
 		}
+	}*/
+
+	if (!gameIsOver)
+	{
+		int left = (scrW / 2) - (size * 7);
+		int middle_left = left + static_cast<int>(size * 4.5f);
+		int middle_right = left + static_cast<int>(size * 9.5f);
+		int right = left + (size * 14);
+		int top = (scrH / 2) - (size * 7);
+		int top_middle = top + static_cast<int>(size * 4.5f);
+		int bottom_middle = top + static_cast<int>(size * 9.5);
+		int bottom = top + (size * 14);
+		
+		RectI cells[rows][cols];
+		cells[0][0] = { top,top_middle - 1,left,middle_left - 1 };
+		cells[0][1] = { top,top_middle - 1,middle_left,middle_right };
+		cells[0][2] = { top,top_middle - 1,middle_right + 1,right };
+		cells[1][0] = { top_middle,bottom_middle,left,middle_left - 1 };
+		cells[1][1] = { top_middle,bottom_middle,middle_left,middle_right };
+		cells[1][2] = { top_middle,bottom_middle,middle_right + 1,right };
+		cells[2][0] = { bottom_middle + 1,bottom,left,middle_left - 1 };
+		cells[2][1] = { bottom_middle + 1,bottom,middle_left,middle_right };
+		cells[2][2] = { bottom_middle + 1,bottom,middle_right + 1,right };
+		
+		int mouseX = mouse.GetPosX();
+		int mouseY = mouse.GetPosY();
+		
+		for (int y = 0; y < rows; y++)
+		{
+			for (int x = 0; x < cols; x++)
+			{
+				if (mouseX > cells[y][x].left &&
+					mouseX < cells[y][x].right &&
+					mouseY > cells[y][x].top &&
+					mouseY < cells[y][x].bottom)
+				{
+					current_x = x;
+					current_y = y;
+				}
+			}
+		}
+
+		if (!mouseLeftIsPressed && mouse.LeftIsPressed())
+		{
+			mouseLeftIsPressed = true;
+
+			XOState state = GetState(current_x, current_y);
+
+			if (state == EMPTY)
+			{
+				SetState(current_x, current_y, current_player_state);
+
+				EndTurn();
+			}
+		}
+		else
+		{
+			if (!mouse.LeftIsPressed())
+			{
+				mouseLeftIsPressed = false;
+			}
+		}
 	}
+	else
+	{
+		if (!mouseLeftIsPressed && mouse.LeftIsPressed())
+		{
+			mouseLeftIsPressed = true;
+
+			Setup();
+		}
+		else
+		{
+			if (!mouse.LeftIsPressed())
+			{
+				mouseLeftIsPressed = false;
+			}
+		}
+	}
+}
+
+void TickTackToe::InputB()
+{
+
 }
 
 /*-----------------------------------------------------*/
@@ -211,6 +307,7 @@ TickTackToe::XOState TickTackToe::GameOver()
 		gameIsOver = true;
 	}	
 
+	// Horizontal Lines
 	if (blocks[0] == blocks[1] && blocks[1] == blocks[2] && blocks[0] != EMPTY)
 	{
 		winner[0] = 0;
@@ -238,6 +335,7 @@ TickTackToe::XOState TickTackToe::GameOver()
 		gameIsOver = true;
 		return blocks[6];
 	}
+	// Vertical Lines
 	else if (blocks[0] == blocks[3] && blocks[3] == blocks[6] && blocks[0] != EMPTY)
 	{
 		winner[0] = 0;
@@ -265,6 +363,7 @@ TickTackToe::XOState TickTackToe::GameOver()
 		gameIsOver = true;
 		return blocks[2];
 	}
+	// Diagonal Lines
 	else if (blocks[0] == blocks[4] && blocks[4] == blocks[8] && blocks[0] != EMPTY)
 	{
 		winner[0] = 0;
@@ -421,38 +520,3 @@ void TickTackToe::DrawGrid()
 	gfx.DrawTriangleTex(tv0, tv1, tv2, *tex_grid);
 	gfx.DrawTriangleTex(tv0, tv2, tv3, *tex_grid);
 }
-
-/*-----------------------------------------------------*/
-
-std::vector<Color>	TickTackToe::ConvertSurfaceToColorVector(const Surface & surface)
-{
-	std::vector<Color> output;
-
-	for (size_t iy = 0; iy < surface.GetHeight(); iy++)
-	{
-		for (size_t ix = 0; ix < surface.GetWidth(); ix++)
-		{
-			unsigned int x = static_cast<unsigned int>(ix);
-			unsigned int y = static_cast<unsigned int>(iy);
-			output.push_back(surface.GetPixel(x, y));
-		}
-	}
-
-	return std::move(output);
-}
-Surface				TickTackToe::ConvertColorVectorToSurface(int w, int h, const std::vector<Color> & colors)
-{
-	Surface surface(w, h);
-
-	for (size_t iy = 0; iy < h; iy++)
-	{
-		for (size_t ix = 0; ix < w; ix++)
-		{
-			size_t i = iy * static_cast<size_t>(w) + ix;
-			surface.PutPixel(static_cast<unsigned int>(ix), static_cast<unsigned int>(iy), colors[i]);
-		}
-	}
-
-	return std::move(surface);
-}
-
