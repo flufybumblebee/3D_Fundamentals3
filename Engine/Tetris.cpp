@@ -2,7 +2,6 @@
 
 #include <thread>
 #include <random>
-#include <chrono>
 #include <fstream>
 #include <cmath>
 #include <cassert>
@@ -10,6 +9,9 @@
 
 typedef unsigned int uint;
 typedef unsigned char uchar;
+
+typedef std::chrono::steady_clock Time;
+typedef std::chrono::microseconds ms;
 
 Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	:
@@ -19,12 +21,20 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	InitialiseBackground();
 	InitialiseBlocks();
 	InitialiseTetrominos();
+	InitialiseDigits();
+	InitialiseCounter();
 	InitialiseScore();
 	InitialisePause();
 	InitialiseGameOver();
+
+	//file.open("Benchmark.txt");
 }
 Tetris::~Tetris()
 {
+	/*if (file.is_open())
+	{
+		file.close();
+	}*/
 }
 
 /*-------------------------------------------*/
@@ -50,70 +60,115 @@ void Tetris::Setup()
 }
 void Tetris::Update()
 {
-	if (!spaceIsPressed)
+	if (isFirstRun)
+	{
+		t0 = Time::now();
+		isFirstRun = false;
+	}
+
+	auto t1 = Time::now();
+	auto duration = std::chrono::duration<float,std::micro>(t1 - t0);
+	t0 = Time::now();
+
+	//file << "duration:    " << duration.count() << " microseconds" << std::endl;
+	//file << "frame timer: " << frameTime << " microseconds" << std::endl;
+
+	if (frameTime < tickTime)
+	{
+		frameTime += duration.count();
+		tick = false;
+	}
+	else
+	{
+		counter0 += tickTime;
+		counter1 += tickTime;
+		counter2 += tickTime;
+		SetCounter();
+		frameTime = 0.0f;
+		tick = true;
+	}
+
+	if (!keyIsPressed_SPACE)
 	{
 		if (kbd.KeyIsPressed(VK_SPACE) && !gameIsPaused)
 		{
 			if (gameIsOver)
 			{
 				Setup();
-			}
+			} 
 			else
 			{
 				gameIsPaused = true;
 			}
-			spaceIsPressed = true;
+			keyIsPressed_SPACE = true;
 		}
 		else if (kbd.KeyIsPressed(VK_SPACE) && gameIsPaused)
 		{
 			gameIsPaused = false;
-			spaceIsPressed = true;
+			keyIsPressed_SPACE = true;
 		}
 	}
 	else
 	{
 		if (!kbd.KeyIsPressed(VK_SPACE))
 		{
-			spaceIsPressed = false;
+			keyIsPressed_SPACE = false;
 		}
 	}
-
+		
 	if (!gameIsPaused)
 	{
 		if (!gameIsOver)
-		{
-			// game timing
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-			speedCounter++;
-			forceDown = (speedCounter == speed);
-
-			// input
-			currentX -= (kbd.KeyIsPressed(VK_LEFT) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX - 1, currentY + 0)) ? 1 : 0;
-			currentX += (kbd.KeyIsPressed(VK_RIGHT) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 1, currentY + 0)) ? 1 : 0;
-			currentY += (kbd.KeyIsPressed(VK_DOWN) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 0, currentY + 1)) ? 1 : 0;
-
-			// block up/rotate key from being pressed every frame
-			if (kbd.KeyIsPressed(VK_UP))
+		{	
+			if (counter0 >= tickTime )
 			{
-				currentRotation += (!keyIsPressed && DoesTetrisFit(tetrominoCurrent, currentRotation + 1, currentX, currentY)) ? 1 : 0;
-				keyIsPressed = true;
-			}
-			else
-			{
-				keyIsPressed = false;
-			}
-
-			if (forceDown)
-			{
-				// update difficulty/speed every 50 tetris played
-				speedCounter = 0;
-				tetrominoCounter++;
-				if (tetrominoCounter % 50 == 0)
+				currentX -= (kbd.KeyIsPressed(VK_LEFT) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX - 1, currentY + 0)) ? 1 : 0;
+				currentX += (kbd.KeyIsPressed(VK_RIGHT) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 1, currentY + 0)) ? 1 : 0;
+				currentY += (kbd.KeyIsPressed(VK_DOWN) && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 0, currentY + 1)) ? 1 : 0;
+				/*if (kbd.KeyIsPressed(VK_LEFT))
 				{
-					if (speed >= 10) speed--;
-					SetLevel();
+					currentX -= (!keyIsPressed_LEFT && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX - 1, currentY + 0)) ? 1 : 0;
+					keyIsPressed_LEFT = true;
+				}
+				else
+				{
+					keyIsPressed_LEFT = false;
 				}
 
+				if (kbd.KeyIsPressed(VK_RIGHT))
+				{
+					currentX += (!keyIsPressed_RIGHT && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 1, currentY + 0)) ? 1 : 0;
+					keyIsPressed_RIGHT = true;
+				}
+				else
+				{
+					keyIsPressed_RIGHT = false;
+				}*/
+				/*if (kbd.KeyIsPressed(VK_DOWN))
+				{
+					currentY += (!keyIsPressed_DOWN && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 0, currentY + 1)) ? 1 : 0;
+					keyIsPressed_DOWN = true;
+				}
+				else
+				{
+					keyIsPressed_DOWN = false;
+				}*/
+				
+				if (kbd.KeyIsPressed(VK_UP))
+				{
+					currentRotation += (!keyIsPressed_UP && DoesTetrisFit(tetrominoCurrent, currentRotation + 1, currentX, currentY)) ? 1 : 0;
+					keyIsPressed_UP = true;
+				}
+				else
+				{
+					keyIsPressed_UP = false;
+				}
+
+				counter0 = 0;
+			}
+
+			if (counter1 >= tickTime * 10)
+			{
 				if (DoesTetrisFit(tetrominoCurrent, currentRotation, currentX, currentY + 1))
 				{
 					currentY++; // force tetris down
@@ -121,9 +176,9 @@ void Tetris::Update()
 				else
 				{
 					// add tetris to fixed field buffer
-					for (int y = 0; y < tetroH; y++)					
+					for (int y = 0; y < tetroH; y++)
 					{
-							for (int x = 0; x < tetroW; x++)
+						for (int x = 0; x < tetroW; x++)
 						{
 							if (tetromino[tetrominoCurrent][Rotate(x, y, currentRotation)] == 'X')
 							{
@@ -159,8 +214,6 @@ void Tetris::Update()
 					}
 
 					// calculate score
-					
-
 					SetScore();
 
 					// randomly assign new tetris
@@ -173,14 +226,15 @@ void Tetris::Update()
 					tetrominoNext = Random(0, 6);
 
 					SetNextTetromino();
-
 					// if tetris doesn't fit...
 					gameIsOver = !DoesTetrisFit(tetrominoCurrent, currentRotation, currentX, currentY);
 				}
+				
+				counter1 = 0.0f;
 			}
 
 			// add all fixed blocks to displayBuffer from fixedBuffer
-			for (int y = 0; y < fieldH; y++)			
+			for (int y = 0; y < fieldH; y++)
 			{
 				for (int x = 0; x < fieldW; x++)
 				{
@@ -190,7 +244,7 @@ void Tetris::Update()
 			}
 
 			// add current tetris piece to display buffer
-			for (int y = 0; y < tetroH; y++)			
+			for (int y = 0; y < tetroH; y++)
 			{
 				for (int x = 0; x < tetroW; x++)
 				{
@@ -204,11 +258,11 @@ void Tetris::Update()
 			}
 
 			// Animate Line Completion
-			if (!lines.empty())
+			if (!lines.empty() && counter2 >= tickTime * 100)
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
+				//std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
 
-				for (auto &v : lines)
+				for (auto& v : lines)
 				{
 					for (int x = 1; x < fieldW - 1; x++)
 					{
@@ -223,10 +277,11 @@ void Tetris::Update()
 				}
 
 				lines.clear();
+				counter2 = 0.0f;
 			}
 
 			SetFieldBlocks();
-		}
+		}		
 	}
 }
 void Tetris::Draw()
@@ -238,45 +293,46 @@ void Tetris::Draw()
 	DrawTextPause();
 	DrawTextGameOver();
 	DrawScore();
+	DrawCounter();
 }
 
 /*-------------------------------------------*/
 
 void Tetris::InitialiseBackground()
 {
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.jpg"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
-	tex_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
 
-	sizeBG = tex_Background.size();
+	sizeBG = texture_Background.size();
 
 	RectI rect = { 0,static_cast<int>(scrH),0,static_cast<int>(scrW) };
 
 	size_t min = static_cast<size_t>(0);
-	size_t max = static_cast<size_t>(tex_Background.size() - 1);
+	size_t max = static_cast<size_t>(texture_Background.size() - 1);
 	randomBG = static_cast<size_t>(Random(min, max));
-	block_Background = Block(rect, &tex_Background[randomBG]);
+	block_Background = Block(rect, &texture_Background[randomBG]);
 }
 void Tetris::InitialiseBlocks()
 {
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Green.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
-	tex_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Green.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Blue.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Magenta.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
+	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
 }
 void Tetris::InitialiseTetrominos()
 {
@@ -315,19 +371,21 @@ void Tetris::InitialiseTetrominos()
 	tetromino[6].append(".X..");
 	tetromino[6].append("....");
 }
+void Tetris::InitialiseDigits()
+{	
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
+}
 void Tetris::InitialiseScore()
 {	
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
-	tex_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
-
 	for (int y = 0; y < rows; y++)
 	{
 		for (int x = 0; x < cols; x++)
@@ -338,13 +396,13 @@ void Tetris::InitialiseScore()
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)) - digitW,
 				(scrW - 1) - (digitW * (x)) - (digitW / 5 * (x + 1)));
 
-			blocks_Digits[y][x] = Block(position, &tex_Digits[y]);
+			blocks_Score[y][x] = Block(position, &texture_Digits[y]);
 		}
 	}	
 }
 void Tetris::InitialisePause()
 {
-	tex_Pause.push_back(Surface::FromFile(L"Textures\\Words\\word - Pause.png"));
+	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\word - Pause.png"));
 
 	RectI rect = RectI(
 		(scrH / 2) - (pauseH / 2),
@@ -352,13 +410,13 @@ void Tetris::InitialisePause()
 		(scrW / 2) - (pauseW / 2),
 		(scrW / 2) + (pauseW / 2));
 
-	size_t size = tex_Pause.size();
+	size_t size = texture_Pause.size();
 	size_t i = (size > 1) ? Random(static_cast<size_t>(0), size - 1) : 0;
-	block_Pause = Block(rect, &tex_Pause[i]);
+	block_Pause = Block(rect, &texture_Pause[i]);
 }
 void Tetris::InitialiseGameOver()
 {	
-	tex_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\word - GameOver.png"));
+	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\word - GameOver.png"));
 
 	RectI rect = RectI(
 		(scrH / 2) - (gameOverH / 2),
@@ -366,18 +424,31 @@ void Tetris::InitialiseGameOver()
 		(scrW / 2) - (gameOverW / 2),
 		(scrW / 2) + (gameOverW / 2));
 
-	size_t size = tex_GameOver.size();
+	size_t size = texture_GameOver.size();
 	size_t i = (size > 1) ? Random(static_cast<size_t>(0), size - 1) : 0;
-	block_GameOver = Block(rect, &tex_GameOver[i]);
+	block_GameOver = Block(rect, &texture_GameOver[i]);
+}
+void Tetris::InitialiseCounter()
+{
+	for (int i = 0; i < 10; i++)
+	{
+			RectI position = RectI( 
+				(scrH / 2) - (digitH / 2),
+				(scrH / 2) + (digitH / 2),
+				(scrW / 2) - ((fieldW/2) * blockW) - (digitW * 3),
+				(scrW / 2) - ((fieldW / 2) * blockW) - (digitW * 2));
+
+			blocks_Counter[i] = Block(position, &texture_Digits[i]);	
+	}
 }
 
 /*-------------------------------------------*/
 
 void Tetris::SetBackground()
 {
-	randomBG = (randomBG >= tex_Background.size()) ? 0 : randomBG++;
+	randomBG = (randomBG >= texture_Background.size()) ? 0 : randomBG++;
 
-	block_Background.SetTexture( &tex_Background[randomBG] );
+	block_Background.SetTexture( &texture_Background[randomBG] );
 }
 void Tetris::ClearScore()
 {
@@ -422,14 +493,14 @@ void Tetris::SetFieldBlocks()
 		for (int x = 0; x < fieldW; x++)
 		{
 			RectI pos = RectI(
-				offsetHeight + (y * blockH),
-				offsetHeight + (y * blockH) + blockH,
-				offsetWidth + (x * blockW),
-				offsetWidth + (x * blockW) + blockW);
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH),
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH) + blockH,
+				(scrW / 2) - ((fieldW / 2) * blockW) + (x * blockW),
+				(scrW / 2) - ((fieldW / 2) * blockW) + (x * blockW) + blockW);
 			int i = y * fieldW + x;
 			int j = ConvertCharToInt(blockBuffer_Shown[i]);
 
-			blocks.push_back(Block(pos, &tex_Blocks[j]));
+			blocks.push_back(Block(pos, &texture_Blocks[j]));
 		}
 	}
 }
@@ -442,14 +513,14 @@ void Tetris::SetNextTetromino()
 		for (int x = 0; x < tetroW; x++)
 		{			
 			RectI rect = RectI(
-				offsetHeight + (y * blockH),
-				offsetHeight + (y * blockH) + blockH,
-				offsetWidth + (blockW * fieldW) + (x * blockW),
-				offsetWidth + (blockW * fieldW) + (x * blockW) + blockW);
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH),
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH) + blockH,
+				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW),
+				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW) + blockW);
 			int i = y * tetroW + x;
 			int j = (tetromino[tetrominoNext][i] != '.') ? tetrominoNext + 1 : 0;
 
-			blocks_Next.push_back(Block(rect,&tex_Blocks[j]));
+			blocks_Next.push_back(Block(rect,&texture_Blocks[j]));
 		}
 	}
 }
@@ -463,6 +534,17 @@ void Tetris::SetLevel()
 {
 	prevLevel = level;
 	level++;
+}
+void Tetris::SetCounter()
+{
+	if (tickCounter < 9)
+	{
+		tickCounter++;
+	}
+	else
+	{
+		tickCounter = 0;
+	}
 }
 
 /*-------------------------------------------*/
@@ -511,7 +593,7 @@ void Tetris::DrawScore()
 {
 	for (size_t i = 0; i < blockBuffer_Score.size(); i++)
 	{
-		blocks_Digits[blockBuffer_Score[i]][i].Draw(gfx);
+		blocks_Score[blockBuffer_Score[i]][i].Draw(gfx);
 	}
 }
 void Tetris::DrawTextPause()
@@ -526,6 +608,16 @@ void Tetris::DrawTextGameOver()
 	if (gameIsOver)
 	{		
 		block_GameOver.Draw(gfx);
+	}
+}
+void Tetris::DrawCounter()
+{
+	if (!gameIsOver)
+	{
+		if (!gameIsPaused)
+		{
+			blocks_Counter[tickCounter].Draw(gfx);
+		}
 	}
 }
 void Tetris::DrawBlur()
@@ -647,7 +739,7 @@ Color	Tetris::ConvertCharToColor(const char value)
 
 	return Colors::Black;
 }
-int	Tetris::ConvertCharToInt(const char value)
+int		Tetris::ConvertCharToInt(const char value)
 {
 	for (int i = 0; i < 10; i++)
 	{
@@ -662,75 +754,6 @@ int	Tetris::ConvertCharToInt(const char value)
 	}
 
 	return 0;
-}
-void	Tetris::Benchmark(void* pFunction)
-{
-	std::ofstream file;
-	file.open("Benchmark.txt"); // creates file and names it and opens for writing to
-
-	const unsigned int number = 100;
-
-	for (int i = 0; i < number; i++)
-	{
-		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-
-		&pFunction;
-
-		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-
-		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
-
-		file << i << " " << duration.count() << " microseconds" << std::endl;
-	}
-}
-void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
-{
-	output.clear();
-
-	const uint height = input.GetHeight();
-	const uint width = input.GetWidth();
-
-	for (uint y = 0; y < height; y++)
-	{
-		for (uint x = 0; x < width; x++)
-		{
-			uchar rTotal = 0;
-			uchar gTotal = 0;
-			uchar bTotal = 0;
-
-			for (int row = -1; row <= 1; row++)
-			{
-				for (int col = -1; col <= 1; col++)
-				{
-					int currentX = x + col;
-					int currentY = y + row;
-
-					if (currentX > 0 && currentX < (int)width && currentY > 0 && currentY < (int)height)
-					{
-						Color c = input.GetPixel(currentX, currentY);
-
-						uchar r = c.GetR();
-						uchar g = c.GetG();
-						uchar b = c.GetB();
-
-						rTotal += r;
-						gTotal += g;
-						bTotal += b;
-					}
-				}
-			}
-
-			uint div = 9;
-
-			uchar rFinal = rTotal / div;
-			uchar gFinal = gTotal / div;
-			uchar bFinal = bTotal / div;
-
-			output.push_back( Color(rFinal, gFinal, bFinal) );
-			
-		}
-	}
-	assert(output.size() == (input.GetWidth() * input.GetHeight()));
 }
 
 std::vector<Color> Tetris::ConvertSurfaceToColorVector(Surface surface)
@@ -750,7 +773,6 @@ std::vector<Color> Tetris::ConvertSurfaceToColorVector(Surface surface)
 
 	return output;
 }
-
 std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>& input)
 {
 	const size_t sizeA = size_t(w) * h;
@@ -854,7 +876,75 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 	return output;
 }
 
-
+//void	Tetris::Benchmark(void* pFunction)
+//{
+//	std::ofstream file;
+//	file.open("Benchmark.txt"); // creates file and names it and opens for writing to
+//
+//	const unsigned int number = 100;
+//
+//	for (int i = 0; i < number; i++)
+//	{
+//		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now(); 
+//
+//		&pFunction;
+//
+//		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+//
+//		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+//
+//		file << i << " " << duration.count() << " microseconds" << std::endl;
+//	}
+//}
+//void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
+//{
+//	output.clear();
+//
+//	const uint height = input.GetHeight();
+//	const uint width = input.GetWidth();
+//
+//	for (uint y = 0; y < height; y++)
+//	{
+//		for (uint x = 0; x < width; x++)
+//		{
+//			uchar rTotal = 0;
+//			uchar gTotal = 0;
+//			uchar bTotal = 0;
+//
+//			for (int row = -1; row <= 1; row++)
+//			{
+//				for (int col = -1; col <= 1; col++)
+//				{
+//					int currentX = x + col;
+//					int currentY = y + row;
+//
+//					if (currentX > 0 && currentX < (int)width && currentY > 0 && currentY < (int)height)
+//					{
+//						Color c = input.GetPixel(currentX, currentY);
+//
+//						uchar r = c.GetR();
+//						uchar g = c.GetG();
+//						uchar b = c.GetB();
+//
+//						rTotal += r;
+//						gTotal += g;
+//						bTotal += b;
+//					}
+//				}
+//			}
+//
+//			uint div = 9;
+//
+//			uchar rFinal = rTotal / div;
+//			uchar gFinal = gTotal / div;
+//			uchar bFinal = bTotal / div;
+//
+//			output.push_back( Color(rFinal, gFinal, bFinal) );
+//			
+//		}
+//	}
+//	assert(output.size() == (input.GetWidth() * input.GetHeight()));
+//}
 //auto Tetris::boxesForGauss(int sigma, int n)  // standard deviation, number of boxes
 //{
 //	float wIdeal = std::sqrt((12 * sigma*sigma / (float)n) + 1);  // Ideal averaging filter width 

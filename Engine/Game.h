@@ -40,4 +40,8 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
+
+	//std::ofstream file;
+	//std::chrono::microseconds average;
+	//int count = 0;
 };
