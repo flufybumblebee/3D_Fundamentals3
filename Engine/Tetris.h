@@ -18,20 +18,21 @@ private:
 	Graphics& gfx;
 
 private:	
-	static constexpr int	tetroW		= 4u;
-	static constexpr int	tetroH		= 4u;
-	static constexpr int	fieldW		= 12u;
-	static constexpr int	fieldH		= 18u;
-	static constexpr int	blockW		= 25u;
-	static constexpr int	blockH		= 25u;
-	static constexpr int	digitW		= 50u;
-	static constexpr int	digitH		= 50u;
-	static constexpr int	pauseW		= 580u;
-	static constexpr int	pauseH		= 100u;
-	static constexpr int	gameOverW	= 400u;
-	static constexpr int	gameOverH	= 190u;
-	static constexpr int	rows		= 10u;
-	static constexpr int	cols		= 10u;
+	static constexpr unsigned int	tetroW		= 4u;
+	static constexpr unsigned int	tetroH		= 4u;
+	static constexpr unsigned int	fieldW		= 12u;
+	static constexpr unsigned int	fieldH		= 18u;
+	static constexpr unsigned int	blockW		= 25u;
+	static constexpr unsigned int	blockH		= 25u;
+	static constexpr unsigned int	digitW		= 50u;
+	static constexpr unsigned int	digitH		= 50u;
+	static constexpr unsigned int	pauseW		= 580u;
+	static constexpr unsigned int	pauseH		= 100u;
+	static constexpr unsigned int	gameOverW	= 400u;
+	static constexpr unsigned int	gameOverH	= 190u;
+	static constexpr unsigned int	rows		= 10u;
+	static constexpr unsigned int	cols		= 10u;
+	static constexpr unsigned int	blurLevel	= 7;
 
 	const int scrW = gfx.ScreenWidth;
 	const int scrH = gfx.ScreenHeight;
@@ -70,7 +71,8 @@ private:
 	size_t			randomBG			= 0;
 	int				prevLevel			= 0;
 
-	std::ofstream file;
+	//std::ofstream file;
+
 	float frameTime = 0;
 	float counter0 = 0;
 	float counter1 = 0;
@@ -163,5 +165,9 @@ private:
 	void boxBlurH_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 	void boxBlurT_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 	void gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	std::vector<Color> FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius);
+	Surface FastBlur(const Surface& input, int radius);
+
+	void superFastBlur(unsigned char* pix, int w, int h, int radius);
 };
 

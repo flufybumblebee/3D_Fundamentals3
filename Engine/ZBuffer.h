@@ -11,7 +11,7 @@ public:
 		:
 		width( width ),
 		height( height ),
-		pBuffer( new float[width*height] )
+		pBuffer( new float[static_cast<size_t>(width)*height] )
 	{}
 	~ZBuffer()
 	{
@@ -60,7 +60,7 @@ public:
 	}
 	auto GetMinMax() const
 	{
-		return std::minmax_element( pBuffer,pBuffer + width * height );
+		return std::minmax_element( pBuffer,pBuffer + static_cast<size_t>(width) * height );
 	}
 private:
 	int width;
