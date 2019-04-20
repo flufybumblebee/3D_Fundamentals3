@@ -1,20 +1,24 @@
 #pragma once
 
-template <typename T>
-class Random
+namespace rnd
 {
-private:
-	T min;
-	T max;
-public:
-	Random(T min, T max)
-		:
-		min(min),
-		max(max)
-	{}
-	T operator( T min, T max )
+	template <typename T>
+	T RandomInt(T min, T max)
 	{
-		T result;
-		return result;
+		std::mt19937 rng;
+		rng.seed(std::random_device()());
+		std::uniform_int_distribution<T> dist(min, max);
+
+		return dist(rng);
+	}
+
+	template <typename T>
+	T RandomFloat(T min, T max)
+	{
+		std::mt19937 rng;
+		rng.seed(std::random_device()());
+		std::uniform_real_distribution<T> dist(min, max);
+
+		return dist(rng);
 	}
 };

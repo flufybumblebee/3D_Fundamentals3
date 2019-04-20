@@ -32,7 +32,7 @@ private:
 	static constexpr unsigned int	gameOverH	= 190u;
 	static constexpr unsigned int	rows		= 10u;
 	static constexpr unsigned int	cols		= 10u;
-	static constexpr unsigned int	blurLevel	= 7;
+	static constexpr unsigned int	blurLevel	= 7u;
 
 	const int scrW = gfx.ScreenWidth;
 	const int scrH = gfx.ScreenHeight;
@@ -43,14 +43,13 @@ private:
 	std::vector<Surface> texture_Pause;
 	std::vector<Surface> texture_GameOver;
 
-	std::array<Block, 10>						blocks_Counter;
-	std::array<std::array<Block, cols>, rows>	blocks_Score;
+	std::array<std::array<Block, fieldW>, fieldH>	blocks;
+	std::array<std::array<Block, cols>, rows>		blocks_Score;
+	std::array<Block, 10>							blocks_Counter;
 
 	std::string			tetromino[7];
 
 	std::vector<int>	lines;
-
-	std::vector<Block>	blocks;
 	std::vector<Block>	blocks_Next;
 	
 	Block block_Background;
@@ -73,20 +72,20 @@ private:
 
 	//std::ofstream file;
 
-	float frameTime = 0;
-	float counter0 = 0;
-	float counter1 = 0;
-	float counter2 = 0;
+	float	frameTime	= 0;
+	float	counter0	= 0;
+	float	counter1	= 0;
+	float	counter2	= 0;
 	std::chrono::high_resolution_clock::time_point t0;
 	static constexpr float tickTime = 100000.0f;
 
-	int		tetrominoNext		= 0;
-	int		tetrominoCurrent	= 0;
-	int		currentRotation		= 0;
-	int		currentX			= 0;
-	int		currentY			= 0;
+	int		nextTetro		= 0;
+	int		currentTetro	= 0;
+	int		currentRotation	= 0;
+	int		currentX		= 0;
+	int		currentY		= 0;
 
-	bool	isFirstRun			= true;
+	bool	isFirstFrame		= true;
 	bool	tick				= false;
 	bool	keyIsPressed_UP		= false;
 	bool	keyIsPressed_DOWN	= false;
@@ -108,6 +107,7 @@ public:
 
 private:
 	void	InitialiseBackground();
+	void	InitialiseBlockTextures();
 	void	InitialiseBlocks();
 	void	InitialiseTetrominos();
 	void	InitialiseDigits();
@@ -118,25 +118,30 @@ private:
 
 	void	SetBackground();
 	void	ClearScore();
-	void	SetFieldBuffer();
-	void	SetFieldBlocks();
+	void	ResetFieldBuffers();
+	void	SetBlockTextures();
 	void	SetNextTetromino();
 	void	SetScore();
 	void	SetLevel();
 	void	SetCounter();
+	void	CheckForLines();
+	void	AddTetroToFixedBuffer();
+	void	AddTetroToShownBuffer();
+	void	AddFixedToShownBuffer();
+	void	PauseOrReset();
 
 	void	DrawBackground();
 	void	DrawField();
 	void	DrawNextTetromino();
 	void	DrawBlur();
 	void	DrawScore();
-	void	DrawTextPause();
-	void	DrawTextGameOver();
+	void	DrawPause();
+	void	DrawGameOver();
 	void	DrawCounter();
 
 private:
 	int		Rotate(int px, int py, int r);
-	bool	DoesTetrisFit(int tetrisID, int rotation, int posX, int posY);
+	bool	DoesTetroFit(int tetrisID, int rotation, int posX, int posY);
 	void	ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num);
 	Color	ConvertCharToColor(const char value);
 	int		ConvertCharToInt(const char value);
@@ -148,7 +153,7 @@ private:
 		const std::vector<Color>& input);
 
 	template <typename T>
-	T Random(T min, T max)
+	T RandomInt(T min, T max)
 	{
 		std::mt19937 rng;
 		rng.seed(std::random_device()());
@@ -164,10 +169,10 @@ private:
 	void boxBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 	void boxBlurH_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 	void boxBlurT_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	void gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	void gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
 	std::vector<Color> FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius);
 	Surface FastBlur(const Surface& input, int radius);
 
-	void superFastBlur(unsigned char* pix, int w, int h, int radius);
+	void superFastBlur(unsigned char* pix, int w, int h, int radius);*/
 };
 
