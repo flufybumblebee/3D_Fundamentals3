@@ -26,7 +26,8 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	tetris(wnd.kbd,gfx)
+	tetris(wnd.kbd,gfx)/*,
+	s(wnd)*/
 {
 	tetris.Setup();
 }

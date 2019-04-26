@@ -6,197 +6,141 @@
 #include <cmath>
 #include <cassert>
 #include <utility>
+#include <algorithm>
+#include <iostream>
 
-typedef unsigned int uint;
-typedef unsigned char uchar;
+using uint = unsigned int;
+using uchar = unsigned char;
 
-typedef std::chrono::steady_clock Time;
-typedef std::chrono::microseconds ms;
+using Time = std::chrono::steady_clock;
+using ms = std::chrono::microseconds;
 
 Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	:
 	kbd(kbd),
-	gfx(gfx)
+	gfx(gfx),
+	sound_move(		L"Sounds\\pop1.wav" ),
+	sound_lines_1(	L"Sounds\\success0.wav"),
+	sound_lines_2(	L"Sounds\\success1.wav"),
+	sound_lines_3(	L"Sounds\\success2.wav"),
+	sound_lines_4(	L"Sounds\\success3.wav"),
+	sound_new_tetro(L"Sounds\\pop0.wav"),
+	sound_gameover(	L"Sounds\\fail0.wav")
 {
 	InitialiseBackground();
 	InitialiseBlockTextures();
-	InitialiseBlocks();
+	InitialiseBlockPositions();
 	InitialiseTetrominos();
+	InitialiseNextTetro();
 	InitialiseDigits();
 	InitialiseCounter();
 	InitialiseScore();
 	InitialisePause();
 	InitialiseGameOver();
-
-	//file.open("Benchmark.txt");
 }
-Tetris::~Tetris()
-{
-	/*if (file.is_open())
-	{
-		file.close();
-	}*/
-}
+Tetris::~Tetris(){}
 
 /*-------------------------------------------*/
 
 void Tetris::Setup()
 {	
-	gameIsOver			= false;
-	nextTetro		= RandomInt(0, 6);
-	currentTetro	= RandomInt(0, 6);
-	currentX			= fieldW / 2 - 2;
-	currentY			= 0;
-	currentRotation		= 0;
-	speed				= 20;
-	level				= 0;
-	tetrominoCounter	= 0;
-	speedCounter		= 0;
+	gameIsOver		= false;
+	nextTetro		= RandomInt(0u, 6u);
+	currentTetro	= RandomInt(0u, 6u);
+	currentX		= fieldW / 2u - 2u;
+	currentY		= 0u;
+	currentRotation	= 0u;
+	speed			= 20u;
+	level			= 0u;
+	counterTetro	= 0u;
+	counterSpeed	= 0u;
 
-	ClearScore();	
 	SetBackground();
-	ResetFieldBuffers();
-	SetBlockTextures();
-	SetNextTetromino();
+	ResetScore();	
+	ResetField();
+	SetFieldBlocks();
+	SetNextTetro();
 }
 void Tetris::Update()
 {
-	if (isFirstFrame)
-	{
-		t0 = Time::now();
-		isFirstFrame = false;
-	}
-
-	auto t1 = Time::now();
-	auto duration = std::chrono::duration<float,std::micro>(t1 - t0);
-	t0 = Time::now();
-
-	//file << "duration:    " << duration.count() << " microseconds" << std::endl;
-	//file << "frame timer: " << frameTime << " microseconds" << std::endl;
-
-	if (frameTime < tickTime)
-	{
-		frameTime += duration.count();
-		tick = false;
-	}
-	else
-	{
-		counter0 += tickTime;
-		counter1 += tickTime;
-		counter2 += tickTime;
-		SetCounter();
-		frameTime -= tickTime;
-		tick = true;
-	}
-
 	PauseOrReset();
 		
-	if (!gameIsPaused)
+	if (!gameIsOver && !gameIsPaused)
 	{
-		if (!gameIsOver)
-		{	
-			if (tick)
+		if (frameCounter > 0 && frameCounter % 10 == 0)
+		{
+			if (kbd.KeyIsPressed(VK_LEFT) && DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
 			{
-				currentX -= (kbd.KeyIsPressed(VK_LEFT) && DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0)) ? 1 : 0;
-				currentX += (kbd.KeyIsPressed(VK_RIGHT) && DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0)) ? 1 : 0;
-				currentY += (kbd.KeyIsPressed(VK_DOWN) && DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1)) ? 1 : 0;
-				/*if (kbd.KeyIsPressed(VK_LEFT))
-				{
-					currentX -= (!keyIsPressed_LEFT && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX - 1, currentY + 0)) ? 1 : 0;
-					keyIsPressed_LEFT = true;
-				}
-				else
-				{
-					keyIsPressed_LEFT = false;
-				}
+				currentX--;
+			}
+			if (kbd.KeyIsPressed(VK_RIGHT) && DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
+			{
+				currentX++;
+			}
+			
+			if(kbd.KeyIsPressed(VK_DOWN) && DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
+			{
+				currentY++;
+			}
 
-				if (kbd.KeyIsPressed(VK_RIGHT))
-				{
-					currentX += (!keyIsPressed_RIGHT && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 1, currentY + 0)) ? 1 : 0;
-					keyIsPressed_RIGHT = true;
-				}
-				else
-				{
-					keyIsPressed_RIGHT = false;
-				}
-				
-				if (kbd.KeyIsPressed(VK_DOWN))
-				{
-					currentY += (!keyIsPressed_DOWN && DoesTetrisFit(tetrominoCurrent, currentRotation, currentX + 0, currentY + 1)) ? 1 : 0;
-					keyIsPressed_DOWN = true;
-				}
-				else
-				{
-					keyIsPressed_DOWN = false;
-				}*/
-				
+			if (!keyIsPressed_UP)
+			{
 				if (kbd.KeyIsPressed(VK_UP))
 				{
-					currentRotation += (!keyIsPressed_UP && DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY)) ? 1 : 0;
+					if (DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY))
+					{
+						currentRotation += 1;
+						sound_move.Play(1.0f, 1.0f);
+					}					
+
 					keyIsPressed_UP = true;
 				}
-				else
+			}
+			else
+			{
+				if (!kbd.KeyIsPressed(VK_UP))
 				{
 					keyIsPressed_UP = false;
 				}
-
-				counter0 = 0;
 			}
+		}
 
-			if (counter1 >= tickTime * 10)
+		if (frameCounter == 120)
+		{
+			if (DoesTetroFit(currentTetro, currentRotation, currentX, currentY + 1))
 			{
-				if (DoesTetroFit(currentTetro, currentRotation, currentX, currentY + 1))
-				{
-					currentY++; // force tetris down
-				}
-				else
-				{
-					AddTetroToFixedBuffer();
-					CheckForLines();
-					SetScore();
-					SetNextTetromino();
-
-					// if tetris doesn't fit...
-					gameIsOver = !DoesTetroFit(currentTetro, currentRotation, currentX, currentY);
-				}
+				currentY++; // force tetris down
+			}
+			else
+			{
+				SetFixedWithTetro();
+				CheckForLines();
+				SetScore();
+				SetNextTetro();
 				
-				counter1 = 0.0f;
+				gameIsOver = !DoesTetroFit(currentTetro, currentRotation, currentX, currentY);
+				if(gameIsOver) sound_gameover.Play(1.0f, 1.0f);
 			}
 
-			AddFixedToShownBuffer();
-			AddTetroToShownBuffer();
+			frameCounter = 0;
+			SetCounter();
+		}
 
-			// Animate Line Completion
-			if (!lines.empty())
-			{
-				//std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
+		SetShownWithFixed();
+		SetShownWithTetro();
 
-				for (auto& v : lines)
-				{
-					for (int x = 1; x < fieldW - 1; x++)
-					{
-						for (int y = v; y > 0; y--)
-						{
-							uint i = y * fieldW + x;
-							uint j = (y - 1) * fieldW + x;
-							blockBuffer_Fixed[i] = blockBuffer_Fixed[j];
-						}
-						blockBuffer_Fixed[x] = 0;
-					}
-				}
+		DeleteLines();
 
-				lines.clear();
-			}
+		SetFieldBlocks();
 
-			SetBlockTextures();
-		}		
-	}
+		frameCounter++;
+	}		
 }
 void Tetris::Draw()
 {
 	DrawBackground();
-	DrawField();
-	DrawNextTetromino();
+	DrawFieldBlocks();
+	DrawNextTetro();
 	DrawBlur();
 	DrawPause();
 	DrawGameOver();
@@ -220,14 +164,11 @@ void Tetris::InitialiseBackground()
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
 
-	sizeBG = texture_Background.size();
-
-	RectI rect = { 0,scrH,0,scrW };
-	
-	size_t min = static_cast<size_t>(0);
-	size_t max = texture_Background.size() - 1;
-	randomBG = RandomInt(min, max);
-	block_Background = Block(rect, &texture_Background[randomBG]);
+	RectI rect = { 0,static_cast<int>(scrH-1),0,static_cast<int>(scrW-1) };	
+	uint min = 0u;
+	uint max = static_cast<uint>(texture_Background.size() - 1);
+	index = RandomInt(min, max);
+	block_Background = Block(rect, &texture_Background[index]);
 }
 void Tetris::InitialiseBlockTextures()
 {
@@ -242,7 +183,7 @@ void Tetris::InitialiseBlockTextures()
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
 }
-void Tetris::InitialiseBlocks()
+void Tetris::InitialiseBlockPositions()
 {
 	for (int y = 0; y < fieldH; y++)
 	{
@@ -254,7 +195,7 @@ void Tetris::InitialiseBlocks()
 				(scrW / 2) - ((fieldW / 2) * blockW) + (x * blockW),
 				(scrW / 2) - ((fieldW / 2) * blockW) + (x * blockW) + blockW);
 			
-			blocks[y][x] = Block(pos, &texture_Blocks[0]);
+			blocks_Field[y][x] = Block(pos, &texture_Blocks[0]);
 		}
 	}
 }
@@ -295,6 +236,22 @@ void Tetris::InitialiseTetrominos()
 	tetromino[6].append(".X..");
 	tetromino[6].append("....");
 }
+void Tetris::InitialiseNextTetro()
+{
+	for (uint y = 0; y < tetroH; y++)
+	{
+		for (uint x = 0; x < tetroW; x++)
+		{
+			RectI rect = RectI(
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH),
+				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH) + blockH,
+				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW),
+				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW) + blockW);
+
+			blocks_NextTetro[y][x] = Block(rect, &texture_Blocks[0]);
+		}
+	}
+}
 void Tetris::InitialiseDigits()
 {	
 	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
@@ -310,9 +267,9 @@ void Tetris::InitialiseDigits()
 }
 void Tetris::InitialiseScore()
 {	
-	for (int y = 0; y < rows; y++)
+	for (int y = 0; y < scoreH; y++)
 	{
-		for (int x = 0; x < cols; x++)
+		for (int x = 0; x < scoreW; x++)
 		{
 			RectI position = RectI(
 				(digitH / 5),
@@ -370,45 +327,39 @@ void Tetris::InitialiseCounter()
 
 void Tetris::SetBackground()
 {
-	randomBG = (randomBG >= texture_Background.size()) ? 0 : randomBG++;
-
-	block_Background.SetTexture( &texture_Background[randomBG] );
+	//index = (index < (texture_Background.size())) ? index++ : 0;
+	if (index < texture_Background.size() - 1)
+	{
+		index++;
+	}
+	else
+	{
+		index = 0;
+	}
+	block_Background.SetTexture( &texture_Background[index] );
 }
-void Tetris::ClearScore()
+void Tetris::ResetScore()
 {
 	blockBuffer_Score.clear();
 	score = 0;
 	ExtractDigits(blockBuffer_Score, score);
 }
-void Tetris::ResetFieldBuffers()
+void Tetris::ResetField()
 {
-	blockBuffer_Fixed.clear();
-	blockBuffer_Shown.clear();
-
-	// set playing field border
 	for (int y = 0; y < fieldH; y++)	
 	{
 		for (int x = 0; x < fieldW; x++)
 		{
-			blockBuffer_Fixed.push_back((x == 0 || x == fieldW - 1 || y == fieldH - 1) ? 9 : 0);
+			int i = y * fieldW + x;
+			blockBuffer_Fixed[i] = (x == 0 || x == fieldW - 1 || y == fieldH - 1) ? 9 : 0;
 
 			//if (x == 0 || x == fieldW - 1) field[y*fieldW + x] = 9;
 			//else if(y == fieldH - 1) field[y*fieldW + x] = 9;
 			//else field[y*fieldW + x] = 0;
 		}
 	}
-
-	// set shown blocks buffer with fixed block buffer
-	for (int y = 0; y < fieldH; y++)
-	{
-		for (int x = 0; x < fieldW; x++)		
-		{
-			uint i = y * fieldW + x;
-			blockBuffer_Shown.push_back(" ABCDEFG=#"[blockBuffer_Fixed[i]]);
-		}
-	}
 }
-void Tetris::SetBlockTextures()
+void Tetris::SetFieldBlocks()
 {
 	for (int y = 0; y < fieldH; y++)
 	{
@@ -416,11 +367,11 @@ void Tetris::SetBlockTextures()
 		{
 			int i = y * fieldW + x;
 			int j = ConvertCharToInt(blockBuffer_Shown[i]);
-			blocks[y][x].SetTexture(&texture_Blocks[j]);
+			blocks_Field[y][x].SetTexture(&texture_Blocks[j]);
 		}
 	}
 }
-void Tetris::SetNextTetromino()
+void Tetris::SetNextTetro()
 {
 	currentX = fieldW / 2 - 2;
 	currentY = 0;
@@ -429,23 +380,18 @@ void Tetris::SetNextTetromino()
 	currentTetro = nextTetro;
 	nextTetro = RandomInt(0, 6);
 
-	blocks_Next.clear();
-
-	for (int y = 0; y < tetroH; y++)
+	for (uint y = 0; y < tetroH; y++)
 	{
-		for (int x = 0; x < tetroW; x++)
-		{			
-			RectI rect = RectI(
-				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH),
-				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH) + blockH,
-				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW),
-				(scrW / 2) - ((fieldW / 2) * blockW) + (blockW * fieldW) + (x * blockW) + blockW);
+		for (uint x = 0; x < tetroW; x++)
+		{	
 			int i = y * tetroW + x;
 			int j = (tetromino[nextTetro][i] != '.') ? nextTetro + 1 : 0;
 
-			blocks_Next.push_back(Block(rect,&texture_Blocks[j]));
+			blocks_NextTetro[y][x].SetTexture(&texture_Blocks[j]);
 		}
 	}
+
+	sound_new_tetro.Play(1.0f,1.0f);
 }
 void Tetris::SetScore()
 {
@@ -469,24 +415,23 @@ void Tetris::SetCounter()
 		tickCounter = 0;
 	}
 }
-
 void Tetris::CheckForLines()
 {
-	for (int y = 0; y < 4; y++)
+	for (uint y = 0; y < tetroH; y++)
 	{
 		if (currentY + y < fieldH - 1)
 		{
 			bool isLine = true;
-			for (int x = 1; x < fieldW - 1; x++)
+			for (uint x = 1; x < fieldW - 1; x++)
 			{
 				uint i = (currentY + y) * fieldW + x;
-				isLine &= (blockBuffer_Fixed[i]) != 0;
+				isLine &= (blockBuffer_Fixed[i] != 0);
 			}
 
 			if (isLine)
 			{
-				// remove line
-				for (int x = 1; x < fieldW - 1; x++)
+				// set line to '=' (red)
+				for (uint x = 1; x < fieldW - 1; x++)
 				{
 					uint i = (currentY + y) * fieldW + x;
 					blockBuffer_Fixed[i] = 8;
@@ -496,12 +441,65 @@ void Tetris::CheckForLines()
 		}
 	}
 }
-
-void Tetris::AddTetroToFixedBuffer()
+void Tetris::DeleteLines()
 {
-	for (int y = 0; y < tetroH; y++)
+	// Animate Line Completion
+	if (!lines.empty())
 	{
-		for (int x = 0; x < tetroW; x++)
+		//std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
+
+		/*for (auto& v : lines)
+		{
+			for (int x = 1; x < fieldW - 1; x++)
+			{
+				for (int y = v; y > 0; y--)
+				{
+					blockBuffer_Fixed[y][x] = blockBuffer_Fixed[static_cast<size_t>(y) - 1][x];
+				}
+				blockBuffer_Fixed[0][x] = 0;
+			}
+		}*/
+		const unsigned int nLines = static_cast<uint>(lines.size());
+		for (uint i = 0; i < nLines; i++)
+		{
+			for (uint y = lines[i]; y > 0; y--)
+			{
+				for (uint x = 1; x < fieldW - 1; x++)
+				{
+					int i = y * fieldW + x;
+					int j = (y - 1) * fieldW + x;
+					blockBuffer_Fixed[i] = blockBuffer_Fixed[j];
+				}
+				//blockBuffer_Fixed[0][x] = 0;
+			}
+		}
+
+		lines.clear();
+
+		switch (nLines)
+		{
+		case 1:
+			sound_lines_1.Play(1.0f, 1.0f);
+			break;
+		case 2:
+			sound_lines_2.Play(1.0f, 1.0f);
+			break;
+		case 3:
+			sound_lines_3.Play(1.0f, 1.0f);
+			break;
+		case 4:
+			sound_lines_4.Play(1.0f, 1.0f);
+			break;
+		default:
+			break;
+		}
+	}
+}
+void Tetris::SetFixedWithTetro()
+{
+	for (uint y = 0; y < tetroH; y++)
+	{
+		for (uint x = 0; x < tetroW; x++)
 		{
 			if (tetromino[currentTetro][Rotate(x, y, currentRotation)] == 'X')
 			{
@@ -511,23 +509,23 @@ void Tetris::AddTetroToFixedBuffer()
 		}
 	}
 }
-void Tetris::AddTetroToShownBuffer()
+void Tetris::SetShownWithTetro()
 {
 	// add current tetris piece to display buffer
-	for (int y = 0; y < tetroH; y++)
+	for (uint y = 0; y < tetroH; y++)
 	{
-		for (int x = 0; x < tetroW; x++)
+		for (uint x = 0; x < tetroW; x++)
 		{
 			// set to the ascii table value
 			if (tetromino[currentTetro][Rotate(x, y, currentRotation)] == 'X')
-			{
+			{		
 				uint i = (currentY + y) * fieldW + (currentX + x);
 				blockBuffer_Shown[i] = " ABCDEFG=#"[currentTetro + 1];
 			}
 		}
 	}
 }
-void Tetris::AddFixedToShownBuffer()
+void Tetris::SetShownWithFixed()
 {
 	// add all fixed blocks to displayBuffer from fixedBuffer
 	for (int y = 0; y < fieldH; y++)
@@ -539,7 +537,6 @@ void Tetris::AddFixedToShownBuffer()
 		}
 	}
 }
-
 void Tetris::PauseOrReset()
 {
 	if (!keyIsPressed_SPACE)
@@ -577,11 +574,11 @@ void Tetris::DrawBackground()
 {
 	block_Background.Draw(gfx);
 }
-void Tetris::DrawField()
+void Tetris::DrawFieldBlocks()
 {
-	for (int y = 0; y < fieldH; y++)
+	for (uint y = 0; y < fieldH; y++)
 	{
-		for (int x = 0; x < fieldW; x++)
+		for (uint x = 0; x < fieldW; x++)
 		{
 			uint i = y * fieldW + x;
 			if (blockBuffer_Shown[i] == ' ')
@@ -590,37 +587,37 @@ void Tetris::DrawField()
 			}
 			else
 			{
-				blocks[y][x].Draw(gfx);
+				blocks_Field[y][x].Draw(gfx);
 			}
 		}
 	}
 }
-void Tetris::DrawNextTetromino()
+void Tetris::DrawNextTetro()
 {
-	for (int y = 0; y < tetroH; y++)
+	if (!gameIsOver)
 	{
-		for (uint x = 0; x < tetroW; x++)
+		for (uint y = 0; y < tetroH; y++)
 		{
-			uint i = y * tetroW + x;
-			if (tetromino[nextTetro][i] == '.')
+			for (uint x = 0; x < tetroW; x++)
 			{
-				continue;
-			}
-			else
-			{
-				blocks_Next[i].Draw(gfx);
+				uint i = y * tetroW + x;
+				if (tetromino[nextTetro][i] == '.')
+				{
+					continue;
+				}
+				else
+				{
+					blocks_NextTetro[y][x].Draw(gfx);
+				}
 			}
 		}
 	}
 }
 void Tetris::DrawCounter()
 {
-	if (!gameIsOver)
+	if (!gameIsOver && !gameIsPaused)
 	{
-		if (!gameIsPaused)
-		{
-			blocks_Counter[tickCounter].Draw(gfx);
-		}
+		blocks_Counter[tickCounter].Draw(gfx);
 	}
 }
 void Tetris::DrawBlur()
@@ -630,21 +627,21 @@ void Tetris::DrawBlur()
 		std::vector<Color> input;
 		input = ConvertSurfaceToColorVector(gfx.CopySysBuffer());
 
-		int w = scrW;
-		int h = scrH;
+		uint w = scrW;
+		uint h = scrH;
 		size_t wh = static_cast<size_t>(w) * h;
 
 		std::vector<Color> output(wh);
 		
-		for (int i = 0; i < blurLevel; i++)
+		for (uint i = 0; i < blurLevel; i++)
 		{
 			input = Blur(w, h, input);
 		}
 		output = input;
 
-		for (int y = 0; y < h; y++)
+		for (uint y = 0; y < h; y++)
 		{
-			for (int x = 0; x < w; x++)
+			for (uint x = 0; x < w; x++)
 			{
 				size_t i = static_cast<size_t>(y) * w + x;
 				gfx.PutPixel(x, y, output[i]);
@@ -711,20 +708,16 @@ int		Tetris::Rotate(int px, int py, int r)
 }
 bool	Tetris::DoesTetroFit(int tetrisID, int rotation, int posX, int posY)
 {
-	for (int px = 0; px < 4; px++)
+	for (uint y = 0; y < tetroH; y++)
 	{
-		for (int py = 0; py < 4; py++)
+		for (uint x = 0; x < tetroW; x++)
 		{
-			// get index into tetris
-			int pi = Rotate(px, py, rotation);
-
-			// get index into field
-			int fi = (posY + py) * fieldW + (posX + px);
-
-			if (posX + px >= 0 && posX + px < fieldW &&
-				posY + py >= 0 && posY + py < fieldH)
+			if (posX + x >= 0 && posX + x < fieldW && posY + y >= 0 && posY + y < fieldH)
 			{
-				if (tetromino[tetrisID][pi] != L'.' && blockBuffer_Fixed[fi] != 0)
+				uint i = Rotate(x, y, rotation);
+				uint j = (posY + y) * fieldW + (posX + x);
+
+				if (tetromino[tetrisID][i] != L'.' && blockBuffer_Fixed[j] != 0)
 				{
 					return false;
 				}
@@ -790,14 +783,14 @@ int		Tetris::ConvertCharToInt(const char value)
 
 std::vector<Color> Tetris::ConvertSurfaceToColorVector(Surface surface)
 {
-	int w = surface.GetWidth();
-	int h = surface.GetHeight();
+	uint w = surface.GetWidth();
+	uint h = surface.GetHeight();
 
 	std::vector<Color> output;
 
-	for (int y = 0; y < h; y++)
+	for (uint y = 0; y < h; y++)
 	{
-		for (int x = 0; x < w; x++)
+		for (uint x = 0; x < w; x++)
 		{
 			output.push_back(surface.GetPixel(x, y));
 		}
@@ -810,46 +803,35 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 	const size_t sizeA = size_t(w) * h;
 	const size_t sizeB = input.size();
 	assert( sizeA == sizeB );
-
-	Mat3 m;
-	
+		
 	const float val = 1.0f / 9.0f;
-
-	m.elements[0][0] = val;	// 0
-	m.elements[0][1] = val;	// 1
-	m.elements[0][2] = val;	// 2
-	m.elements[1][0] = val;	// 3
-	m.elements[1][1] = val;	// 4 center pixel
-	m.elements[1][2] = val;	// 5
-	m.elements[2][0] = val;	// 6
-	m.elements[2][1] = val;	// 7
-	m.elements[2][2] = val;	// 8
-
-	//m.elements[0][0] = 0.1;	// 0
-	//m.elements[0][1] = 0.4;	// 1
-	//m.elements[0][2] = 0.1;	// 2
-	//m.elements[1][0] = 0.4;	// 3
-	//m.elements[1][1] = -2.0;	// 4 center pixel
-	//m.elements[1][2] = 0.4;	// 5
-	//m.elements[2][0] = 0.1;	// 6
-	//m.elements[2][1] = 0.4;	// 7
-	//m.elements[2][2] = 0.1;	// 8
-
+	std::array<std::array<float, 3>, 3> box = { val,val,val,val,val,val,val,val,val };
+	
 	/*
-	0 1 2 - 00 01 02
-	3 4 5 - 10 11 12
-	6 7 8 - 20 21 22
+	0 1 2
+	3 4 5
+	6 7 8
 	*/
 
-	std::vector<Color> output(sizeA, Colors::Black);
+	/*
+		   c  c  c
+		   o  o  o
+		   l  l  l
+		   0  1  2
+	row 0 00 01 02
+	row 1 10 11 12
+	row 2 20 21 22
+	*/
+
+	std::vector<Color> output;
 	
-	typedef unsigned char uchar;
-	
+	Vec3 pixel_out;
+
     for (int y = 0; y < h; y++)
 	{
 		for (int x = 0; x < w; x++)
 		{
-			Vec3 total = { 0.0f,0.0f,0.0f };
+			pixel_out = { 0.0f,0.0f,0.0f };
 
 			for (int row = -1; row <= 1; row++)
 			{
@@ -862,20 +844,17 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 					{
 						uint i = cy * w + cx;
 
-						Vec3 pixel = Vec3( input[i] );
-
-						total.x += (pixel.x *= m.elements[row + 1][col + 1]);
-						total.y += (pixel.y *= m.elements[row + 1][col + 1]);
-						total.z += (pixel.z *= m.elements[row + 1][col + 1]);
+						pixel_out.x += (input[i].GetR() * box[row + 1][col + 1]);
+						pixel_out.y += (input[i].GetG() * box[row + 1][col + 1]);
+						pixel_out.z += (input[i].GetB() * box[row + 1][col + 1]);
 					}
 				}
 			}
 
-			uint i = y * w + x;
-
-			output[i].SetR(static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, total.x))));
-			output[i].SetG(static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, total.y))));
-			output[i].SetB(static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, total.z))));
+			output.push_back({ 
+				static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, pixel_out.x))),
+				static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, pixel_out.y))),
+				static_cast<uchar>(std::min<float>(255.0f, std::max<float>(0.0f, pixel_out.z))) });
 		}
 	}
 
@@ -884,6 +863,8 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 	return output;
 }
 
+// FUNCTIONS I COULDN'T GET TO WORK
+//
 //void	Tetris::Benchmark(void* pFunction)
 //{
 //	std::ofstream file;

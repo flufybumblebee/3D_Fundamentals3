@@ -22,13 +22,14 @@
 
 #include "Graphics.h"
 #include "Tetris.h"
+#include "Sound.h"
 
 class Game
 {
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-
+	/*DSound s;*/
 private:
 	Tetris tetris;
 public:

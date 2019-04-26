@@ -7,9 +7,10 @@
 
 #include "Block.h"
 #include "Keyboard.h"
+#include <Windows.h>
+#include "Sound.h"
 
-#include "Benchmark.h"
-#include "Mat.h"
+
 
 class Tetris
 {
@@ -17,76 +18,74 @@ private:
 	Keyboard& kbd;
 	Graphics& gfx;
 
-private:	
-	static constexpr unsigned int	tetroW		= 4u;
-	static constexpr unsigned int	tetroH		= 4u;
-	static constexpr unsigned int	fieldW		= 12u;
-	static constexpr unsigned int	fieldH		= 18u;
-	static constexpr unsigned int	blockW		= 25u;
-	static constexpr unsigned int	blockH		= 25u;
-	static constexpr unsigned int	digitW		= 50u;
-	static constexpr unsigned int	digitH		= 50u;
-	static constexpr unsigned int	pauseW		= 580u;
-	static constexpr unsigned int	pauseH		= 100u;
-	static constexpr unsigned int	gameOverW	= 400u;
-	static constexpr unsigned int	gameOverH	= 190u;
-	static constexpr unsigned int	rows		= 10u;
-	static constexpr unsigned int	cols		= 10u;
-	static constexpr unsigned int	blurLevel	= 7u;
+private:
+	Sound sound_move;
+	Sound sound_lines_1;
+	Sound sound_lines_2;
+	Sound sound_lines_3;
+	Sound sound_lines_4;
+	Sound sound_new_tetro;
+	Sound sound_gameover;
 
-	const int scrW = gfx.ScreenWidth;
-	const int scrH = gfx.ScreenHeight;
+private:	
+	static constexpr unsigned int	nTetro	= 7u;
+	static constexpr unsigned int	tetroW	= 4u;
+	static constexpr unsigned int	tetroH	= 4u;
+	static constexpr unsigned int	fieldW	= 12u;
+	static constexpr unsigned int	fieldH	= 18u;
+	static constexpr unsigned int	scoreW	= 10u;
+	static constexpr unsigned int	scoreH	= 10u;
+
+	const unsigned int	blockW		= 25u;
+	const unsigned int	blockH		= 25u;
+	const unsigned int	digitW		= 50u;
+	const unsigned int	digitH		= 50u;
+	const unsigned int	pauseW		= 580u;
+	const unsigned int	pauseH		= 100u;
+	const unsigned int	gameOverW	= 580u;
+	const unsigned int	gameOverH	= 290u;
+
+	const unsigned int	blurLevel	= 7u;
+
+	const unsigned int scrW = gfx.ScreenWidth;
+	const unsigned int scrH = gfx.ScreenHeight;
+	
+	Block block_Background;
+	Block block_Pause;
+	Block block_GameOver;
 
 	std::vector<Surface> texture_Background;
 	std::vector<Surface> texture_Blocks;
 	std::vector<Surface> texture_Digits;
 	std::vector<Surface> texture_Pause;
 	std::vector<Surface> texture_GameOver;
+	 
+	std::array<std::string, nTetro>					tetromino;
+	std::array<std::array<Block, fieldW>, fieldH>	blocks_Field;
+	std::array<std::array<Block, tetroW>, tetroH>	blocks_NextTetro;
 
-	std::array<std::array<Block, fieldW>, fieldH>	blocks;
-	std::array<std::array<Block, cols>, rows>		blocks_Score;
+	std::array<char, (fieldW * fieldH)>				blockBuffer_Fixed{};
+	std::array<char, (fieldW * fieldH)>				blockBuffer_Shown{};
+	std::array<std::array<Block, scoreW>, scoreH>	blocks_Score;
 	std::array<Block, 10>							blocks_Counter;
 
-	std::string			tetromino[7];
+	std::vector<unsigned int>						blockBuffer_Score;
+	std::vector<int>								lines;
 
-	std::vector<int>	lines;
-	std::vector<Block>	blocks_Next;
-	
-	Block block_Background;
-	Block block_Pause;
-	Block block_GameOver;
-		 
-	std::vector<char>			blockBuffer_Fixed;
-	std::vector<char>			blockBuffer_Shown;
-	std::vector<unsigned int>	blockBuffer_Score;
+	unsigned int	speed			= 0u;
+	unsigned int	score			= 0u;
+	unsigned int	level			= 0u;
+	unsigned int	counterTetro	= 0u;
+	unsigned int	counterSpeed	= 0u;
+	unsigned int	index			= 0u;
+	unsigned int	prevLevel		= 0u;
 
-	unsigned int	speed				= 0;
-	unsigned int	score				= 0;
-	unsigned int	level				= 0;
-	unsigned int	tetrominoCounter	= 0;
-	unsigned int	speedCounter		= 0;
-	unsigned int	tickCounter			= 0;
-	size_t			sizeBG				= 0;
-	size_t			randomBG			= 0;
-	int				prevLevel			= 0;
+	unsigned int	currentX		= 0u;
+	unsigned int	currentY		= 0u;
+	unsigned int	currentRotation	= 0u;
+	unsigned int	currentTetro	= 0u;
+	unsigned int	nextTetro		= 0u;
 
-	//std::ofstream file;
-
-	float	frameTime	= 0;
-	float	counter0	= 0;
-	float	counter1	= 0;
-	float	counter2	= 0;
-	std::chrono::high_resolution_clock::time_point t0;
-	static constexpr float tickTime = 100000.0f;
-
-	int		nextTetro		= 0;
-	int		currentTetro	= 0;
-	int		currentRotation	= 0;
-	int		currentX		= 0;
-	int		currentY		= 0;
-
-	bool	isFirstFrame		= true;
-	bool	tick				= false;
 	bool	keyIsPressed_UP		= false;
 	bool	keyIsPressed_DOWN	= false;
 	bool	keyIsPressed_LEFT	= false;
@@ -96,6 +95,11 @@ private:
 	bool	gameIsPaused		= false;
 	bool	gameIsOver			= false;
 	
+	/*-------------------------------------------*/
+
+	unsigned int tickCounter = 0u;
+	unsigned int frameCounter = 0u;
+
 public:
 	Tetris(Keyboard& kbd, Graphics& gfx);
 	~Tetris();
@@ -108,8 +112,9 @@ public:
 private:
 	void	InitialiseBackground();
 	void	InitialiseBlockTextures();
-	void	InitialiseBlocks();
+	void	InitialiseBlockPositions();
 	void	InitialiseTetrominos();
+	void	InitialiseNextTetro();
 	void	InitialiseDigits();
 	void	InitialiseScore();
 	void	InitialisePause();
@@ -117,22 +122,23 @@ private:
 	void	InitialiseCounter();
 
 	void	SetBackground();
-	void	ClearScore();
-	void	ResetFieldBuffers();
-	void	SetBlockTextures();
-	void	SetNextTetromino();
+	void	ResetScore();
+	void	ResetField();
 	void	SetScore();
+	void	SetFieldBlocks();
+	void	SetNextTetro();
 	void	SetLevel();
 	void	SetCounter();
 	void	CheckForLines();
-	void	AddTetroToFixedBuffer();
-	void	AddTetroToShownBuffer();
-	void	AddFixedToShownBuffer();
+	void	DeleteLines();
+	void	SetFixedWithTetro();
+	void	SetShownWithTetro();
+	void	SetShownWithFixed();
 	void	PauseOrReset();
 
 	void	DrawBackground();
-	void	DrawField();
-	void	DrawNextTetromino();
+	void	DrawFieldBlocks();
+	void	DrawNextTetro();
 	void	DrawBlur();
 	void	DrawScore();
 	void	DrawPause();
@@ -147,10 +153,7 @@ private:
 	int		ConvertCharToInt(const char value);
 
 	std::vector<Color> ConvertSurfaceToColorVector(Surface surface);
-	std::vector<Color> Blur(
-		const int width,
-		const int height,
-		const std::vector<Color>& input);
+	std::vector<Color> Blur(const int w,const int h,const std::vector<Color>& input);
 
 	template <typename T>
 	T RandomInt(T min, T max)
@@ -162,17 +165,16 @@ private:
 		return dist(rng);
 	}
 
-	/*void	Benchmark(void* pFunction);
-	void BoxBlur(const Surface& input, std::vector<Color>& output);
-	auto boxesForGauss(int sigma, int n);
-	void gaussBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	void boxBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	void boxBlurH_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	void boxBlurT_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	void gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);
-	std::vector<Color> FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius);
-	Surface FastBlur(const Surface& input, int radius);
-
-	void superFastBlur(unsigned char* pix, int w, int h, int radius);*/
+	/*void	Benchmark(void* pFunction);*/
+	/*void	BoxBlur(const Surface& input, std::vector<Color>& output);*/
+	/*auto	boxesForGauss(int sigma, int n);*/
+	/*void	gaussBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	/*void	boxBlur_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	/*void	boxBlurH_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	/*void	boxBlurT_4(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	/*void	gaussBlur_1(std::vector<unsigned char> scl, std::vector<unsigned char> tcl, int w, int h, int r);*/
+	/*std::vector<Color> FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius);*/
+	/*Surface FastBlur(const Surface& input, int radius);*/
+	/*void superFastBlur(unsigned char* pix, int w, int h, int radius);*/
 };
 
