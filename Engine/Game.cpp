@@ -21,13 +21,11 @@
 #include "MainWindow.h"
 #include "Game.h"
 
-
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	tetris(wnd.kbd,gfx)/*,
-	s(wnd)*/
+	tetris(wnd.kbd,wnd.mouse,gfx)
 {
 	tetris.Setup();
 }

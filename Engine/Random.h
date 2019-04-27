@@ -21,4 +21,4 @@ namespace rnd
 
 		return dist(rng);
 	}
-};
+}; 

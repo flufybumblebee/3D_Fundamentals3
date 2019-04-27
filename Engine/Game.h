@@ -29,7 +29,6 @@ class Game
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-	/*DSound s;*/
 private:
 	Tetris tetris;
 public:
@@ -41,8 +40,4 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
-
-	//std::ofstream file;
-	//std::chrono::microseconds average;
-	//int count = 0;
 };

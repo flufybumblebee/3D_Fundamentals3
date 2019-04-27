@@ -4,10 +4,11 @@
 #include <array>
 #include <vector>
 #include <chrono>
+#include <Windows.h>
 
 #include "Block.h"
+#include "Mouse.h"
 #include "Keyboard.h"
-#include <Windows.h>
 #include "Sound.h"
 
 
@@ -16,6 +17,7 @@ class Tetris
 {
 private:
 	Keyboard& kbd;
+	Mouse& mouse;
 	Graphics& gfx;
 
 private:
@@ -27,58 +29,62 @@ private:
 	Sound sound_new_tetro;
 	Sound sound_gameover;
 
-private:	
-	static constexpr unsigned int	nTetro	= 7u;
-	static constexpr unsigned int	tetroW	= 4u;
-	static constexpr unsigned int	tetroH	= 4u;
-	static constexpr unsigned int	fieldW	= 12u;
-	static constexpr unsigned int	fieldH	= 18u;
-	static constexpr unsigned int	scoreW	= 10u;
-	static constexpr unsigned int	scoreH	= 10u;
+private:
+	static constexpr unsigned int	nTetro = 7u;
+	static constexpr unsigned int	nCount = 10u;
+	static constexpr unsigned int	tetroW = 4u;
+	static constexpr unsigned int	tetroH = 4u;
+	static constexpr unsigned int	fieldW = 12u;
+	static constexpr unsigned int	fieldH = 18u;
+	static constexpr unsigned int	scoreW = 10u;
+	static constexpr unsigned int	scoreH = 10u;
 
-	const unsigned int	blockW		= 25u;
-	const unsigned int	blockH		= 25u;
-	const unsigned int	digitW		= 50u;
-	const unsigned int	digitH		= 50u;
-	const unsigned int	pauseW		= 580u;
-	const unsigned int	pauseH		= 100u;
-	const unsigned int	gameOverW	= 580u;
-	const unsigned int	gameOverH	= 290u;
+	static constexpr unsigned int	keysW = 150u;
+	static constexpr unsigned int	keysH = 200u;
 
-	const unsigned int	blurLevel	= 7u;
+	const unsigned int	blockW = 25u;
+	const unsigned int	blockH = 25u;
+	const unsigned int	digitW = 50u;
+	const unsigned int	digitH = 50u;
+	const unsigned int	pauseW = 580u;
+	const unsigned int	pauseH = 100u;
+	const unsigned int	gameOverW = 580u;
+	const unsigned int	gameOverH = 290u;
+
+	const unsigned int	blurLevel = 7u;
 
 	const unsigned int scrW = gfx.ScreenWidth;
 	const unsigned int scrH = gfx.ScreenHeight;
-	
+
 	Block block_Background;
 	Block block_Pause;
 	Block block_GameOver;
 
+	Block block_Keys;
+	
+	std::vector<Surface> texture_Keys;
 	std::vector<Surface> texture_Background;
 	std::vector<Surface> texture_Blocks;
 	std::vector<Surface> texture_Digits;
 	std::vector<Surface> texture_Pause;
 	std::vector<Surface> texture_GameOver;
-	 
+
 	std::array<std::string, nTetro>					tetromino;
 	std::array<std::array<Block, fieldW>, fieldH>	blocks_Field;
 	std::array<std::array<Block, tetroW>, tetroH>	blocks_NextTetro;
 
-	std::array<char, (fieldW * fieldH)>				blockBuffer_Fixed{};
-	std::array<char, (fieldW * fieldH)>				blockBuffer_Shown{};
+	std::array<char, (fieldW* fieldH)>				blockBuffer_Fixed{};
+	std::array<char, (fieldW* fieldH)>				blockBuffer_Shown{};
 	std::array<std::array<Block, scoreW>, scoreH>	blocks_Score;
-	std::array<Block, 10>							blocks_Counter;
+	std::array<Block, nCount>						blocks_Counter;
+	//std::array<std::array<Block, 2>, 3>				blocks_Keys;
+
 
 	std::vector<unsigned int>						blockBuffer_Score;
-	std::vector<int>								lines;
+	std::vector<unsigned int>						lines;
 
-	unsigned int	speed			= 0u;
 	unsigned int	score			= 0u;
-	unsigned int	level			= 0u;
-	unsigned int	counterTetro	= 0u;
-	unsigned int	counterSpeed	= 0u;
 	unsigned int	index			= 0u;
-	unsigned int	prevLevel		= 0u;
 
 	unsigned int	currentX		= 0u;
 	unsigned int	currentY		= 0u;
@@ -97,11 +103,17 @@ private:
 	
 	/*-------------------------------------------*/
 
-	unsigned int tickCounter = 0u;
-	unsigned int frameCounter = 0u;
+	unsigned int	frameCounter	= 0u;
+	unsigned int	speed			= 0u;
+	unsigned int	level			= 0u;
+	unsigned int	prevLevel		= 0u;
+
+	unsigned int	tickCounter		= 0u;
+	unsigned int	counterTetro	= 0u;
+	unsigned int	counterSpeed	= 0u;
 
 public:
-	Tetris(Keyboard& kbd, Graphics& gfx);
+	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
 	~Tetris();
 
 public:
@@ -120,10 +132,12 @@ private:
 	void	InitialisePause();
 	void	InitialiseGameOver();
 	void	InitialiseCounter();
+	void	InitialiseKeys();
 
 	void	SetBackground();
 	void	ResetScore();
 	void	ResetField();
+	void	Input();
 	void	SetScore();
 	void	SetFieldBlocks();
 	void	SetNextTetro();
@@ -144,6 +158,7 @@ private:
 	void	DrawPause();
 	void	DrawGameOver();
 	void	DrawCounter();
+	void	DrawKeys();
 
 private:
 	int		Rotate(int px, int py, int r);
@@ -155,16 +170,7 @@ private:
 	std::vector<Color> ConvertSurfaceToColorVector(Surface surface);
 	std::vector<Color> Blur(const int w,const int h,const std::vector<Color>& input);
 
-	template <typename T>
-	T RandomInt(T min, T max)
-	{
-		std::mt19937 rng;
-		rng.seed(std::random_device()());
-		std::uniform_int_distribution<T> dist(min, max);
-
-		return dist(rng);
-	}
-
+	/* FUNCTIONS I COULDN'T GET TO WORK */
 	/*void	Benchmark(void* pFunction);*/
 	/*void	BoxBlur(const Surface& input, std::vector<Color>& output);*/
 	/*auto	boxesForGauss(int sigma, int n);*/

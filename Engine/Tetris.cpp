@@ -9,15 +9,20 @@
 #include <algorithm>
 #include <iostream>
 
+#include "Random.h"
+
+using namespace rnd;
+
 using uint = unsigned int;
 using uchar = unsigned char;
 
 using Time = std::chrono::steady_clock;
 using ms = std::chrono::microseconds;
 
-Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
+Tetris::Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	:
 	kbd(kbd),
+	mouse(mouse),
 	gfx(gfx),
 	sound_move(		L"Sounds\\pop1.wav" ),
 	sound_lines_1(	L"Sounds\\success0.wav"),
@@ -37,6 +42,7 @@ Tetris::Tetris(Keyboard& kbd, Graphics& gfx)
 	InitialiseScore();
 	InitialisePause();
 	InitialiseGameOver();
+	InitialiseKeys();
 }
 Tetris::~Tetris(){}
 
@@ -50,10 +56,11 @@ void Tetris::Setup()
 	currentX		= fieldW / 2u - 2u;
 	currentY		= 0u;
 	currentRotation	= 0u;
-	speed			= 20u;
-	level			= 0u;
-	counterTetro	= 0u;
-	counterSpeed	= 0u;
+	frameCounter	= 0u;
+	speed			= 120u;
+	//level			= 0u;
+	//counterTetro	= 0u;
+	//counterSpeed	= 0u;
 
 	SetBackground();
 	ResetScore();	
@@ -67,49 +74,16 @@ void Tetris::Update()
 		
 	if (!gameIsOver && !gameIsPaused)
 	{
-		if (frameCounter > 0 && frameCounter % 10 == 0)
+		if (frameCounter > 0 && frameCounter % (speed / 10) == 0)
 		{
-			if (kbd.KeyIsPressed(VK_LEFT) && DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
-			{
-				currentX--;
-			}
-			if (kbd.KeyIsPressed(VK_RIGHT) && DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
-			{
-				currentX++;
-			}
-			
-			if(kbd.KeyIsPressed(VK_DOWN) && DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
-			{
-				currentY++;
-			}
-
-			if (!keyIsPressed_UP)
-			{
-				if (kbd.KeyIsPressed(VK_UP))
-				{
-					if (DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY))
-					{
-						currentRotation += 1;
-						sound_move.Play(1.0f, 1.0f);
-					}					
-
-					keyIsPressed_UP = true;
-				}
-			}
-			else
-			{
-				if (!kbd.KeyIsPressed(VK_UP))
-				{
-					keyIsPressed_UP = false;
-				}
-			}
+			Input();
 		}
 
-		if (frameCounter == 120)
+		if (frameCounter == speed)
 		{
 			if (DoesTetroFit(currentTetro, currentRotation, currentX, currentY + 1))
 			{
-				currentY++; // force tetris down
+				if(!keyIsPressed_DOWN) currentY++; // force tetris down
 			}
 			else
 			{
@@ -123,14 +97,11 @@ void Tetris::Update()
 			}
 
 			frameCounter = 0;
-			SetCounter();
 		}
 
 		SetShownWithFixed();
 		SetShownWithTetro();
-
 		DeleteLines();
-
 		SetFieldBlocks();
 
 		frameCounter++;
@@ -146,6 +117,7 @@ void Tetris::Draw()
 	DrawGameOver();
 	DrawScore();
 	DrawCounter();
+	DrawKeys();
 }
 
 /*-------------------------------------------*/
@@ -322,19 +294,28 @@ void Tetris::InitialiseCounter()
 			blocks_Counter[i] = Block(position, &texture_Digits[i]);	
 	}
 }
+void Tetris::InitialiseKeys()
+{
+	texture_Keys.push_back(Surface::FromFile(L"Textures\\Keys\\keys.png"));
+	int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keysH / 2u);
+	int bottom = (scrH / 2u) + ((fieldH / 2u) * blockH);
+	int right = (scrW / 2u) + ((fieldW / 2u) * blockW) + (keysW / 3u) + keysW;
+	int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + (keysW / 3u);
+	RectI pos = {top,bottom,left,right};
+	block_Keys = Block(pos, &texture_Keys[0]);
+}
 
 /*-------------------------------------------*/
 
 void Tetris::SetBackground()
 {
-	//index = (index < (texture_Background.size())) ? index++ : 0;
-	if (index < texture_Background.size() - 1)
+	if (index < texture_Background.size() - 1u)
 	{
 		index++;
 	}
 	else
 	{
-		index = 0;
+		index = 0u;
 	}
 	block_Background.SetTexture( &texture_Background[index] );
 }
@@ -356,6 +337,48 @@ void Tetris::ResetField()
 			//if (x == 0 || x == fieldW - 1) field[y*fieldW + x] = 9;
 			//else if(y == fieldH - 1) field[y*fieldW + x] = 9;
 			//else field[y*fieldW + x] = 0;
+		}
+	}
+}
+void Tetris::Input()
+{
+	if (kbd.KeyIsPressed(VK_LEFT) && DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
+	{
+		currentX--;
+	}
+	if (kbd.KeyIsPressed(VK_RIGHT) && DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
+	{
+		currentX++;
+	}
+
+	if (kbd.KeyIsPressed(VK_DOWN) && DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
+	{
+		currentY++;
+		keyIsPressed_DOWN = true;
+	}
+	else
+	{
+		keyIsPressed_DOWN = false;
+	}
+
+	if (!keyIsPressed_UP)
+	{
+		if (kbd.KeyIsPressed(VK_UP))
+		{
+			if (DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY))
+			{
+				currentRotation += 1;
+				sound_move.Play(1.0f, 1.0f);
+			}
+
+			keyIsPressed_UP = true;
+		}
+	}
+	else
+	{
+		if (!kbd.KeyIsPressed(VK_UP))
+		{
+			keyIsPressed_UP = false;
 		}
 	}
 }
@@ -393,11 +416,13 @@ void Tetris::SetNextTetro()
 
 	sound_new_tetro.Play(1.0f,1.0f);
 }
-void Tetris::SetScore()
+void Tetris::SetScore()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 {
 	score += 25;
 	if (!lines.empty()) score += (1 << lines.size()) * 100;
-	ExtractDigits(blockBuffer_Score, score);	
+	ExtractDigits(blockBuffer_Score, score);
+
+	if (score % 1000 == 0) speed -= (speed / 2);
 }
 void Tetris::SetLevel()
 {
@@ -443,7 +468,6 @@ void Tetris::CheckForLines()
 }
 void Tetris::DeleteLines()
 {
-	// Animate Line Completion
 	if (!lines.empty())
 	{
 		//std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
@@ -454,23 +478,27 @@ void Tetris::DeleteLines()
 			{
 				for (int y = v; y > 0; y--)
 				{
-					blockBuffer_Fixed[y][x] = blockBuffer_Fixed[static_cast<size_t>(y) - 1][x];
-				}
-				blockBuffer_Fixed[0][x] = 0;
-			}
-		}*/
-		const unsigned int nLines = static_cast<uint>(lines.size());
-		for (uint i = 0; i < nLines; i++)
-		{
-			for (uint y = lines[i]; y > 0; y--)
-			{
-				for (uint x = 1; x < fieldW - 1; x++)
-				{
 					int i = y * fieldW + x;
 					int j = (y - 1) * fieldW + x;
 					blockBuffer_Fixed[i] = blockBuffer_Fixed[j];
 				}
-				//blockBuffer_Fixed[0][x] = 0;
+				blockBuffer_Fixed[x] = 0;
+			}
+		}*/
+
+		const uint nLines = static_cast<uint>(lines.size());		
+		
+		for (uint x = 1; x < fieldW - 1; x++)
+		{
+			for (uint i = 0; i < nLines; i++)
+			{
+				for (uint y = lines[i]; y > 0; y--)
+				{					
+					int j = y * fieldW + x;
+					int k = (y - 1) * fieldW + x;
+					blockBuffer_Fixed[j] = blockBuffer_Fixed[k];
+				}					
+				blockBuffer_Fixed[x] = 0;
 			}
 		}
 
@@ -670,6 +698,10 @@ void Tetris::DrawGameOver()
 		block_GameOver.Draw(gfx);
 	}
 }
+void Tetris::DrawKeys()
+{
+	block_Keys.Draw(gfx);
+}
 
 /*-------------------------------------------*/
 
@@ -805,18 +837,14 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 	assert( sizeA == sizeB );
 		
 	const float val = 1.0f / 9.0f;
-	std::array<std::array<float, 3>, 3> box = { val,val,val,val,val,val,val,val,val };
+	std::array<std::array<float, 3>, 3> box = {	val,val,val,
+												val,val,val,
+												val,val,val };
 	
 	/*
-	0 1 2
-	3 4 5
-	6 7 8
-	*/
-
-	/*
-		   c  c  c
-		   o  o  o
-		   l  l  l
+	0 1 2  c  c  c
+	3 4 5  o  o  o
+	6 7 8  l  l  l
 		   0  1  2
 	row 0 00 01 02
 	row 1 10 11 12
@@ -863,567 +891,563 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 	return output;
 }
 
-// FUNCTIONS I COULDN'T GET TO WORK
-//
-//void	Tetris::Benchmark(void* pFunction)
-//{
-//	std::ofstream file;
-//	file.open("Benchmark.txt"); // creates file and names it and opens for writing to
-//
-//	const unsigned int number = 100;
-//
-//	for (int i = 0; i < number; i++)
-//	{
-//		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now(); 
-//
-//		&pFunction;
-//
-//		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-//
-//		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
-//
-//		file << i << " " << duration.count() << " microseconds" << std::endl;
-//	}
-//}
-//void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
-//{
-//	output.clear();
-//
-//	const uint height = input.GetHeight();
-//	const uint width = input.GetWidth();
-//
-//	for (uint y = 0; y < height; y++)
-//	{
-//		for (uint x = 0; x < width; x++)
-//		{
-//			uchar rTotal = 0;
-//			uchar gTotal = 0;
-//			uchar bTotal = 0;
-//
-//			for (int row = -1; row <= 1; row++)
-//			{
-//				for (int col = -1; col <= 1; col++)
-//				{
-//					int currentX = x + col;
-//					int currentY = y + row;
-//
-//					if (currentX > 0 && currentX < (int)width && currentY > 0 && currentY < (int)height)
-//					{
-//						Color c = input.GetPixel(currentX, currentY);
-//
-//						uchar r = c.GetR();
-//						uchar g = c.GetG();
-//						uchar b = c.GetB();
-//
-//						rTotal += r;
-//						gTotal += g;
-//						bTotal += b;
-//					}
-//				}
-//			}
-//
-//			uint div = 9;
-//
-//			uchar rFinal = rTotal / div;
-//			uchar gFinal = gTotal / div;
-//			uchar bFinal = bTotal / div;
-//
-//			output.push_back( Color(rFinal, gFinal, bFinal) );
-//			
-//		}
-//	}
-//	assert(output.size() == (input.GetWidth() * input.GetHeight()));
-//}
-//auto Tetris::boxesForGauss(int sigma, int n)  // standard deviation, number of boxes
-//{
-//	float wIdeal = std::sqrt((12 * sigma*sigma / (float)n) + 1);  // Ideal averaging filter width 
-//	int wl = (int)std::floor(wIdeal);  if (wl % 2 == 0) wl--;
-//	int wu = wl + 2;
-//
-//	float mIdeal = (12 * sigma*sigma - (float)n * wl*wl - 4 * (float)n*wl - 3 * (float)n) / (-4 * wl - 4);
-//	int m = (int)std::round(mIdeal);
-//	// float sigmaActual = std::sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
-//
-//	std::vector<int> sizes;  
-//	
-//	for (int i = 0; i < n; i++) 
-//		sizes.push_back(i < m ? wl : wu);
-//
-//	return sizes;
-//}
-//
-//void Tetris::gaussBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
-//{
-//	auto bxs = boxesForGauss(r, 3);
-//
-//	boxBlur_4(scl, tcl, w, h, (bxs[0] - 1) / 2);
-//	boxBlur_4(tcl, scl, w, h, (bxs[1] - 1) / 2);
-//	boxBlur_4(scl, tcl, w, h, (bxs[2] - 1) / 2);
-//}
-//void Tetris::boxBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
-//{
-//	for (auto i = 0; i < scl.size(); i++) tcl[i] = scl[i];
-//
-//	boxBlurH_4(tcl, scl, w, h, r);
-//	boxBlurT_4(scl, tcl, w, h, r);
-//}
-//void Tetris::boxBlurH_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
-//{
-//	auto iarr = 1 / (r + r + 1);
-//
-//	for (auto i = 0; i < h; i++) 
-//	{
-//		auto ti = i * w;
-//		auto li = ti;
-//		auto ri = ti + r;
-//		auto fv = scl[ti];
-//		auto lv = scl[ti + w - 1];
-//		auto val = (r + 1)*fv;
-//
-//		for (auto j = 0; j < r; j++)
-//		{
-//			val += scl[ti + j];
-//		}
-//
-//		for (auto j = 0; j <= r; j++) 
-//		{ 
-//			val += scl[ri++] - fv;
-//			tcl[ti++] = (int)std::round(val*iarr);
-//		}
-//
-//		for (auto j = r + 1; j < w - r; j++)
-//		{ 
-//			val += scl[ri++] - scl[li++];
-//			tcl[ti++] = (int)std::round(val*iarr);
-//		}
-//
-//		for (auto j = w - r; j < w; j++) 
-//		{ 
-//			val += lv - scl[li++];
-//			tcl[ti++] = (int)std::round(val*iarr);
-//		}
-//	}
-//}
-//void Tetris::boxBlurT_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
-//{
-//	auto iarr = 1 / (r + r + 1);
-//
-//	for (auto i = 0; i < w; i++) 
-//	{
-//		auto ti = i, li = ti, ri = ti + r * w;
-//		auto fv = scl[ti];
-//		auto lv = scl[ti + w * (h - 1)];
-//		auto val = (r + 1)*fv;
-//
-//		for (auto j = 0; j < r; j++)
-//		{
-//			val += scl[ti + j * w];
-//		}
-//
-//		for (auto j = 0; j <= r; j++)
-//		{ 
-//			val += scl[ri] - fv;
-//			tcl[ti] = (int)std::round(val*iarr);
-//			ri += w; ti += w;
-//		}
-//
-//		for (auto j = r + 1; j < h - r; j++)
-//		{ 
-//			val += scl[ri] - scl[li];
-//			tcl[ti] = (int)std::round(val*iarr);
-//			li += w; ri += w; ti += w; 
-//		}
-//
-//		for (auto j = h - r; j < h; j++)
-//		{ 
-//			val += lv - scl[li];  
-//			tcl[ti] = (int)std::round(val*iarr);
-//			li += w; ti += w;
-//		}
-//	}
-//}
-//
-//void Tetris::gaussBlur_1(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
-//{
-//	// scl = source channel, tcl = target channel, width, height, radius
-//
-//	int rs = (int)std::ceil(r * 2.57);     // significant radius
-//
-//	for (int i = 0; i < h; i++)
-//	{
-//		for (int j = 0; j < w; j++)
-//		{
-//			int val = 0, wsum = 0;
-//
-//			for (int iy = i - rs; iy < i + rs + 1; iy++)
-//			{
-//				for (int ix = j - rs; ix < j + rs + 1; ix++)
-//				{
-//					int x = std::min<int>(w - 1, std::max<int>(0, ix));
-//					int y = std::min<int>(h - 1, std::max<int>(0, iy));
-//					int dsq = (ix - j)*(ix - j) + (iy - i)*(iy - i);
-//					int wght = (int)(std::exp(-dsq / (2 * r*r)) / (PI * 2 * r*r));
-//					val += scl[y*w + x] * wght;  wsum += wght;
-//				}
-//			}
-//			tcl[i*w + j] = (uchar)std::round(val / wsum);
-//		}
-//	}
-//}
-//std::vector<Color> Tetris::FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius)
-//{
-//	assert(radius >= 1);
-//
-//	std::vector<Color> output(w, h);
-//
-//	const unsigned int wm = w - 1;
-//	const unsigned int hm = h - 1;
-//	const unsigned int wh = w * h;
-//
-//	const unsigned int div = radius + radius + 1;
-//
-//	std::vector<unsigned int> r(wh);
-//	std::vector<unsigned int> g(wh);
-//	std::vector<unsigned int> b(wh);
-//	std::vector<unsigned int> vmin(wh);
-//	std::vector<unsigned int> vmax(wh);
-//	std::vector<unsigned int> pix(wh);
-//
-//	for (size_t y = 0; y < h; y++)
-//	{
-//		for (size_t x = 0; x < w; x++)
-//		{
-//			size_t i = y * w + x;
-//			pix[i] = input[i].dword;
-//		}
-//	}
-//	
-//	size_t size = 256;
-//
-//	std::vector<unsigned int> dv(size * div);
-//
-//	for (int i = 0; i < size * div; i++)
-//	{
-//		dv[i] = (i / div);
-//	}
-//
-//	size_t yw = 0;
-//	size_t yi = 0;
-//
-//	for (int y = 0; y < h; y++)
-//	{
-//		unsigned int rsum = 0;
-//		unsigned int gsum = 0;
-//		unsigned int bsum = 0;
-//
-//
-//		for (int i = -radius; i <= radius; i++)
-//		{
-//			const int p = pix[yi + std::min<int>(wm, std::max<int>(i, 0))];
-//
-//			rsum += (p & 0xff0000) >> 16;
-//			gsum += (p & 0x00ff00) >> 8;
-//			bsum += p & 0x0000ff;
-//		}
-//
-//		for (int x = 0; x < w; x++)
-//		{
-//			r[yi] = dv[rsum];
-//			g[yi] = dv[gsum];
-//			b[yi] = dv[bsum];
-//
-//			if (y == 0)
-//			{
-//				vmin[x] = std::min<int>(x + radius + 1, wm);
-//				vmax[x] = std::max<int>(x - radius, 0);
-//			}
-//
-//			const int p1 = pix[yw + vmin[x]];
-//			const int p2 = pix[yw + vmax[x]];
-//
-//			rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
-//			gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
-//			bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
-//
-//			yi++;
-//		}
-//		yw += w;
-//	}
-//
-//	for (int x = 0; x < w; x++)
-//	{
-//		int rsum = 0;
-//		int gsum = 0;
-//		int bsum = 0;
-//
-//		int yp = -radius * w;
-//
-//		for (int i = -radius; i <= radius; i++)
-//		{
-//			yi = std::max<int>(0, yp) + x;
-//			rsum += r[yi];
-//			gsum += g[yi];
-//			bsum += b[yi];
-//			yp += w;
-//		}
-//
-//		yi = x;
-//
-//		for (int y = 0; y < h; y++)
-//		{
-//			pix[yi] = 0xff000000 | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
-//
-//			if (x == 0)
-//			{
-//				vmin[y] = std::min<int>(y + radius + 1, hm) * w;
-//				vmax[y] = std::max<int>(y - radius, 0) * w;
-//			}
-//
-//			const int p1 = x + vmin[y];
-//			const int p2 = x + vmax[y];
-//
-//			rsum += r[p1] - r[p2];
-//			gsum += g[p1] - g[p2];
-//			bsum += b[p1] - b[p2];
-//
-//			yi += w;
-//		}
-//	}
-//	
-//	for (unsigned int i = 0; i < wh; i++)
-//	{
-//		output[i].dword = pix[i];
-//	}
-//
-//	return std::move(output);
-//}
-//
-//Surface Tetris::FastBlur(const Surface& input, int radius)
-//{
-//	assert(radius >= 1);
-//
-//	int w = input.GetWidth();
-//	int h = input.GetHeight();
-//
-//	assert(w >= 1 && h >= 1);
-//
-//	Surface output(w,h);
-//
-//	const int wm = w - 1;
-//	const int hm = h - 1;
-//	const int wh = w * h;
-//
-//	const int div = radius + radius + 1;
-//
-//	std::vector<unsigned int> r(wh);
-//	std::vector<unsigned int> g(wh);
-//	std::vector<unsigned int> b(wh);
-//	std::vector<unsigned int> vmin(wh);
-//	std::vector<unsigned int> vmax(wh);
-//	std::vector<unsigned int> pix(wh);
-//
-//	for (int y = 0; y < h; y++)
-//	{
-//		for (int x = 0; x < w; x++)
-//		{
-//			int i = y * w + x;
-//			pix[i] = input.GetBufferPtrConst()[i].dword;
-//		}
-//	}
-//
-//	size_t size = 256;
-//
-//	std::vector<int> dv(size * div);
-//
-//	for (int i = 0; i < size * div; i++)
-//	{
-//		dv[i] = (i / div);
-//	}
-//
-//	size_t yw = 0;
-//
-//	for (int y = 0; y < h; y++)
-//	{
-//		unsigned int rsum = 0;
-//		unsigned int gsum = 0;
-//		unsigned int bsum = 0;
-//
-//		size_t yi = 0;
-//
-//		for (int i = -radius; i <= radius; i++)
-//		{
-//			const int p = pix[yi + std::min<int>(wm, std::max<int>(i, 0))];
-//
-//			rsum += (p & 0xff0000) >> 16;
-//			gsum += (p & 0x00ff00) >> 8;
-//			bsum += p & 0x0000ff;
-//		}
-//
-//		for (int x = 0; x < w; x++)
-//		{
-//			r[yi] = dv[rsum];
-//			g[yi] = dv[gsum];
-//			b[yi] = dv[bsum];
-//
-//			if (y == 0)
-//			{
-//				vmin[x] = std::min<int>(x + radius + 1, wm);
-//				vmax[x] = std::max<int>(x - radius, 0);
-//			}
-//
-//			const int p1 = pix[yw + vmin[x]];
-//			const int p2 = pix[yw + vmax[x]];
-//
-//			rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
-//			gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
-//			bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
-//
-//			yi++;
-//		}
-//		yw += w;
-//	}
-//
-//	for (int x = 0; x < w; x++)
-//	{
-//		int rsum = 0;
-//		int gsum = 0;
-//		int bsum = 0;
-//
-//		int yi = 0;
-//		int yp = -radius * w;
-//
-//		for (int i = -radius; i <= radius; i++)
-//		{
-//			yi = std::max<int>(0, yp) + x;
-//			rsum += r[yi];
-//			gsum += g[yi];
-//			bsum += b[yi];
-//			yp += w;
-//		}
-//
-//		yi = x;
-//
-//		for (int y = 0; y < h; y++)
-//		{
-//			pix[yi] = 0xff000000 | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
-//
-//			if (x == 0)
-//			{
-//				vmin[y] = std::min<int>(y + radius + 1, hm) * w;
-//				vmax[y] = std::max<int>(y - radius, 0) * w;
-//			}
-//
-//			const int p1 = x + vmin[y];
-//			const int p2 = x + vmax[y];
-//
-//			rsum += r[p1] - r[p2];
-//			gsum += g[p1] - g[p2];
-//			bsum += b[p1] - b[p2];
-//
-//			yi += w;
-//		}
-//	}
-//
-//	for (int i = 0; i < wh; i++)
-//	{
-//		output.GetBufferPtr()[i].dword = pix[i];
-//	}
-//
-//	return std::move(output);
-//}
-//
-//void Tetris::superFastBlur(unsigned char* pix, int w, int h, int radius) {
-//
-//	if (radius < 1) return;
-//
-//	int wm = w - 1;
-//	int hm = h - 1;
-//	int wh = w * h;
-//	int div = radius + radius + 1;
-//
-//	unsigned char* r = new unsigned char[wh];
-//	unsigned char* g = new unsigned char[wh];
-//	unsigned char* b = new unsigned char[wh];
-//
-//	int rsum, gsum, bsum, x, y, i, p, p1, p2, yp, yi, yw;
-//
-//	int* vMIN = new int[std::max<int>(w, h)];
-//	int* vMAX = new int[std::max<int>(w, h)];
-//
-//	unsigned char* dv = new unsigned char[256 * div];
-//
-//	for (i = 0; i < 256 * div; i++) dv[i] = (i / div);
-//
-//	yw = yi = 0;
-//
-//	for (y = 0; y < h; y++) {
-//		rsum = gsum = bsum = 0;
-//		for (i = -radius; i <= radius; i++) {
-//			p = (yi + std::min<int>(wm, std::max<int>(i, 0))) * 3;
-//			rsum += pix[p];
-//			gsum += pix[p + 1];
-//			bsum += pix[p + 2];
-//		}
-//		for (x = 0; x < w; x++) {
-//
-//			r[yi] = dv[rsum];
-//			g[yi] = dv[gsum];
-//			b[yi] = dv[bsum];
-//
-//			if (y == 0) {
-//				vMIN[x] = std::min<int>(x + radius + 1, wm);
-//				vMAX[x] = std::max<int>(x - radius, 0);
-//			}
-//			p1 = (yw + vMIN[x]) * 3;
-//			p2 = (yw + vMAX[x]) * 3;
-//
-//			rsum += pix[p1] - pix[p2];
-//			gsum += pix[p1 + 1] - pix[p2 + 1];
-//			bsum += pix[p1 + 2] - pix[p2 + 2];
-//
-//			yi++;
-//		}
-//		yw += w;
-//	}
-//
-//	for (x = 0; x < w; x++) 
-//	{
-//		rsum = gsum = bsum = 0;
-//		yp = -radius * w;
-//		for (i = -radius; i <= radius; i++) 
-//		{
-//			yi = std::max<int>(0, yp) + x;
-//			rsum += r[yi];
-//			gsum += g[yi];
-//			bsum += b[yi];
-//			yp += w;
-//		}
-//		yi = x;
-//		for (y = 0; y < h; y++) 
-//		{
-//			pix[yi * 3] = dv[rsum];
-//			pix[yi * 3 + 1] = dv[gsum];
-//			pix[yi * 3 + 2] = dv[bsum];
-//			if (x == 0) {
-//				vMIN[y] = std::min<int>(y + radius + 1, hm) * w;
-//				vMAX[y] = std::max<int>(y - radius, 0) * w;
-//			}
-//			p1 = x + vMIN[y];
-//			p2 = x + vMAX[y];
-//
-//			rsum += r[p1] - r[p2];
-//			gsum += g[p1] - g[p2];
-//			bsum += b[p1] - b[p2];
-//
-//			yi += w;
-//		}
-//	}
-//
-//	delete[] r;
-//	delete[] g;
-//	delete[] b;
-//
-//	delete[] vMIN;
-//	delete[] vMAX;
-//	delete[] dv;
-//}
+/* FUNCTIONS I COULDN'T GET TO WORK */
+/*void	Tetris::Benchmark(void* pFunction)
+{
+	std::ofstream file;
+	file.open("Benchmark.txt"); // creates file and names it and opens for writing to
+
+	const unsigned int number = 100;
+
+	for (int i = 0; i < number; i++)
+	{
+		std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now(); 
+
+		&pFunction;
+
+		std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+
+		auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+
+		file << i << " " << duration.count() << " microseconds" << std::endl;
+	}
+}*/
+/*void	Tetris::BoxBlur(const Surface & input, std::vector<Color>& output)
+{
+	output.clear();
+
+	const uint height = input.GetHeight();
+	const uint width = input.GetWidth();
+
+	for (uint y = 0; y < height; y++)
+	{
+		for (uint x = 0; x < width; x++)
+		{
+			uchar rTotal = 0;
+			uchar gTotal = 0;
+			uchar bTotal = 0;
+
+			for (int row = -1; row <= 1; row++)
+			{
+				for (int col = -1; col <= 1; col++)
+				{
+					int currentX = x + col;
+					int currentY = y + row;
+
+					if (currentX > 0 && currentX < (int)width && currentY > 0 && currentY < (int)height)
+					{
+						Color c = input.GetPixel(currentX, currentY);
+
+						uchar r = c.GetR();
+						uchar g = c.GetG();
+						uchar b = c.GetB();
+
+						rTotal += r;
+						gTotal += g;
+						bTotal += b;
+					}
+				}
+			}
+
+			uint div = 9;
+
+			uchar rFinal = rTotal / div;
+			uchar gFinal = gTotal / div;
+			uchar bFinal = bTotal / div;
+
+			output.push_back( Color(rFinal, gFinal, bFinal) );
+			
+		}
+	}
+	assert(output.size() == (input.GetWidth() * input.GetHeight()));
+}*/
+/*auto Tetris::boxesForGauss(int sigma, int n)  // standard deviation, number of boxes
+{
+	float wIdeal = std::sqrt((12 * sigma*sigma / (float)n) + 1);  // Ideal averaging filter width 
+	int wl = (int)std::floor(wIdeal);  if (wl % 2 == 0) wl--;
+	int wu = wl + 2;
+
+	float mIdeal = (12 * sigma*sigma - (float)n * wl*wl - 4 * (float)n*wl - 3 * (float)n) / (-4 * wl - 4);
+	int m = (int)std::round(mIdeal);
+	// float sigmaActual = std::sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
+
+	std::vector<int> sizes;  
+	
+	for (int i = 0; i < n; i++) 
+		sizes.push_back(i < m ? wl : wu);
+
+	return sizes;
+}*/
+/*void Tetris::gaussBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto bxs = boxesForGauss(r, 3);
+
+	boxBlur_4(scl, tcl, w, h, (bxs[0] - 1) / 2);
+	boxBlur_4(tcl, scl, w, h, (bxs[1] - 1) / 2);
+	boxBlur_4(scl, tcl, w, h, (bxs[2] - 1) / 2);
+}*/
+/*void Tetris::boxBlur_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	for (auto i = 0; i < scl.size(); i++) tcl[i] = scl[i];
+
+	boxBlurH_4(tcl, scl, w, h, r);
+	boxBlurT_4(scl, tcl, w, h, r);
+}*/
+/*void Tetris::boxBlurH_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto iarr = 1 / (r + r + 1);
+
+	for (auto i = 0; i < h; i++) 
+	{
+		auto ti = i * w;
+		auto li = ti;
+		auto ri = ti + r;
+		auto fv = scl[ti];
+		auto lv = scl[ti + w - 1];
+		auto val = (r + 1)*fv;
+
+		for (auto j = 0; j < r; j++)
+		{
+			val += scl[ti + j];
+		}
+
+		for (auto j = 0; j <= r; j++) 
+		{ 
+			val += scl[ri++] - fv;
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+
+		for (auto j = r + 1; j < w - r; j++)
+		{ 
+			val += scl[ri++] - scl[li++];
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+
+		for (auto j = w - r; j < w; j++) 
+		{ 
+			val += lv - scl[li++];
+			tcl[ti++] = (int)std::round(val*iarr);
+		}
+	}
+}*/
+/*void Tetris::boxBlurT_4(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	auto iarr = 1 / (r + r + 1);
+
+	for (auto i = 0; i < w; i++) 
+	{
+		auto ti = i, li = ti, ri = ti + r * w;
+		auto fv = scl[ti];
+		auto lv = scl[ti + w * (h - 1)];
+		auto val = (r + 1)*fv;
+
+		for (auto j = 0; j < r; j++)
+		{
+			val += scl[ti + j * w];
+		}
+
+		for (auto j = 0; j <= r; j++)
+		{ 
+			val += scl[ri] - fv;
+			tcl[ti] = (int)std::round(val*iarr);
+			ri += w; ti += w;
+		}
+
+		for (auto j = r + 1; j < h - r; j++)
+		{ 
+			val += scl[ri] - scl[li];
+			tcl[ti] = (int)std::round(val*iarr);
+			li += w; ri += w; ti += w; 
+		}
+
+		for (auto j = h - r; j < h; j++)
+		{ 
+			val += lv - scl[li];  
+			tcl[ti] = (int)std::round(val*iarr);
+			li += w; ti += w;
+		}
+	}
+}*/
+/*void Tetris::gaussBlur_1(std::vector<uchar> scl, std::vector<uchar> tcl, int w, int h, int r)
+{
+	// scl = source channel, tcl = target channel, width, height, radius
+
+	int rs = (int)std::ceil(r * 2.57);     // significant radius
+
+	for (int i = 0; i < h; i++)
+	{
+		for (int j = 0; j < w; j++)
+		{
+			int val = 0, wsum = 0;
+
+			for (int iy = i - rs; iy < i + rs + 1; iy++)
+			{
+				for (int ix = j - rs; ix < j + rs + 1; ix++)
+				{
+					int x = std::min<int>(w - 1, std::max<int>(0, ix));
+					int y = std::min<int>(h - 1, std::max<int>(0, iy));
+					int dsq = (ix - j)*(ix - j) + (iy - i)*(iy - i);
+					int wght = (int)(std::exp(-dsq / (2 * r*r)) / (PI * 2 * r*r));
+					val += scl[y*w + x] * wght;  wsum += wght;
+				}
+			}
+			tcl[i*w + j] = (uchar)std::round(val / wsum);
+		}
+	}
+}*/
+/*std::vector<Color> Tetris::FastBlur(const std::vector<Color>& input, const int w, const int h, const int radius)
+{
+	assert(radius >= 1);
+
+	std::vector<Color> output(w, h);
+
+	const unsigned int wm = w - 1;
+	const unsigned int hm = h - 1;
+	const unsigned int wh = w * h;
+
+	const unsigned int div = radius + radius + 1;
+
+	std::vector<unsigned int> r(wh);
+	std::vector<unsigned int> g(wh);
+	std::vector<unsigned int> b(wh);
+	std::vector<unsigned int> vmin(wh);
+	std::vector<unsigned int> vmax(wh);
+	std::vector<unsigned int> pix(wh);
+
+	for (size_t y = 0; y < h; y++)
+	{
+		for (size_t x = 0; x < w; x++)
+		{
+			size_t i = y * w + x;
+			pix[i] = input[i].dword;
+		}
+	}
+	
+	size_t size = 256;
+
+	std::vector<unsigned int> dv(size * div);
+
+	for (int i = 0; i < size * div; i++)
+	{
+		dv[i] = (i / div);
+	}
+
+	size_t yw = 0;
+	size_t yi = 0;
+
+	for (int y = 0; y < h; y++)
+	{
+		unsigned int rsum = 0;
+		unsigned int gsum = 0;
+		unsigned int bsum = 0;
+
+
+		for (int i = -radius; i <= radius; i++)
+		{
+			const int p = pix[yi + std::min<int>(wm, std::max<int>(i, 0))];
+
+			rsum += (p & 0xff0000) >> 16;
+			gsum += (p & 0x00ff00) >> 8;
+			bsum += p & 0x0000ff;
+		}
+
+		for (int x = 0; x < w; x++)
+		{
+			r[yi] = dv[rsum];
+			g[yi] = dv[gsum];
+			b[yi] = dv[bsum];
+
+			if (y == 0)
+			{
+				vmin[x] = std::min<int>(x + radius + 1, wm);
+				vmax[x] = std::max<int>(x - radius, 0);
+			}
+
+			const int p1 = pix[yw + vmin[x]];
+			const int p2 = pix[yw + vmax[x]];
+
+			rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
+			gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
+			bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
+
+			yi++;
+		}
+		yw += w;
+	}
+
+	for (int x = 0; x < w; x++)
+	{
+		int rsum = 0;
+		int gsum = 0;
+		int bsum = 0;
+
+		int yp = -radius * w;
+
+		for (int i = -radius; i <= radius; i++)
+		{
+			yi = std::max<int>(0, yp) + x;
+			rsum += r[yi];
+			gsum += g[yi];
+			bsum += b[yi];
+			yp += w;
+		}
+
+		yi = x;
+
+		for (int y = 0; y < h; y++)
+		{
+			pix[yi] = 0xff000000 | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
+
+			if (x == 0)
+			{
+				vmin[y] = std::min<int>(y + radius + 1, hm) * w;
+				vmax[y] = std::max<int>(y - radius, 0) * w;
+			}
+
+			const int p1 = x + vmin[y];
+			const int p2 = x + vmax[y];
+
+			rsum += r[p1] - r[p2];
+			gsum += g[p1] - g[p2];
+			bsum += b[p1] - b[p2];
+
+			yi += w;
+		}
+	}
+	
+	for (unsigned int i = 0; i < wh; i++)
+	{
+		output[i].dword = pix[i];
+	}
+
+	return std::move(output);
+}*/
+/*Surface Tetris::FastBlur(const Surface& input, int radius)
+{
+	assert(radius >= 1);
+
+	int w = input.GetWidth();
+	int h = input.GetHeight();
+
+	assert(w >= 1 && h >= 1);
+
+	Surface output(w,h);
+
+	const int wm = w - 1;
+	const int hm = h - 1;
+	const int wh = w * h;
+
+	const int div = radius + radius + 1;
+
+	std::vector<unsigned int> r(wh);
+	std::vector<unsigned int> g(wh);
+	std::vector<unsigned int> b(wh);
+	std::vector<unsigned int> vmin(wh);
+	std::vector<unsigned int> vmax(wh);
+	std::vector<unsigned int> pix(wh);
+
+	for (int y = 0; y < h; y++)
+	{
+		for (int x = 0; x < w; x++)
+		{
+			int i = y * w + x;
+			pix[i] = input.GetBufferPtrConst()[i].dword;
+		}
+	}
+
+	size_t size = 256;
+
+	std::vector<int> dv(size * div);
+
+	for (int i = 0; i < size * div; i++)
+	{
+		dv[i] = (i / div);
+	}
+
+	size_t yw = 0;
+
+	for (int y = 0; y < h; y++)
+	{
+		unsigned int rsum = 0;
+		unsigned int gsum = 0;
+		unsigned int bsum = 0;
+
+		size_t yi = 0;
+
+		for (int i = -radius; i <= radius; i++)
+		{
+			const int p = pix[yi + std::min<int>(wm, std::max<int>(i, 0))];
+
+			rsum += (p & 0xff0000) >> 16;
+			gsum += (p & 0x00ff00) >> 8;
+			bsum += p & 0x0000ff;
+		}
+
+		for (int x = 0; x < w; x++)
+		{
+			r[yi] = dv[rsum];
+			g[yi] = dv[gsum];
+			b[yi] = dv[bsum];
+
+			if (y == 0)
+			{
+				vmin[x] = std::min<int>(x + radius + 1, wm);
+				vmax[x] = std::max<int>(x - radius, 0);
+			}
+
+			const int p1 = pix[yw + vmin[x]];
+			const int p2 = pix[yw + vmax[x]];
+
+			rsum += ((p1 & 0xff0000) - (p2 & 0xff0000)) >> 16;
+			gsum += ((p1 & 0x00ff00) - (p2 & 0x00ff00)) >> 8;
+			bsum += (p1 & 0x0000ff) - (p2 & 0x0000ff);
+
+			yi++;
+		}
+		yw += w;
+	}
+
+	for (int x = 0; x < w; x++)
+	{
+		int rsum = 0;
+		int gsum = 0;
+		int bsum = 0;
+
+		int yi = 0;
+		int yp = -radius * w;
+
+		for (int i = -radius; i <= radius; i++)
+		{
+			yi = std::max<int>(0, yp) + x;
+			rsum += r[yi];
+			gsum += g[yi];
+			bsum += b[yi];
+			yp += w;
+		}
+
+		yi = x;
+
+		for (int y = 0; y < h; y++)
+		{
+			pix[yi] = 0xff000000 | (dv[rsum] << 16) | (dv[gsum] << 8) | dv[bsum];
+
+			if (x == 0)
+			{
+				vmin[y] = std::min<int>(y + radius + 1, hm) * w;
+				vmax[y] = std::max<int>(y - radius, 0) * w;
+			}
+
+			const int p1 = x + vmin[y];
+			const int p2 = x + vmax[y];
+
+			rsum += r[p1] - r[p2];
+			gsum += g[p1] - g[p2];
+			bsum += b[p1] - b[p2];
+
+			yi += w;
+		}
+	}
+
+	for (int i = 0; i < wh; i++)
+	{
+		output.GetBufferPtr()[i].dword = pix[i];
+	}
+
+	return std::move(output);
+}*/
+/*void Tetris::superFastBlur(unsigned char* pix, int w, int h, int radius)
+{
+	if (radius < 1) return;
+
+	int wm = w - 1;
+	int hm = h - 1;
+	int wh = w * h;
+	int div = radius + radius + 1;
+
+	unsigned char* r = new unsigned char[wh];
+	unsigned char* g = new unsigned char[wh];
+	unsigned char* b = new unsigned char[wh];
+
+	int rsum, gsum, bsum, x, y, i, p, p1, p2, yp, yi, yw;
+
+	int* vMIN = new int[std::max<int>(w, h)];
+	int* vMAX = new int[std::max<int>(w, h)];
+
+	unsigned char* dv = new unsigned char[256 * div];
+
+	for (i = 0; i < 256 * div; i++) dv[i] = (i / div);
+
+	yw = yi = 0;
+
+	for (y = 0; y < h; y++) {
+		rsum = gsum = bsum = 0;
+		for (i = -radius; i <= radius; i++) 
+		{
+			p = (yi + std::min<int>(wm, std::max<int>(i, 0))) * 3;
+			rsum += pix[p];
+			gsum += pix[p + 1];
+			bsum += pix[p + 2];
+		}
+		for (x = 0; x < w; x++) {
+
+			r[yi] = dv[rsum];
+			g[yi] = dv[gsum];
+			b[yi] = dv[bsum];
+
+			if (y == 0) {
+				vMIN[x] = std::min<int>(x + radius + 1, wm);
+				vMAX[x] = std::max<int>(x - radius, 0);
+			}
+			p1 = (yw + vMIN[x]) * 3;
+			p2 = (yw + vMAX[x]) * 3;
+
+			rsum += pix[p1] - pix[p2];
+			gsum += pix[p1 + 1] - pix[p2 + 1];
+			bsum += pix[p1 + 2] - pix[p2 + 2];
+
+			yi++;
+		}
+		yw += w;
+	}
+
+	for (x = 0; x < w; x++) 
+	{
+		rsum = gsum = bsum = 0;
+		yp = -radius * w;
+		for (i = -radius; i <= radius; i++) 
+		{
+			yi = std::max<int>(0, yp) + x;
+			rsum += r[yi];
+			gsum += g[yi];
+			bsum += b[yi];
+			yp += w;
+		}
+		yi = x;
+		for (y = 0; y < h; y++) 
+		{
+			pix[yi * 3] = dv[rsum];
+			pix[yi * 3 + 1] = dv[gsum];
+			pix[yi * 3 + 2] = dv[bsum];
+			if (x == 0) {
+				vMIN[y] = std::min<int>(y + radius + 1, hm) * w;
+				vMAX[y] = std::max<int>(y - radius, 0) * w;
+			}
+			p1 = x + vMIN[y];
+			p2 = x + vMAX[y];
+
+			rsum += r[p1] - r[p2];
+			gsum += g[p1] - g[p2];
+			bsum += b[p1] - b[p2];
+
+			yi += w;
+		}
+	}
+
+	delete[] r;
+	delete[] g;
+	delete[] b;
+
+	delete[] vMIN;
+	delete[] vMAX;
+	delete[] dv;
+}*/
