@@ -329,6 +329,62 @@ std::wstring Graphics::Exception::GetExceptionType() const
 	return L"Chili Graphics Exception";
 }
 
+void Graphics::DrawLineDepth(ZBuffer& zb, Vec3& v0, Vec3& v1, Color c)
+{
+	float dx = v1.x - v0.x;
+	float dy = v1.y - v0.y;
+
+	if (dy == 0.0f && dx == 0.0f)
+	{
+	}
+	else if (abs(dy) > abs(dx))
+	{
+		if (dy < 0.0f)
+		{
+			std::swap(v0, v1);
+			dy = -dy;
+		}
+
+		const auto dv = (v1 - v0) / dy;
+		for (auto v = v0; v.y < v1.y; v += dv)
+		{
+			const auto x = int(v.x);
+			const auto y = int(v.y);
+			if (x < 0 || x >= Graphics::ScreenWidth || y < 0 || y >= Graphics::ScreenHeight)
+			{
+				continue;
+			}
+			if (zb.TestAndSet(x, y, v.z))
+			{
+				PutPixel(x, y, c);
+			}
+		}
+	}
+	else
+	{
+		if (dx < 0.0f)
+		{
+			std::swap(v0, v1);
+			dx = -dx;
+		}
+
+		const auto dv = (v1 - v0) / dx;
+		for (auto v = v0; v.x < v1.x; v += dv)
+		{
+			const auto x = int(v.x);
+			const auto y = int(v.y);
+			if (x < 0 || x >= Graphics::ScreenWidth || y < 0 || y >= Graphics::ScreenHeight)
+			{
+				continue;
+			}
+			if (zb.TestAndSet(x, y, v.z))
+			{
+				PutPixel(x, y, c);
+			}
+		}
+	}
+}
+
 void Graphics::DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c)
 {
 	// using pointers so we can swap (for sorting purposes)
@@ -561,4 +617,29 @@ void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
 
 	// pack channels back into pixel and fire pixel onto surface
 	PutPixel(x, y, { rsltRed,rsltGreen,rsltBlue });
+}
+
+void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
+{
+
+}
+void Graphics::DrawRect(int x1, int y1, int x2, int y2, Color c)
+{
+	assert(y2 > y1 && x2 > x1);
+
+	int width = x2 - x1;
+	int height = y2 - y1;
+
+	for (int i = 0; i < width; i++)
+	{
+		PutPixel(x1 + i, y1, c);
+		PutPixel(x1 + i, y2, c);
+	}
+
+	for (int i = 0; i < height; i++)
+	{
+		PutPixel(x1, y1 + i, c);
+		PutPixel(x2, y1 + i, c);
+	}
+
 }

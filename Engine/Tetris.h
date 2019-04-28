@@ -39,8 +39,8 @@ private:
 	static constexpr unsigned int	scoreW = 10u;
 	static constexpr unsigned int	scoreH = 10u;
 
-	static constexpr unsigned int	keysW = 150u;
-	static constexpr unsigned int	keysH = 200u;
+	static constexpr unsigned int	keyW = 50u;
+	static constexpr unsigned int	keyH = 50u;
 
 	const unsigned int	blockW = 25u;
 	const unsigned int	blockH = 25u;
@@ -68,6 +68,9 @@ private:
 	std::vector<Surface> texture_Digits;
 	std::vector<Surface> texture_Pause;
 	std::vector<Surface> texture_GameOver;
+
+	std::vector<RectI> keyRects;
+	std::vector<bool> mouseIsOverKey;
 
 	std::array<std::string, nTetro>					tetromino;
 	std::array<std::array<Block, fieldW>, fieldH>	blocks_Field;
@@ -137,7 +140,8 @@ private:
 	void	SetBackground();
 	void	ResetScore();
 	void	ResetField();
-	void	Input();
+	void	InputKeyboard();
+	void	InputMouse();
 	void	SetScore();
 	void	SetFieldBlocks();
 	void	SetNextTetro();

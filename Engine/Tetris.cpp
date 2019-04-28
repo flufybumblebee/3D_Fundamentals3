@@ -69,15 +69,14 @@ void Tetris::Setup()
 	SetNextTetro();
 }
 void Tetris::Update()
-{
+{	
+	InputMouse();
+
 	PauseOrReset();
-		
+
 	if (!gameIsOver && !gameIsPaused)
 	{
-		if (frameCounter > 0 && frameCounter % (speed / 10) == 0)
-		{
-			Input();
-		}
+		InputKeyboard();
 
 		if (frameCounter == speed)
 		{
@@ -296,13 +295,38 @@ void Tetris::InitialiseCounter()
 }
 void Tetris::InitialiseKeys()
 {
+
 	texture_Keys.push_back(Surface::FromFile(L"Textures\\Keys\\keys.png"));
-	int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keysH / 2u);
+	int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keyH * 2);
 	int bottom = (scrH / 2u) + ((fieldH / 2u) * blockH);
-	int right = (scrW / 2u) + ((fieldW / 2u) * blockW) + (keysW / 3u) + keysW;
-	int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + (keysW / 3u);
+	int right = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW + (keyW * 3u);
+	int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW;
 	RectI pos = {top,bottom,left,right};
 	block_Keys = Block(pos, &texture_Keys[0]);
+
+	if(true)
+	{
+		keyRects.reserve(6);
+
+		int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keyH * 2);
+		int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW;
+		int keyH = static_cast<int>(Tetris::keyH);
+		int keyW = static_cast<int>(Tetris::keyW);
+
+		keyRects[0] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 0), left + (keyW * 1) - 1 };
+		keyRects[1] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 1), left + (keyW * 2) - 1 };
+		keyRects[2] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 2), left + (keyW * 3) - 1 };
+
+		keyRects[3] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 0), left + (keyW * 1) - 1 };
+		keyRects[4] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 1), left + (keyW * 2) - 1 };
+		keyRects[5] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 2), left + (keyW * 3) - 1 };
+	}
+
+	mouseIsOverKey.reserve(6);
+	for (int i = 0; i < 6; i++)
+	{
+		mouseIsOverKey[i] = false;
+	}
 }
 
 /*-------------------------------------------*/
@@ -340,18 +364,25 @@ void Tetris::ResetField()
 		}
 	}
 }
-void Tetris::Input()
+void Tetris::InputKeyboard()
 {
-	if (kbd.KeyIsPressed(VK_LEFT) && DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
+	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
+		(kbd.KeyIsPressed(VK_LEFT) || (mouseIsOverKey[3] && mouse.LeftIsPressed())) &&
+		DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
 	{
 		currentX--;
 	}
-	if (kbd.KeyIsPressed(VK_RIGHT) && DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
+
+	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
+		(kbd.KeyIsPressed(VK_RIGHT) || (mouseIsOverKey[5] && mouse.LeftIsPressed())) &&
+		DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
 	{
 		currentX++;
 	}
 
-	if (kbd.KeyIsPressed(VK_DOWN) && DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
+	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
+		(kbd.KeyIsPressed(VK_DOWN) || (mouseIsOverKey[4] && mouse.LeftIsPressed())) &&
+		DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
 	{
 		currentY++;
 		keyIsPressed_DOWN = true;
@@ -363,7 +394,7 @@ void Tetris::Input()
 
 	if (!keyIsPressed_UP)
 	{
-		if (kbd.KeyIsPressed(VK_UP))
+		if (kbd.KeyIsPressed(VK_UP) || (mouseIsOverKey[1] && mouse.LeftIsPressed()))
 		{
 			if (DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY))
 			{
@@ -376,9 +407,32 @@ void Tetris::Input()
 	}
 	else
 	{
-		if (!kbd.KeyIsPressed(VK_UP))
+		if (!kbd.KeyIsPressed(VK_UP) && !mouse.LeftIsPressed())
 		{
 			keyIsPressed_UP = false;
+		}
+	}
+}
+void Tetris::InputMouse()
+{
+	if (mouse.IsInWindow())
+	{
+		int mouseX = mouse.GetPosX();
+		int mouseY = mouse.GetPosY();
+
+		for (int i = 0; i < 6; i++)
+		{
+			if (mouseX >= keyRects[i].left &&
+				mouseX < keyRects[i].right &&
+				mouseY >= keyRects[i].top &&
+				mouseY < keyRects[i].bottom)
+			{
+				mouseIsOverKey[i] = true;
+			}
+			else
+			{
+				mouseIsOverKey[i] = false;
+			}
 		}
 	}
 }
@@ -569,7 +623,7 @@ void Tetris::PauseOrReset()
 {
 	if (!keyIsPressed_SPACE)
 	{
-		if (kbd.KeyIsPressed(VK_SPACE) && !gameIsPaused)
+		if ((kbd.KeyIsPressed(VK_SPACE) || (mouseIsOverKey[2] && mouse.LeftIsPressed())) && !gameIsPaused)
 		{
 			if (gameIsOver)
 			{
@@ -579,9 +633,10 @@ void Tetris::PauseOrReset()
 			{
 				gameIsPaused = true;
 			}
+
 			keyIsPressed_SPACE = true;
 		}
-		else if (kbd.KeyIsPressed(VK_SPACE) && gameIsPaused)
+		else if ((kbd.KeyIsPressed(VK_SPACE) || (mouseIsOverKey[2] && mouse.LeftIsPressed())) && gameIsPaused)
 		{
 			gameIsPaused = false;
 			keyIsPressed_SPACE = true;
@@ -589,7 +644,7 @@ void Tetris::PauseOrReset()
 	}
 	else
 	{
-		if (!kbd.KeyIsPressed(VK_SPACE))
+		if (!kbd.KeyIsPressed(VK_SPACE) && !mouse.LeftIsPressed())
 		{
 			keyIsPressed_SPACE = false;
 		}
@@ -701,6 +756,41 @@ void Tetris::DrawGameOver()
 void Tetris::DrawKeys()
 {
 	block_Keys.Draw(gfx);
+
+	if (true)
+	{
+		std::vector<Color> keyColors(6);
+
+		for (int i = 0; i < 6; i++)
+		{
+			keyColors[i] = Colors::White;
+		}
+
+		if (mouse.IsInWindow())
+		{
+			int mouseX = mouse.GetPosX();
+			int mouseY = mouse.GetPosY();
+			for (int i = 0; i < 6; i++)
+			{
+				if (mouseX >= keyRects[i].left &&
+					mouseX < keyRects[i].right &&
+					mouseY >= keyRects[i].top &&
+					mouseY < keyRects[i].bottom)
+				{
+					keyColors[i] = Colors::Red;
+				}
+				else
+				{
+					keyColors[i] = Colors::White;
+				}
+			}
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			gfx.DrawRect(keyRects[i], keyColors[i]);
+		}
+	}
 }
 
 /*-------------------------------------------*/
