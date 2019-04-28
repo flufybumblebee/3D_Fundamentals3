@@ -757,7 +757,7 @@ void Tetris::DrawKeys()
 {
 	block_Keys.Draw(gfx);
 
-	if (true)
+	if (false)
 	{
 		std::vector<Color> keyColors(6);
 
