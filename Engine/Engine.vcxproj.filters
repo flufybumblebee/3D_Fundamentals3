@@ -34,15 +34,15 @@
     <Filter Include="Header Files\Effects\Defunct">
       <UniqueIdentifier>{002b9588-6ee9-40ac-8ac3-88d9c5543635}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{021e4fcf-1d3d-4c37-94d5-b75813f659a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Stuff">
+      <UniqueIdentifier>{ffc966a7-b0bf-42ee-8c1f-23a239772580}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChiliWin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Colors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DXErr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Game.h">
@@ -60,34 +60,10 @@
     <ClInclude Include="Mouse.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChiliException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Surface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vec2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Rect.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChiliMath.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GDIPlusManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IndexedTriangleList.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Scene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FrameTimer.h">
@@ -96,38 +72,17 @@
     <ClInclude Include="Cube.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
-    <ClInclude Include="Pipeline.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Triangle.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ZBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Plane.h">
       <Filter>Header Files\Models</Filter>
-    </ClInclude>
-    <ClInclude Include="tiny_obj_loader.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Miniball.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Sphere.h">
       <Filter>Header Files\Models</Filter>
     </ClInclude>
     <ClInclude Include="SpecularPhongPointEffect.h">
       <Filter>Header Files\Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="Mat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vec4.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NDCScreenTransformer.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TestTriangle.h">
       <Filter>Header Files\Models</Filter>
@@ -207,9 +162,6 @@
     <ClInclude Include="SolidGeometryEffect.h">
       <Filter>Header Files\Effects\Defunct</Filter>
     </ClInclude>
-    <ClInclude Include="MouseTracker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BaseVertexShader.h">
       <Filter>Header Files\Effects\Shaders</Filter>
     </ClInclude>
@@ -221,9 +173,6 @@
     </ClInclude>
     <ClInclude Include="RippleVertexSpecularPhongEffect.h">
       <Filter>Header Files\Effects</Filter>
-    </ClInclude>
-    <ClInclude Include="NormiePipe.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tetris.h">
       <Filter>Header Files</Filter>
@@ -245,6 +194,63 @@
     </ClInclude>
     <ClInclude Include="Sound.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DXErr.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="IndexedTriangleList.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Miniball.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="MouseTracker.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="NDCScreenTransformer.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="NormiePipe.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Pipeline.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="tiny_obj_loader.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="ZBuffer.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="Mat.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec2.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec3.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Vec4.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Rect.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ChiliMath.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="ChiliException.h">
+      <Filter>Header Files\Stuff</Filter>
+    </ClInclude>
+    <ClInclude Include="ChiliWin.h">
+      <Filter>Header Files\Stuff</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

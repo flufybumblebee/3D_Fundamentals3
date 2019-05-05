@@ -102,5 +102,6 @@ public:
 	T right = 0;
 };
 
+typedef _Rect< unsigned int > RectUI;
 typedef _Rect< int > RectI;
 typedef _Rect< float > RectF;

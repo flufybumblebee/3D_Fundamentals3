@@ -13,11 +13,11 @@
 
 using namespace rnd;
 
-using uint = unsigned int;
+using uint	= unsigned int;
 using uchar = unsigned char;
 
-using Time = std::chrono::steady_clock;
-using ms = std::chrono::microseconds;
+using Time	= std::chrono::steady_clock;
+using ms	= std::chrono::microseconds;
 
 Tetris::Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	:
@@ -25,29 +25,33 @@ Tetris::Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	mouse(mouse),
 	gfx(gfx),
 	sound_move(		L"Sounds\\pop1.wav" ),
-	sound_lines_1(	L"Sounds\\success0.wav"),
-	sound_lines_2(	L"Sounds\\success1.wav"),
-	sound_lines_3(	L"Sounds\\success2.wav"),
-	sound_lines_4(	L"Sounds\\success3.wav"),
+	sound_line1(	L"Sounds\\success0.wav"),
+	sound_line2(	L"Sounds\\success1.wav"),
+	sound_line3(	L"Sounds\\success2.wav"),
+	sound_line4(	L"Sounds\\success3.wav"),
 	sound_new_tetro(L"Sounds\\pop0.wav"),
 	sound_gameover(	L"Sounds\\fail0.wav")
 {
+	Initialise();
+	Setup();
+}
+Tetris::~Tetris(){}
+
+/*-------------------------------------------*/
+
+void Tetris::Initialise()
+{
+	InitialiseTextures();
 	InitialiseBackground();
-	InitialiseBlockTextures();
 	InitialiseBlockPositions();
 	InitialiseTetrominos();
 	InitialiseNextTetro();
-	InitialiseDigits();
 	InitialiseCounter();
 	InitialiseScore();
 	InitialisePause();
 	InitialiseGameOver();
 	InitialiseKeys();
 }
-Tetris::~Tetris(){}
-
-/*-------------------------------------------*/
-
 void Tetris::Setup()
 {	
 	gameIsOver		= false;
@@ -68,6 +72,9 @@ void Tetris::Setup()
 	SetFieldBlocks();
 	SetNextTetro();
 }
+
+/*-------------------------------------------*/
+
 void Tetris::Update()
 {	
 	InputMouse();
@@ -80,7 +87,7 @@ void Tetris::Update()
 
 		if (frameCounter == speed)
 		{
-			if (DoesTetroFit(currentTetro, currentRotation, currentX, currentY + 1))
+			if (DoesTetroFit(0,0,MOVE_DOWN))
 			{
 				if(!keyIsPressed_DOWN) currentY++; // force tetris down
 			}
@@ -91,8 +98,8 @@ void Tetris::Update()
 				SetScore();
 				SetNextTetro();
 				
-				gameIsOver = !DoesTetroFit(currentTetro, currentRotation, currentX, currentY);
-				if(gameIsOver) sound_gameover.Play(1.0f, 1.0f);
+				gameIsOver = !DoesTetroFit(0, 0, 0);
+				if(gameIsOver) sound_gameover.Play(frequency, volume);
 			}
 
 			frameCounter = 0;
@@ -121,11 +128,11 @@ void Tetris::Draw()
 
 /*-------------------------------------------*/
 
-void Tetris::InitialiseBackground()
+void Tetris::InitialiseTextures()
 {
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.jpg"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.jpg"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksRainbow.jpg"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.jpg"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png"));
@@ -135,14 +142,6 @@ void Tetris::InitialiseBackground()
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
 
-	RectI rect = { 0,static_cast<int>(scrH-1),0,static_cast<int>(scrW-1) };	
-	uint min = 0u;
-	uint max = static_cast<uint>(texture_Background.size() - 1);
-	index = RandomInt(min, max);
-	block_Background = Block(rect, &texture_Background[index]);
-}
-void Tetris::InitialiseBlockTextures()
-{
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
@@ -153,6 +152,39 @@ void Tetris::InitialiseBlockTextures()
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Yellow.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
+	
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
+	
+	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\Pause.png"));
+
+	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\GameOver.png"));
+
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_quit.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_up.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_pause.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_left.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_down.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_right.png"));
+
+	//texture_Close.push_back(Surface::FromFile(L"Textures\\power_off_green.png"));
+	texture_Close.push_back(Surface::FromFile(L"Textures\\close4.png"));
+}
+void Tetris::InitialiseBackground()
+{
+	RectI rect = { 0,static_cast<int>(scrH-1),0,static_cast<int>(scrW-1) };	
+	uint min = 0u;
+	uint max = static_cast<uint>(texture_Background.size()) - 1u;
+	index = RandomInt(min, max);
+	block_Background = Block(rect, &texture_Background[index]);
 }
 void Tetris::InitialiseBlockPositions()
 {
@@ -209,9 +241,9 @@ void Tetris::InitialiseTetrominos()
 }
 void Tetris::InitialiseNextTetro()
 {
-	for (uint y = 0; y < tetroH; y++)
+	for (uint y = 0u; y < tetroH; y++)
 	{
-		for (uint x = 0; x < tetroW; x++)
+		for (uint x = 0u; x < tetroW; x++)
 		{
 			RectI rect = RectI(
 				(scrH / 2) - ((fieldH / 2) * blockH) + (y * blockH),
@@ -222,19 +254,6 @@ void Tetris::InitialiseNextTetro()
 			blocks_NextTetro[y][x] = Block(rect, &texture_Blocks[0]);
 		}
 	}
-}
-void Tetris::InitialiseDigits()
-{	
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
 }
 void Tetris::InitialiseScore()
 {	
@@ -254,8 +273,6 @@ void Tetris::InitialiseScore()
 }
 void Tetris::InitialisePause()
 {
-	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\word - Pause.png"));
-
 	RectI rect = RectI(
 		(scrH / 2) - (pauseH / 2),
 		(scrH / 2) + (pauseH / 2),
@@ -267,9 +284,7 @@ void Tetris::InitialisePause()
 	block_Pause = Block(rect, &texture_Pause[i]);
 }
 void Tetris::InitialiseGameOver()
-{	
-	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\word - GameOver.png"));
-
+{
 	RectI rect = RectI(
 		(scrH / 2) - (gameOverH / 2),
 		(scrH / 2) + (gameOverH / 2),
@@ -295,37 +310,246 @@ void Tetris::InitialiseCounter()
 }
 void Tetris::InitialiseKeys()
 {
+	const uint top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keyH * 2u);
+	const uint left = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW;
 
-	texture_Keys.push_back(Surface::FromFile(L"Textures\\Keys\\keys.png"));
-	int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keyH * 2);
-	int bottom = (scrH / 2u) + ((fieldH / 2u) * blockH);
-	int right = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW + (keyW * 3u);
-	int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW;
-	RectI pos = {top,bottom,left,right};
-	block_Keys = Block(pos, &texture_Keys[0]);
-
-	if(true)
 	{
-		keyRects.reserve(6);
+		uint t0 = top + (keyH * 0u);
+		uint t1 = top + (keyH * 1u);
+		
+		uint b0 = top + (keyH * 1u) - 1u;
+		uint b1 = top + (keyH * 2u) - 1u;
+		
+		uint l0 = left + (keyW * 0u);
+		uint l1 = left + (keyW * 1u);
+		uint l2 = left + (keyW * 2u);
+		
+		uint r0 = left + (keyW * 1u) - 1u;
+		uint r1 = left + (keyW * 2u) - 1u;
+		uint r2 = left + (keyW * 3u) - 1u;
 
-		int top = (scrH / 2u) + ((fieldH / 2u) * blockH) - (keyH * 2);
-		int left = (scrW / 2u) + ((fieldW / 2u) * blockW) + keyW;
-		int keyH = static_cast<int>(Tetris::keyH);
-		int keyW = static_cast<int>(Tetris::keyW);
+		RectUI top_left = { t0,b0,l0,r0 };
+		RectUI top_middle = { t0,b0,l1,r1 };
+		RectUI top_right = { t0,b0,l2,r2 };
 
-		keyRects[0] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 0), left + (keyW * 1) - 1 };
-		keyRects[1] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 1), left + (keyW * 2) - 1 };
-		keyRects[2] = { top + (keyH * 0), top + (keyH * 1) - 1, left + (keyW * 2), left + (keyW * 3) - 1 };
+		RectUI bottom_left = { t1,b1,l0,r0 };
+		RectUI bottom_middle = { t1,b1,l1,r1 };
+		RectUI bottom_right = { t1,b1,l2,r2 };
 
-		keyRects[3] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 0), left + (keyW * 1) - 1 };
-		keyRects[4] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 1), left + (keyW * 2) - 1 };
-		keyRects[5] = { top + (keyH * 1), top + (keyH * 2) - 1, left + (keyW * 2), left + (keyW * 3) - 1 };
+		keyRectsReleased.push_back(top_left);
+		keyRectsReleased.push_back(top_middle);
+		keyRectsReleased.push_back(top_right);
+
+		keyRectsReleased.push_back(bottom_left);
+		keyRectsReleased.push_back(bottom_middle);
+		keyRectsReleased.push_back(bottom_right);
 	}
 
-	mouseIsOverKey.reserve(6);
-	for (int i = 0; i < 6; i++)
+	/*-----------------------------------------------------------*/
+
 	{
-		mouseIsOverKey[i] = false;
+		const uint offset = 5u;
+
+		uint t0 = top + (keyH * 0u) + offset;
+		uint t1 = top + (keyH * 1u) + offset;
+
+		uint b0 = top + (keyH * 1u) - offset - 1u;
+		uint b1 = top + (keyH * 2u) - offset - 1u;
+
+		uint l0 = left + (keyW * 0u) + offset;
+		uint l1 = left + (keyW * 1u) + offset;
+		uint l2 = left + (keyW * 2u) + offset;
+
+		uint r0 = left + (keyW * 1u) - offset - 1u;
+		uint r1 = left + (keyW * 2u) - offset - 1u;
+		uint r2 = left + (keyW * 3u) - offset - 1u;
+
+		RectUI top_left = { t0,b0,l0,r0 };
+		RectUI top_middle = { t0,b0,l1,r1 };
+		RectUI top_right = { t0,b0,l2,r2 };
+			
+		RectUI bottom_left = { t1,b1,l0,r0 };
+		RectUI bottom_middle = { t1,b1,l1,r1 };
+		RectUI bottom_right = { t1,b1,l2,r2 };
+
+		keyRectsPressed.push_back(top_left);
+		keyRectsPressed.push_back(top_middle);
+		keyRectsPressed.push_back(top_right);
+
+		keyRectsPressed.push_back(bottom_left);
+		keyRectsPressed.push_back(bottom_middle);
+		keyRectsPressed.push_back(bottom_right);
+	}
+
+	assert(keyRectsPressed.size() == keyRectsReleased.size());
+	assert(keyRectsPressed.size() == nKeys);
+
+	for (int i = 0; i < nKeys; i++)
+	{
+		blocks_KeyReleased[i] = Block(keyRectsReleased[i], &texture_Key[i]);
+		blocks_KeyPressed[i] = Block(keyRectsPressed[i], &texture_Key[i]);
+	}
+
+	/*-----------------------------------------------------------*/
+
+	mouseOverKey.assign(nKeys, false);
+	mousePressKey.assign(nKeys, false);
+	
+	assert(mouseOverKey.size() == mousePressKey.size());
+	assert(mouseOverKey.size() == nKeys);
+
+	/*-------------------------------------------*/
+
+	{
+		uint t = keyH * 0u;
+		uint b = keyH * 1u;
+		uint l = keyW * 0u;
+		uint r = keyW * 1u;
+
+		RectUI pos = { t,b,l,r };
+		block_Close = { Block(pos,&texture_Close[0]) };
+	}
+}
+
+/*-------------------------------------------*/
+
+void Tetris::InputMouse()
+{
+	if (mouse.IsInWindow())
+	{
+		const uint mouseX = mouse.GetPosX();
+		const uint mouseY = mouse.GetPosY();
+
+		for (uint i = 0u; i < nKeys; i++)
+		{
+			if (mouseX >=	keyRectsReleased[i].left	&&
+				mouseX <	keyRectsReleased[i].right	&&
+				mouseY >=	keyRectsReleased[i].top		&&
+				mouseY <	keyRectsReleased[i].bottom)
+			{
+				mouseOverKey[i] = true;				
+			}
+			else
+			{
+				mouseOverKey[i] = false;
+			}
+		}
+
+		const bool leftIsPressed = mouse.LeftIsPressed();
+
+		for (uint i = 0u; i < nKeys; i++)
+		{
+			if (leftIsPressed && mouseOverKey[i])
+			{
+				mousePressKey[i] = true;
+			}
+			else
+			{
+				mousePressKey[i] = false;
+			}
+		}
+	}
+}
+void Tetris::InputKeyboard()
+{
+	const bool tick = frameCounter > 0u && frameCounter % 10u == 0u;
+
+	if (!keyIsPressed_LEFT)
+	{
+		keyIsPressed_LEFT = kbd.KeyIsPressed(VK_LEFT) || mousePressKey[LEFT];
+	}
+
+	if (!keyIsPressed_RIGHT)
+	{
+		keyIsPressed_RIGHT = kbd.KeyIsPressed(VK_RIGHT) || mousePressKey[RIGHT];
+	}
+
+	if (!keyIsPressed_DOWN)
+	{
+		keyIsPressed_DOWN = kbd.KeyIsPressed(VK_DOWN) || mousePressKey[DOWN];
+	}
+
+	const bool tetroFits_LEFT	= DoesTetroFit(0, MOVE_LEFT, 0);
+	const bool tetroFits_RIGHT	= DoesTetroFit(0, MOVE_RIGHT, 0);
+	const bool tetroFits_DOWN	= DoesTetroFit(0, 0, MOVE_DOWN);
+
+	if (tick)
+	{
+		if (keyIsPressed_LEFT)
+		{
+			if(tetroFits_LEFT) currentX--;
+			keyIsPressed_LEFT = false;
+		}
+
+		if (keyIsPressed_RIGHT)
+		{
+			if(tetroFits_RIGHT)	currentX++;
+			keyIsPressed_RIGHT = false;
+		}
+
+		if (keyIsPressed_DOWN)
+		{
+			if(tetroFits_DOWN) currentY++;
+			keyIsPressed_DOWN = false;
+		}
+		
+		SetCounter();
+	}
+
+	const bool tetroFits_RotatedClockWise = DoesTetroFit(ROTATE_CW,0,0);
+
+	if (!keyIsPressed_UP)
+	{
+		if (kbd.KeyIsPressed(VK_UP) || mousePressKey[UP])
+		{
+			if (tetroFits_RotatedClockWise)
+			{
+				currentRotation++;
+				sound_move.Play(frequency, volume);
+			}
+
+			keyIsPressed_UP = true;
+		}
+	}
+	else
+	{
+		if (!kbd.KeyIsPressed(VK_UP) && !mousePressKey[UP])
+		{
+			keyIsPressed_UP = false;
+		}
+	}
+}
+void Tetris::PauseOrReset()
+{
+	if (!keyIsPressed_SPACE)
+	{
+		if (kbd.KeyIsPressed(VK_SPACE) || mousePressKey[SPACE])
+		{
+			if (!gameIsPaused)
+			{
+				if (gameIsOver)
+				{
+					Setup();
+				}
+				else
+				{
+					gameIsPaused = true;
+				}
+			}
+			else
+			{
+				gameIsPaused = false;
+			}
+
+			keyIsPressed_SPACE = true;
+		}
+	}
+	else
+	{
+		if (!kbd.KeyIsPressed(VK_SPACE) && !mousePressKey[SPACE])
+		{
+			keyIsPressed_SPACE = false;
+		}
 	}
 }
 
@@ -364,78 +588,6 @@ void Tetris::ResetField()
 		}
 	}
 }
-void Tetris::InputKeyboard()
-{
-	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
-		(kbd.KeyIsPressed(VK_LEFT) || (mouseIsOverKey[3] && mouse.LeftIsPressed())) &&
-		DoesTetroFit(currentTetro, currentRotation, currentX - 1, currentY + 0))
-	{
-		currentX--;
-	}
-
-	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
-		(kbd.KeyIsPressed(VK_RIGHT) || (mouseIsOverKey[5] && mouse.LeftIsPressed())) &&
-		DoesTetroFit(currentTetro, currentRotation, currentX + 1, currentY + 0))
-	{
-		currentX++;
-	}
-
-	if (frameCounter > 0 && frameCounter % (speed / 10) == 0 &&
-		(kbd.KeyIsPressed(VK_DOWN) || (mouseIsOverKey[4] && mouse.LeftIsPressed())) &&
-		DoesTetroFit(currentTetro, currentRotation, currentX + 0, currentY + 1))
-	{
-		currentY++;
-		keyIsPressed_DOWN = true;
-	}
-	else
-	{
-		keyIsPressed_DOWN = false;
-	}
-
-	if (!keyIsPressed_UP)
-	{
-		if (kbd.KeyIsPressed(VK_UP) || (mouseIsOverKey[1] && mouse.LeftIsPressed()))
-		{
-			if (DoesTetroFit(currentTetro, currentRotation + 1, currentX, currentY))
-			{
-				currentRotation += 1;
-				sound_move.Play(1.0f, 1.0f);
-			}
-
-			keyIsPressed_UP = true;
-		}
-	}
-	else
-	{
-		if (!kbd.KeyIsPressed(VK_UP) && !mouse.LeftIsPressed())
-		{
-			keyIsPressed_UP = false;
-		}
-	}
-}
-void Tetris::InputMouse()
-{
-	if (mouse.IsInWindow())
-	{
-		int mouseX = mouse.GetPosX();
-		int mouseY = mouse.GetPosY();
-
-		for (int i = 0; i < 6; i++)
-		{
-			if (mouseX >= keyRects[i].left &&
-				mouseX < keyRects[i].right &&
-				mouseY >= keyRects[i].top &&
-				mouseY < keyRects[i].bottom)
-			{
-				mouseIsOverKey[i] = true;
-			}
-			else
-			{
-				mouseIsOverKey[i] = false;
-			}
-		}
-	}
-}
 void Tetris::SetFieldBlocks()
 {
 	for (int y = 0; y < fieldH; y++)
@@ -468,7 +620,7 @@ void Tetris::SetNextTetro()
 		}
 	}
 
-	sound_new_tetro.Play(1.0f,1.0f);
+	sound_new_tetro.Play(frequency,volume);
 }
 void Tetris::SetScore()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 {
@@ -561,16 +713,16 @@ void Tetris::DeleteLines()
 		switch (nLines)
 		{
 		case 1:
-			sound_lines_1.Play(1.0f, 1.0f);
+			sound_line1.Play(frequency, volume);
 			break;
 		case 2:
-			sound_lines_2.Play(1.0f, 1.0f);
+			sound_line2.Play(frequency, volume);
 			break;
 		case 3:
-			sound_lines_3.Play(1.0f, 1.0f);
+			sound_line3.Play(frequency, volume);
 			break;
 		case 4:
-			sound_lines_4.Play(1.0f, 1.0f);
+			sound_line4.Play(frequency, volume);
 			break;
 		default:
 			break;
@@ -616,37 +768,6 @@ void Tetris::SetShownWithFixed()
 		{
 			uint i = y * fieldW + x;
 			blockBuffer_Shown[i] = " ABCDEFG=#"[blockBuffer_Fixed[i]];
-		}
-	}
-}
-void Tetris::PauseOrReset()
-{
-	if (!keyIsPressed_SPACE)
-	{
-		if ((kbd.KeyIsPressed(VK_SPACE) || (mouseIsOverKey[2] && mouse.LeftIsPressed())) && !gameIsPaused)
-		{
-			if (gameIsOver)
-			{
-				Setup();
-			}
-			else
-			{
-				gameIsPaused = true;
-			}
-
-			keyIsPressed_SPACE = true;
-		}
-		else if ((kbd.KeyIsPressed(VK_SPACE) || (mouseIsOverKey[2] && mouse.LeftIsPressed())) && gameIsPaused)
-		{
-			gameIsPaused = false;
-			keyIsPressed_SPACE = true;
-		}
-	}
-	else
-	{
-		if (!kbd.KeyIsPressed(VK_SPACE) && !mouse.LeftIsPressed())
-		{
-			keyIsPressed_SPACE = false;
 		}
 	}
 }
@@ -716,7 +837,7 @@ void Tetris::DrawBlur()
 
 		std::vector<Color> output(wh);
 		
-		for (uint i = 0; i < blurLevel; i++)
+		for (uint i = 0; i < nBlur; i++)
 		{
 			input = Blur(w, h, input);
 		}
@@ -755,29 +876,20 @@ void Tetris::DrawGameOver()
 }
 void Tetris::DrawKeys()
 {
-	block_Keys.Draw(gfx);
-
 	if (false)
 	{
-		std::vector<Color> keyColors(6);
-
-		for (int i = 0; i < 6; i++)
-		{
-			keyColors[i] = Colors::White;
-		}
+		std::vector<Color> keyColors(nKeys, Colors::White);
 
 		if (mouse.IsInWindow())
 		{
 			int mouseX = mouse.GetPosX();
 			int mouseY = mouse.GetPosY();
-			for (int i = 0; i < 6; i++)
+
+			for (int i = 0; i < nKeys; i++)
 			{
-				if (mouseX >= keyRects[i].left &&
-					mouseX < keyRects[i].right &&
-					mouseY >= keyRects[i].top &&
-					mouseY < keyRects[i].bottom)
+				if (mouseOverKey[i])
 				{
-					keyColors[i] = Colors::Red;
+					keyColors[i] = Colors::Green;
 				}
 				else
 				{
@@ -786,60 +898,94 @@ void Tetris::DrawKeys()
 			}
 		}
 
-		for (int i = 0; i < 6; i++)
+		for (int i = 0; i < nKeys; i++)
 		{
-			gfx.DrawRect(keyRects[i], keyColors[i]);
+			gfx.DrawRect(keyRectsReleased[i], keyColors[i]);
 		}
 	}
+
+	std::vector<unsigned int> VKs({ VK_ESCAPE,VK_UP,VK_SPACE,VK_LEFT,VK_DOWN,VK_RIGHT });
+	
+	for (int i = 0; i < nKeys; i++)
+	{
+		if (kbd.KeyIsPressed(VKs[i]) || mousePressKey[i])
+		{
+			blocks_KeyPressed[i].Draw(gfx);
+		}
+		else
+		{
+			blocks_KeyReleased[i].Draw(gfx);
+		}
+	}
+
+	block_Close.Draw(gfx);
 }
 
 /*-------------------------------------------*/
 
-int		Tetris::Rotate(int px, int py, int r)
+int		Tetris::Rotate(int x, int y,  int r)
 {
-	int pi = 0;
+	int i = 0;
 
 	switch (r % 4)
 	{
 	case 0: //   0 degrees 
-		pi = 0 + (py * 4) + px;			//  0  1  2  3
-		break;							//  4  5  6  7
-										//  8  9 10 11
-										// 12 13 14 15
+		i = 0 + (y * 4) + x;
+		break;				
+							
+		//  0  1  2  3
+		//  4  5  6  7
+		//  8  9 10 11
+		// 12 13 14 15					
 
 	case 1: //  90 degrees
-		pi = 12 + py - (px * 4);		// 12  8  4  0
-		break;							// 13  9  5  1
-										// 14 10  6  2
-										// 15 11  7  3
+		i = 12 + y - (x * 4);
+		break;				
+							
+		// 12  8  4  0
+		// 13  9  5  1
+		// 14 10  6  2
+		// 15 11  7  3				
 
 	case 2: // 120 degrees
-		pi = 15 - (py * 4) - px;		// 15 14 13 12
-		break;							// 11 10  9  8
-										//  7  6  5  4
-										//  3  2  1  0
+		i = 15 - (y * 4) - x;
+		break;				
+							
+		// 15 14 13 12
+		// 11 10  9  8
+		//  7  6  5  4
+		//  3  2  1  0				
 
 	case 3: // 270 degrees
-		pi = 3 - py + (px * 4);			//  3  7 11 15
-		break;							//  2  6 10 14
-										//  1  5  9 13
-										//  0  4  8 12
+		i = 3 - y + (x * 4);
+		break;				
+							
+		//  3  7 11 15
+		//  2  6 10 14
+		//  1  5  9 13
+		//  0  4  8 12				
 	}
 
-	return pi;
+	return i;
 }
-bool	Tetris::DoesTetroFit(int tetrisID, int rotation, int posX, int posY)
+bool	Tetris::DoesTetroFit(int offsetRotation, int offsetX, int offsetY)
 {
+	const uint rotation = currentRotation + offsetRotation;
+	const uint X = currentX + offsetX;
+	const uint Y = currentY + offsetY;
+
 	for (uint y = 0; y < tetroH; y++)
 	{
 		for (uint x = 0; x < tetroW; x++)
 		{
-			if (posX + x >= 0 && posX + x < fieldW && posY + y >= 0 && posY + y < fieldH)
-			{
-				uint i = Rotate(x, y, rotation);
-				uint j = (posY + y) * fieldW + (posX + x);
+			const bool isInsideField = X + x >= 0 && X + x < fieldW && Y + y >= 0 && Y + y < fieldH;
 
-				if (tetromino[tetrisID][i] != L'.' && blockBuffer_Fixed[j] != 0)
+			if ( isInsideField )
+			{
+				const uint i = Rotate(x, y, rotation);
+				const uint j = (Y + y) * fieldW + (X + x);
+
+				if (tetromino[currentTetro][i] != L'.' && blockBuffer_Fixed[j] != 0)
 				{
 					return false;
 				}
@@ -960,11 +1106,14 @@ std::vector<Color> Tetris::Blur(const int w,const int h,const std::vector<Color>
 
 					if (cx > 0 && cx < w && cy > 0 && cy < h)
 					{
-						uint i = cy * w + cx;
+						int i = cy * w + cx;
 
-						pixel_out.x += (input[i].GetR() * box[row + 1][col + 1]);
-						pixel_out.y += (input[i].GetG() * box[row + 1][col + 1]);
-						pixel_out.z += (input[i].GetB() * box[row + 1][col + 1]);
+						pixel_out.x += (input[i].GetR() * 
+							box[static_cast<size_t>(row) + 1][static_cast<size_t>(col) + 1]);
+						pixel_out.y += (input[i].GetG() *
+							box[static_cast<size_t>(row) + 1][static_cast<size_t>(col) + 1]);
+						pixel_out.z += (input[i].GetB() *
+							box[static_cast<size_t>(row) + 1][static_cast<size_t>(col) + 1]);
 					}
 				}
 			}

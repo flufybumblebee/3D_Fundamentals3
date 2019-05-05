@@ -623,6 +623,7 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
 {
 
 }
+
 void Graphics::DrawRect(int x1, int y1, int x2, int y2, Color c)
 {
 	assert(y2 > y1 && x2 > x1);
@@ -641,5 +642,4 @@ void Graphics::DrawRect(int x1, int y1, int x2, int y2, Color c)
 		PutPixel(x1, y1 + i, c);
 		PutPixel(x2, y1 + i, c);
 	}
-
 }
