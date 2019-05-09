@@ -63,6 +63,9 @@ private:
 	Block block_Pause;
 	Block block_GameOver;
 
+	Block block_Box;
+
+	std::vector<Surface>		texture_Box;
 	std::vector<Surface>		texture_Mute;
 
 	std::vector<Surface>		texture_Button;
@@ -115,7 +118,9 @@ private:
 	bool	keyIsPressed_SPACE	= false;
 	bool	keyIsPressed_ESCAPE = false;
 	bool	mouseIsPressed		= false;
-	bool	volumeIsFULL		= false;
+
+	bool	button_Volume_FULL	 = false;
+	bool	button_Settings_SHOW = false;
 
 	bool	gameIsPaused		= false;
 	bool	gameIsOver			= false;
@@ -178,6 +183,7 @@ private:
 	void	InitialiseCounter();
 	void	InitialiseKeys();
 	void	InitialiseButtons();
+	void	InitialiseSettingsBox();
 
 	void	Input();
 	void	InputKeyboard();
@@ -213,6 +219,8 @@ private:
 	void	DrawCounter();
 	void	DrawKeys();
 	void	DrawButtons();
+
+	void	DrawBox();
 
 private:
 	int		Rotate(int x, int y, int r);

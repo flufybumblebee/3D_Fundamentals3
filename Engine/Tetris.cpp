@@ -51,6 +51,7 @@ void Tetris::Initialise()
 	InitialiseGameOver();
 	InitialiseKeys();
 	InitialiseButtons();
+	InitialiseSettingsBox();
 }
 void Tetris::Setup()
 {	
@@ -135,6 +136,7 @@ void Tetris::Draw()
 	DrawCounter();
 	DrawKeys();
 	DrawButtons();
+	DrawBox();
 }
 
 /*-------------------------------------------*/
@@ -188,6 +190,8 @@ void Tetris::InitialiseTextures()
 	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\cog1.png"));
 	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\Volume_Full.png"));
 	texture_Mute.push_back(Surface::FromFile(L"Textures\\Buttons\\Volume_Mute.png"));
+
+	texture_Box.push_back(Surface::FromFile(L"Textures\\Box.png"));
 }
 void Tetris::InitialiseBackground()
 {
@@ -452,6 +456,15 @@ void Tetris::InitialiseButtons()
 		block_Button[i] = Block(rect_Button[i], &texture_Button[i]);
 	}	
 }
+void Tetris::InitialiseSettingsBox()
+{
+	RectUI pos = {
+		(scrH / 2u) - (texture_Box[0].GetHeight() / 2u),
+		(scrH / 2u) + (texture_Box[0].GetHeight() / 2u),
+		(scrW / 2u) - (texture_Box[0].GetWidth() / 2u),
+		(scrW / 2u) + (texture_Box[0].GetWidth() / 2u) };
+	block_Box = Block(pos, &texture_Box[0]);
+}
 
 /*-------------------------------------------*/
 
@@ -663,7 +676,35 @@ void Tetris::Quit()
 }
 void Tetris::Settings()
 {
+	if (!mouseIsPressed)
+	{
+		if (mousePressButton[SETTINGS])
+		{
+			if (button_Settings_SHOW)
+			{				
+				button_Settings_SHOW = false;				
+			}
+			else
+			{				
+				button_Settings_SHOW = true;
+				gameIsPaused = true;				
+			}
 
+			mouseIsPressed = true;
+		}
+	}
+	else
+	{
+		if (!mouse.LeftIsPressed())
+		{
+			mouseIsPressed = false;
+		}
+	}
+
+	if (!gameIsPaused)
+	{
+		button_Settings_SHOW = false;
+	}
 }
 void Tetris::Sound()
 {
@@ -671,16 +712,16 @@ void Tetris::Sound()
 	{
 		if (mousePressButton[VOLUME])
 		{
-			if (volumeIsFULL)
+			if (button_Volume_FULL)
 			{
 				block_Button[VOLUME].SetTexture(&texture_Mute[0]);
-				volumeIsFULL = false;
+				button_Volume_FULL = false;
 				volume = 0.0f;
 			}
 			else
 			{
 				block_Button[VOLUME].SetTexture(&texture_Button[VOLUME]);
-				volumeIsFULL = true;
+				button_Volume_FULL = true;
 				volume = 1.0f;
 			}
 
@@ -1095,6 +1136,14 @@ void Tetris::DrawButtons()
 	for (int i = 0; i < nButtons; i++)
 	{
 		block_Button[i].Draw(gfx);
+	}
+}
+
+void Tetris::DrawBox()
+{
+	if (button_Settings_SHOW)
+	{
+		block_Box.Draw(gfx);
 	}
 }
 

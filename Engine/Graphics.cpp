@@ -566,8 +566,8 @@ void Graphics::DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, con
 	TexVertex itEdge0 = v0;
 
 	// calculate start and end scanlines
-	const int yStart = (int)ceil(v0.pos.y - 0.5f);
-	const int yEnd = (int)ceil(v2.pos.y - 0.5f); // the scanline AFTER the last line drawn
+	const int yStart = std::max((int)ceil(v0.pos.y - 0.5f),0);
+	const int yEnd = std::min((int)ceil(v2.pos.y - 0.5f),(int)ScreenHeight - 1); // the scanline AFTER the last line drawn
 
 	// do interpolant prestep
 	itEdge0 += dv0 * (float(yStart) + 0.5f - v0.pos.y);
@@ -582,8 +582,8 @@ void Graphics::DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, con
 	for (int y = yStart; y < yEnd; y++, itEdge0 += dv0, itEdge1 += dv1)
 	{
 		// calculate start and end pixels
-		const int xStart = (int)ceil(itEdge0.pos.x - 0.5f);
-		const int xEnd = (int)ceil(itEdge1.pos.x - 0.5f); // the pixel AFTER the last pixel drawn
+		const int xStart = std::max((int)ceil(itEdge0.pos.x - 0.5f),0);
+		const int xEnd = std::min((int)ceil(itEdge1.pos.x - 0.5f),(int)ScreenWidth - 1); // the pixel AFTER the last pixel drawn
 
 		// calculate scanline dTexCoord / dx
 		const Vec2 dtcLine = (itEdge1.tc - itEdge0.tc) / (itEdge1.pos.x - itEdge0.pos.x);
