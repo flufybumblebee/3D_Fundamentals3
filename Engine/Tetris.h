@@ -158,7 +158,6 @@ private:
 
 public:
 	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
-	~Tetris();
 
 public:
 	void	Update();

@@ -35,7 +35,6 @@ Tetris::Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	Initialise();
 	Setup();
 }
-Tetris::~Tetris(){}
 
 /*-------------------------------------------*/
 
@@ -84,6 +83,7 @@ void Tetris::Input()
 	Pause();
 	Reset();
 	Quit();
+	Settings();
 	Sound();
 }
 
@@ -141,17 +141,16 @@ void Tetris::Draw()
 
 void Tetris::InitialiseTextures()
 {
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.png"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.jpg"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Street0.bmp"));
-	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.jpg"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.png"));
+	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.png"));
 
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
@@ -178,17 +177,17 @@ void Tetris::InitialiseTextures()
 	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\Pause.png"));
 	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\GameOver.png"));
 
-	texture_Key.push_back(Surface::FromFile(L"Textures\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_up.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_pause.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_left.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_down.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key_right.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
 
-	texture_Button.push_back(Surface::FromFile(L"Textures\\close4.png"));
-	texture_Button.push_back(Surface::FromFile(L"Textures\\cog1.png"));
-	texture_Button.push_back(Surface::FromFile(L"Textures\\Volume_Full.png"));
-	texture_Mute.push_back(Surface::FromFile(L"Textures\\Volume_Mute.png"));
+	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\power_off_green.png"));
+	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\cog1.png"));
+	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\Volume_Full.png"));
+	texture_Mute.push_back(Surface::FromFile(L"Textures\\Buttons\\Volume_Mute.png"));
 }
 void Tetris::InitialiseBackground()
 {
@@ -649,7 +648,7 @@ void Tetris::Reset()
 {
 	if (gameIsPaused || gameIsOver)
 	{
-		if (mousePressKey[ESCAPE])
+		if (mousePressKey[ESCAPE] || kbd.KeyIsPressed(VK_RETURN))
 		{
 			Setup();
 		}
@@ -666,11 +665,8 @@ void Tetris::Settings()
 {
 
 }
-
 void Tetris::Sound()
 {
-	const bool leftIsPressed = mouse.LeftIsPressed();
-
 	if (!mouseIsPressed)
 	{
 		if (mousePressButton[VOLUME])
@@ -693,7 +689,7 @@ void Tetris::Sound()
 	}
 	else
 	{
-		if (!leftIsPressed)
+		if (!mouse.LeftIsPressed())
 		{
 			mouseIsPressed = false;
 		}
