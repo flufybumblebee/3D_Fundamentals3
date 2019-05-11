@@ -65,6 +65,16 @@ public:
 	{
 		return { (T2)top,(T2)bottom,(T2)left,(T2)right };
 	}
+	
+	inline _Rect<T>& operator + (const _Rect<T>& rhs)
+	{
+		top += rhs.top;
+		bottom += rhs.bottom;
+		left += rhs.left;
+		right += rhs.right;
+
+		return *this;
+	}
 	inline	void ClipTo( const _Rect& rect )
 	{
 		top = std::max( top,rect.top );

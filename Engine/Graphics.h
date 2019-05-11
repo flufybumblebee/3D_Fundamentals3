@@ -79,18 +79,23 @@ public:
 	}
 	void DrawLineDepth(ZBuffer& zb, Vec3& v0, Vec3& v1, Color c);
 	
-	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
-	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
-	
+	void DrawTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);	
 	void DrawFlatTopTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 	void DrawFlatBottomTriangle(const Vec2& v0, const Vec2& v1, const Vec2& v2, Color c);
 
+	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatTopTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatBottomTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex);
 	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex,
 		const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1);
 
-	void PutPixelAlpha(unsigned int x, unsigned int y, const Color src);
+	void DrawTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex, const unsigned int alpha);
+	void DrawFlatTopTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex, const unsigned int alpha);
+	void DrawFlatBottomTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex, const unsigned int alpha);
+	void DrawFlatTriangleTex(const TexVertex& v0, const TexVertex& v1, const TexVertex& v2, const Surface& tex, const TexVertex& dv0, const TexVertex& dv1, TexVertex& itEdge1,const unsigned int alpha);
+
+	void PutPixelAlpha(unsigned int x, unsigned int y, const Color dst);
+	void PutPixelAlpha(unsigned int x, unsigned int y, const Color dst, const unsigned int alpha);
 	
 	void DrawLine(int x1, int y1, int x2, int y2, Color c);
 
@@ -99,7 +104,6 @@ public:
 	{
 		DrawRect(rect.left, rect.top, rect.right, rect.bottom, c);
 	}
-	//void DrawRect(int x, int y, int width, int height, Color c);
 
 private:
 	GDIPlusManager										gdipMan;

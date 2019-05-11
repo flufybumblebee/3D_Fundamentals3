@@ -31,6 +31,11 @@ private:
 	Graphics gfx;
 private:
 	Tetris tetris;
+	float offsetY = 0.0f;
+	float offsetX = 0.0f;
+	unsigned int alpha = 0u;
+	float offset = 0.0f;
+
 public:
 	Game( class MainWindow& wnd );
 	Game( const Game& ) = delete;

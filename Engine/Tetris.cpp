@@ -179,12 +179,12 @@ void Tetris::InitialiseTextures()
 	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\Pause.png"));
 	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\GameOver.png"));
 
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
-	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\key.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Red.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Green.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Blue.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Yellow.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Magenta.png"));
+	texture_Key.push_back(Surface::FromFile(L"Textures\\Keys\\Button_Cyan.png"));
 
 	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\power_off_green.png"));
 	texture_Button.push_back(Surface::FromFile(L"Textures\\Buttons\\cog1.png"));
@@ -528,30 +528,23 @@ void Tetris::InputMouseButtons()
 			const bool fitsRight	= mouseX <	rect_Button[i].right;
 			const bool fitsTop		= mouseY >=	rect_Button[i].top;
 			const bool fitsBottom	= mouseY <	rect_Button[i].bottom;
-
-			const bool isOver		= fitsLeft && fitsRight && fitsTop && fitsBottom;
-
-			if (isOver)
+			
+			if (fitsLeft && fitsRight && fitsTop && fitsBottom)
 			{
 				mouseOverButton[i] = true;
+
+				if (mouseOverButton[i] && leftIsPressed)
+				{
+					mousePressButton[i] = true;
+				}
+				else
+				{
+					mousePressButton[i] = false;
+				}
 			}
 			else
 			{
 				mouseOverButton[i] = false;
-			}
-		}
-
-		/*-------------------------------------------*/
-
-		for (uint i = 0u; i < nButtons; i++)
-		{
-			if (mouseOverButton[i] && leftIsPressed)
-			{
-				mousePressButton[i] = true;
-			}
-			else
-			{
-				mousePressButton[i] = false;
 			}
 		}
 	}
@@ -560,57 +553,70 @@ void Tetris::InputKeyboard()
 {
 	if (!gameIsPaused && !gameIsOver)
 	{
-		const bool tick = frameCounter > 0u && frameCounter % 10u == 0u;
-
+		const bool tick = frameCounter > 0u && frameCounter % 20u == 0u;
+				 	
 		if (!keyIsPressed_LEFT)
 		{
-			keyIsPressed_LEFT = kbd.KeyIsPressed(VK_LEFT) || mousePressKey[LEFT];
+			if (kbd.KeyIsPressed(VK_LEFT) || mousePressKey[LEFT])
+			{
+				if (DoesTetroFit(0, MOVE_LEFT, 0))
+				{
+					currentX--;
+				}
+				keyIsPressed_LEFT = true;
+			}
+		}
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_LEFT) && !mousePressKey[LEFT])
+			{
+				keyIsPressed_LEFT = false;
+			}
 		}
 
 		if (!keyIsPressed_RIGHT)
 		{
-			keyIsPressed_RIGHT = kbd.KeyIsPressed(VK_RIGHT) || mousePressKey[RIGHT];
+			if (kbd.KeyIsPressed(VK_RIGHT) || mousePressKey[RIGHT])
+			{
+				if (DoesTetroFit(0, MOVE_RIGHT, 0))
+				{
+					currentX++;
+				}
+				keyIsPressed_RIGHT = true;
+			}
+		}
+		else
+		{
+			if (!kbd.KeyIsPressed(VK_RIGHT) && !mousePressKey[RIGHT])
+			{
+				keyIsPressed_RIGHT = false;
+			}
 		}
 
 		if (!keyIsPressed_DOWN)
 		{
-			keyIsPressed_DOWN = kbd.KeyIsPressed(VK_DOWN) || mousePressKey[DOWN];
+			if (kbd.KeyIsPressed(VK_DOWN) || mousePressKey[DOWN])
+			{
+				if (DoesTetroFit(0, 0, MOVE_DOWN))
+				{
+					currentY++;
+				}
+				keyIsPressed_DOWN = true;
+			}
 		}
-
-		const bool tetroFits_LEFT = DoesTetroFit(0, MOVE_LEFT, 0);
-		const bool tetroFits_RIGHT = DoesTetroFit(0, MOVE_RIGHT, 0);
-		const bool tetroFits_DOWN = DoesTetroFit(0, 0, MOVE_DOWN);
-
-		if (tick)
+		else
 		{
-			if (keyIsPressed_LEFT)
+			if (!kbd.KeyIsPressed(VK_DOWN) && !mousePressKey[DOWN])
 			{
-				if (tetroFits_LEFT) currentX--;
-				keyIsPressed_LEFT = false;
-			}
-
-			if (keyIsPressed_RIGHT)
-			{
-				if (tetroFits_RIGHT)	currentX++;
-				keyIsPressed_RIGHT = false;
-			}
-
-			if (keyIsPressed_DOWN)
-			{
-				if (tetroFits_DOWN) currentY++;
 				keyIsPressed_DOWN = false;
 			}
-
-			SetCounter();
-		}
-
-		const bool tetroFits_RotatedClockWise = DoesTetroFit(ROTATE_CW, 0, 0);
+		}		
 
 		if (!keyIsPressed_UP)
 		{
 			if (kbd.KeyIsPressed(VK_UP) || mousePressKey[UP])
 			{
-				if (tetroFits_RotatedClockWise)
+				if (DoesTetroFit(ROTATE_CW, 0, 0))
 				{
 					currentRotation++;
 					sound_move.Play(frequency, volume);
@@ -1060,7 +1066,7 @@ void Tetris::DrawGameOver()
 }
 void Tetris::DrawKeys()
 {
-	if (true)
+	if (false)
 	{
 		std::vector<Color> keyColor(nKeys, Colors::White);
 

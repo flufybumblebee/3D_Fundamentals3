@@ -32,6 +32,7 @@ public:
 			Error(std::string("SoundSystem::FileError: ") + s)
 		{}
 	};
+
 public:
 	class Channel
 	{
@@ -53,6 +54,7 @@ public:
 			void STDMETHODCALLTYPE OnVoiceError(void* pBufferContext, HRESULT Error) override
 			{}
 		};
+
 	public:
 		Channel(SoundSystem& sys)
 		{
@@ -78,6 +80,7 @@ public:
 			pSource->Stop();
 			pSource->FlushSourceBuffers();
 		}
+
 	private:
 		XAUDIO2_BUFFER xaBuffer;
 		IXAudio2SourceVoice* pSource = nullptr;
@@ -85,6 +88,7 @@ public:
 		// (no--no overlap of callback thread and main thread here)
 		class Sound* pSound = nullptr;
 	};
+
 public:
 	SoundSystem(const SoundSystem&) = delete;
 	static SoundSystem& Get();
@@ -102,6 +106,7 @@ public:
 			activeChannelPtrs.back()->PlaySoundBuffer(s, freqMod, vol);
 		}
 	}
+
 private:
 	SoundSystem();
 	void DeactivateChannel(Channel& channel)
@@ -115,6 +120,7 @@ private:
 		idleChannelPtrs.push_back(std::move(*i));
 		activeChannelPtrs.erase(i);
 	}
+
 private:
 	ComManager comMan;
 	Microsoft::WRL::ComPtr<IXAudio2> pEngine;
@@ -129,6 +135,7 @@ private:
 class Sound
 {
 	friend SoundSystem::Channel;
+
 public:
 	Sound(const std::wstring& fileName)
 	{
@@ -283,6 +290,7 @@ public:
 			allChannelsDeactivated = activeChannelPtrs.size() == 0;
 		} while (!allChannelsDeactivated);
 	}
+
 private:
 	void RemoveChannel(SoundSystem::Channel& channel)
 	{
@@ -295,6 +303,7 @@ private:
 		std::lock_guard<std::mutex> lock(mutex);
 		activeChannelPtrs.push_back(&channel);
 	}
+
 private:
 	UINT32 nBytes = 0;
 	std::unique_ptr<BYTE[]> pData;

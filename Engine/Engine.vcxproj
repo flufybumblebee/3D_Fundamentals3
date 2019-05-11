@@ -140,7 +140,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="BasePhongShader.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="Block.h" />
