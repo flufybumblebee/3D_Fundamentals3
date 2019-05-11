@@ -4,7 +4,6 @@
 #include "Surface.h"
 #include "TexVertex.h"
 #include "Rect.h"
-#include <memory>
 
 class Block
 {
@@ -23,15 +22,15 @@ public:
 		pos(std::move(position)),
 		pTex(std::move(pTex))
 	{}
-	Block(Block& copy)
+	Block(const Block& copy)
 		:
-		pos(std::move(copy.pos)),
-		pTex(std::move(copy.pTex))
+		pos(copy.pos),
+		pTex(copy.pTex)
 	{}
-	Block& operator = (Block& rhs)
+	Block& operator = (const Block& rhs)
 	{
-		pos = std::move(rhs.pos);
-		pTex = std::move(rhs.pTex);
+		pos = rhs.pos;
+		pTex = rhs.pTex;
 
 		return *this;
 	}
