@@ -10,7 +10,7 @@
 #include <array>
 #include <vector>
 
-#include "Cell.h"
+#include "Block.h"
 
 class TickTackToe
 {
@@ -41,10 +41,15 @@ private:
 
 	/*------------------------------------------------*/
 
-	const float width = static_cast<float>(scrW / 2);
-	const float height = static_cast<float>(scrH / 2);
+	//const float width = static_cast<float>(scrW / 2);
+	//const float height = static_cast<float>(scrH / 2);
 
-	const Vec3 grid_tex_pos_0 = { width - (size * 8),height - (size * 8),0.0f };
+	const int grid_top		= (scrH / 2) - (size * 8);
+	const int grid_bottom	= (scrH / 2) + (size * 8);
+	const int grid_left		= (scrW / 2) - (size * 8);
+	const int grid_right	= (scrW / 2) + (size * 8);
+
+	/*const Vec3 grid_tex_pos_0 = { width - (size * 8),height - (size * 8),0.0f };
 	const Vec3 grid_tex_pos_1 = { width + (size * 8),height - (size * 8),0.0f };
 	const Vec3 grid_tex_pos_2 = { width + (size * 8),height + (size * 8),0.0f };
 	const Vec3 grid_tex_pos_3 = { width - (size * 8),height + (size * 8),0.0f };
@@ -52,11 +57,16 @@ private:
 	const TexVertex grid_tex_vertex_0 = { grid_tex_pos_0,tex_coordinate_0 };
 	const TexVertex grid_tex_vertex_1 = { grid_tex_pos_1,tex_coordinate_1 };
 	const TexVertex grid_tex_vertex_2 = { grid_tex_pos_2,tex_coordinate_2 };
-	const TexVertex grid_tex_vertex_3 = { grid_tex_pos_3,tex_coordinate_3 };
+	const TexVertex grid_tex_vertex_3 = { grid_tex_pos_3,tex_coordinate_3 };*/
 	
 	/*------------------------------------------------*/
 
-	const Vec3 background_tex_pos_0 = { 0.0f,			0.0f,			0.0f };
+	const int background_left = 0;
+	const int background_right = scrW - 1;
+	const int background_top = 0;
+	const int background_bottom = scrH - 1;
+
+	/*const Vec3 background_tex_pos_0 = { 0.0f,			0.0f,			0.0f };
 	const Vec3 background_tex_pos_1 = { scrW - 1.0f,	0.0f,			0.0f };
 	const Vec3 background_tex_pos_2 = { scrW - 1.0f,	scrH - 1.0f,	0.0f };
 	const Vec3 background_tex_pos_3 = { 0.0f,			scrH - 1.0f,	0.0f };
@@ -64,7 +74,12 @@ private:
 	const TexVertex background_tex_vertex_0 = { background_tex_pos_0,tex_coordinate_0 };
 	const TexVertex background_tex_vertex_1 = { background_tex_pos_1,tex_coordinate_1 };
 	const TexVertex background_tex_vertex_2 = { background_tex_pos_2,tex_coordinate_2 };
-	const TexVertex background_tex_vertex_3 = { background_tex_pos_3,tex_coordinate_3 };
+	const TexVertex background_tex_vertex_3 = { background_tex_pos_3,tex_coordinate_3 };*/
+
+	/*------------------------------------------------*/
+
+	RectI background_pos;
+	RectI grid_pos;
 	
 	/*------------------------------------------------*/
 
@@ -107,6 +122,7 @@ private:
 	std::vector<Surface> o_textures_A;
 	std::vector<Surface> x_textures_B;
 	std::vector<Surface> o_textures_B;
+	std::vector<Surface> cursor_textures;
 	
 	Surface* background_tex = nullptr;
 	Surface* grid_tex		= nullptr;
@@ -114,9 +130,10 @@ private:
 	Surface* o_tex_black	= nullptr;
 	Surface* x_tex_red		= nullptr;
 	Surface* o_tex_red		= nullptr;
+	Surface* cursor_tex		= nullptr;
 
-	//std::array<std::array<Cell, cols>, rows> cells;
-	std::vector<Cell> cells;
+	std::array<std::array<Surface*, cols>, rows> cell_tex;
+	std::array<std::array<RectI,cols>,rows> cell_pos;
 
 public:
 	TickTackToe(Keyboard& kbd, Mouse& mouse, Graphics& gfx);

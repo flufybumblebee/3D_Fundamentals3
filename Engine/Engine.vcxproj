@@ -142,7 +142,7 @@
   <ItemGroup>
     <ClInclude Include="BasePhongShader.h" />
     <ClInclude Include="Benchmark.h" />
-    <ClInclude Include="Cell.h" />
+    <ClInclude Include="Block.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliMath.h" />
     <ClInclude Include="ChiliWin.h" />
@@ -181,7 +181,7 @@
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="NDCScreenTransformer.h" />
-    <ClInclude Include="BumbleLibrary.h" />
+    <ClInclude Include="Random.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RippleVertexSpecularPhongEffect.h" />

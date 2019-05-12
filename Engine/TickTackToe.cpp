@@ -2,10 +2,10 @@
 
 #include "TickTackToe.h"
 
-#include "BumbleLibrary.h"
+#include "Random.h"
 #include <memory>
 
-using namespace Bumble;
+using namespace rnd;
 
 /*-----------------------------------------------------*/
 
@@ -21,8 +21,9 @@ TickTackToe::TickTackToe(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	grid_textures.push_back(		Surface::FromFile(L"Textures\\TickTackToe\\Grid.png"));
 	x_textures_A.push_back(			Surface::FromFile(L"Textures\\TickTackToe\\X.png"));
 	o_textures_A.push_back(			Surface::FromFile(L"Textures\\TickTackToe\\O.png"));
-	x_textures_B.push_back(		Surface::FromFile(L"Textures\\TickTackToe\\XRed.png"));
-	o_textures_B.push_back(		Surface::FromFile(L"Textures\\TickTackToe\\ORed.png"));
+	x_textures_B.push_back(			Surface::FromFile(L"Textures\\TickTackToe\\XRed.png"));
+	o_textures_B.push_back(			Surface::FromFile(L"Textures\\TickTackToe\\ORed.png"));
+	cursor_textures.push_back(		Surface::FromFile(L"Textures\\TickTackToe\\Cursor.png"));
 
 	/* why 4.5 and 9.5?	*/
 	const int left			= (scrW / 2) - (size * 7);
@@ -49,23 +50,26 @@ TickTackToe::TickTackToe(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	
 	const unsigned int TOP = (scrH / 2) - (size * 7);
 	const unsigned int LEFT = (scrW / 2) - (size * 7);
-
-	Setup();
-
+	
 	for (unsigned int y = 0; y < rows; y++)
 	{
 		for (unsigned int x = 0; x < cols; x++)
 		{
-			const float left	= static_cast<float>(LEFT	+ ((size * 5u) * x));
-			const float top		= static_cast<float>(TOP	+ ((size * 5u) * y));
-			const float right	= static_cast<float>(LEFT	+ (((size * 5u) * x) + (size * 4u)));
-			const float bottom	= static_cast<float>(TOP	+ (((size * 5u) * y) + (size * 4u)));
+			const int left		= LEFT	+ ((size * 5u) * x);
+			const int top		= TOP	+ ((size * 5u) * y);
+			const int right		= LEFT	+ (((size * 5u) * x) + (size * 4u));
+			const int bottom	= TOP	+ (((size * 5u) * y) + (size * 4u));
 
-			const RectF rect = { top,bottom,left,right };
-			Cell cell(rect);
-			cells.emplace_back( cell );
+			const RectI rect = { top,bottom,left,right };
+			
+			cell_pos[y][x] = rect;
 		}
 	}
+	
+	background_pos	= { background_top,background_bottom,background_left,background_right };
+	grid_pos		= { grid_top,grid_bottom,grid_left,grid_right };
+
+	Setup();
 }
 
 /*-----------------------------------------------------*/
@@ -77,13 +81,15 @@ void TickTackToe::Setup()
 	size_t random_grids			= RandomInt(zero,grid_textures.size() - 1);
 	size_t random_Xs			= RandomInt(zero,x_textures_A.size() - 1);
 	size_t random_Os			= RandomInt(zero,o_textures_A.size() - 1);
+	size_t random_cursors		= RandomInt(zero, cursor_textures.size() - 1);
 
 	background_tex	= &background_textures[random_backgrounds];
 	grid_tex		= &grid_textures[random_grids];
-	x_tex_black			= &x_textures_A[random_Xs];
-	o_tex_black			= &o_textures_A[random_Os];
+	x_tex_black		= &x_textures_A[random_Xs];
+	o_tex_black		= &o_textures_A[random_Os];
 	x_tex_red		= &x_textures_B[random_Xs];
 	o_tex_red		= &o_textures_B[random_Os];
+	cursor_tex		= &cursor_textures[random_cursors];
 
 	nTurns = 0;
 
@@ -96,8 +102,6 @@ void TickTackToe::Setup()
 		SetState(i, EMPTY);
 	}
 
-	cells.clear();
-
 	gameIsOver = false;
 
 	int randomNum = RandomInt(0, 1);
@@ -107,7 +111,6 @@ void TickTackToe::Update()
 {	
 	InputA();
 	SetCell();
-	GameOver();
 
 	/*if (current_player_state == X)
 	{
@@ -295,12 +298,10 @@ void TickTackToe::InputA()
 		}
 	}
 }
-
 void TickTackToe::InputB()
 {
 
 }
-
 void TickTackToe::SetCell()
 {
 	Surface* pSurf = nullptr;
@@ -332,7 +333,7 @@ void TickTackToe::SetCell()
 					}
 					else
 					{
-						continue;
+						pSurf = nullptr;
 					}
 				}
 				else
@@ -347,7 +348,7 @@ void TickTackToe::SetCell()
 					}
 					else
 					{
-						continue;
+						pSurf = nullptr;
 					}
 				}
 			}
@@ -363,11 +364,11 @@ void TickTackToe::SetCell()
 				}
 				else
 				{
-					continue;
+					pSurf = nullptr;
 				}
 			}
 
-			cells[i].SetTexture(o_tex_black);
+			cell_tex[y][x] = pSurf;
 		}
 	}
 }
@@ -392,7 +393,7 @@ TickTackToe::XOState	TickTackToe::GetState(int ix, int iy)
 	return blocks[i];
 }
 
-TickTackToe::XOState TickTackToe::GameOver()
+TickTackToe::XOState	TickTackToe::GameOver()
 {
 	if (nTurns > 8)
 	{
@@ -484,105 +485,54 @@ TickTackToe::XOState TickTackToe::GameOver()
 
 void TickTackToe::DrawBackground()
 {
-	gfx.DrawTriangleTex(background_tex_vertex_0, background_tex_vertex_1, background_tex_vertex_2, *background_tex);
-	gfx.DrawTriangleTex(background_tex_vertex_0, background_tex_vertex_2, background_tex_vertex_3, *background_tex);
+	if (false)
+	{
+
+	}
+	else
+	{
+		Block background(Block(background_pos, background_tex));
+		background.Draw(gfx);
+	}
 }
 void TickTackToe::DrawXOState()
 {	
-	/*Surface* pSurf = nullptr;
-
-	for (int y = 0; y < rows; y++)
+	if (false)
 	{
-		for (int x = 0; x < cols; x++)
+
+	}
+	else
+	{
+		for (unsigned int y = 0; y < rows; y++)
 		{
-			float left		= static_cast<float>(((scrW / 2) - (size * 7)) +  ((size * 5) * x));
-			float top		= static_cast<float>(((scrH / 2) - (size * 7)) +  ((size * 5) * y));
-			float right		= static_cast<float>(((scrW / 2) - (size * 7)) + (((size * 5) * x) + (size * 4)));
-			float bottom	= static_cast<float>(((scrH / 2) - (size * 7)) + (((size * 5) * y) + (size * 4)));
-
-			Vec3 pos0 = { left,top,0.0f };
-			Vec3 pos1 = { right,top,0.0f };
-			Vec3 pos2 = { right,bottom,0.0f };
-			Vec3 pos3 = { left,bottom,0.0f };
-
-			TexVertex tv0 = { pos0,tc0 };
-			TexVertex tv1 = { pos1,tc1 };
-			TexVertex tv2 = { pos2,tc2 };
-			TexVertex tv3 = { pos3,tc3 };
-
-			XOState state = GetState(x, y);
-			size_t i = static_cast<size_t>(y) * cols + x;
-
-			if (GameOver() != EMPTY)
+			for (unsigned int x = 0; x < cols; x++)
 			{
-				if (
-					i == winner[0] ||
-					i == winner[1] ||
-					i == winner[2])
+				Block cell(cell_pos[y][x], cell_tex[y][x]);
+
+				if (cell_tex[y][x] != nullptr)
 				{
-					if (state == X)
-					{
-						pSurf = x_tex_red;
-					}
-					else if (state == O)
-					{
-						pSurf = o_tex_red;
-					}
-					else
-					{
-						continue;
-					}
-				}
-				else
-				{
-					if (state == X)
-					{
-						pSurf = x_tex_black;
-					}
-					else if (state == O)
-					{
-						pSurf = o_tex_black;
-					}
-					else
-					{
-						continue;
-					}
+					cell.Draw(gfx);
 				}
 			}
-			else
-			{
-				if (state == X)
-				{
-					pSurf = x_tex_black;
-				}
-				else if (state == O)
-				{
-					pSurf = o_tex_black;
-				}
-				else
-				{
-					continue;
-				}
-			}
-
-            gfx.DrawTriangleTex(tv0, tv1, tv2, *pSurf);
-			gfx.DrawTriangleTex(tv0, tv2, tv3, *pSurf);
 		}
-	}*/
-
-	for (int i = 0; i < cells.size(); i++)
-	{
-		cells[i].Draw(gfx);
 	}
 }
 void TickTackToe::DrawCursor()
 {
-	int xOut = ((scrW / 2) - (size * 7)) + (((size * 4) * current_x) + (current_x * (size)));
-	int yOut = ((scrH / 2) - (size * 7)) + (((size * 4) * current_y) + (current_y * (size)));
+	if (false)
+	{
+		int xOut = ((scrW / 2) - (size * 7)) + (((size * 4) * current_x) + (current_x * (size)));
+		int yOut = ((scrH / 2) - (size * 7)) + (((size * 4) * current_y) + (current_y * (size)));
 
-	Color c = Color( 100, 255, 255, 255 );
+		Color c = Color( 100, 255, 255, 255 );
 
-	gfx.DrawRectAlpha(xOut, yOut, size * 4, size * 4, c);
+		gfx.DrawRectAlpha(xOut, yOut, size * 4, size * 4, c);
+	}
+	else
+	{
+		Block cursor(cell_pos[current_y][current_x], cursor_tex);
+		cursor.Draw(gfx);
+	}
 }
 void TickTackToe::DrawGrid()
 {
@@ -680,7 +630,7 @@ void TickTackToe::DrawGrid()
 	}
 	else
 	{
-		gfx.DrawTriangleTex(grid_tex_vertex_0, grid_tex_vertex_1, grid_tex_vertex_2, *grid_tex);
-		gfx.DrawTriangleTex(grid_tex_vertex_0, grid_tex_vertex_2, grid_tex_vertex_3, *grid_tex);
+		Block grid(Block(grid_pos, grid_tex));
+		grid.Draw(gfx);
 	}
 }
