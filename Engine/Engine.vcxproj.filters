@@ -249,6 +249,9 @@
     <ClInclude Include="ChiliWin.h">
       <Filter>Header Files\Stuff</Filter>
     </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DXErr.cpp">

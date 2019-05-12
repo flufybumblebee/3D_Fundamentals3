@@ -225,7 +225,7 @@ Graphics::Graphics( HWNDKey& key )
 
 
 	////////////////////////////////////////////////////
-	// Create sampler state for fullscreen textured quad
+	// Create sampler button for fullscreen textured quad
 	D3D11_SAMPLER_DESC sampDesc = {};
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -242,7 +242,7 @@ Graphics::Graphics( HWNDKey& key )
 
 Graphics::~Graphics()
 {
-	// clear the state of the device context before destruction
+	// clear the button of the device context before destruction
 	if( pImmediateContext ) pImmediateContext->ClearState();
 }
 

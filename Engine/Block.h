@@ -5,6 +5,17 @@
 #include "TexVertex.h"
 #include "Rect.h"
 
+/*
+
+NOTES:
+
+pos		= position
+tc		= texture coordinate
+pTex	= pointer to a texture
+rhs		= right hand side (of the assignment)
+
+*/
+
 class Block
 {
 private:
@@ -19,13 +30,18 @@ public:
 	Block() = default;
 	Block(const RectI& position, Surface* pTex)
 		:
-		pos(std::move(position)),
-		pTex(std::move(pTex))
+		pos(position),
+		pTex(pTex)
 	{}
 	Block(const Block& copy)
 		:
 		pos(copy.pos),
 		pTex(copy.pTex)
+	{}
+	Block( Block&& block ) noexcept
+		:
+		pos(std::move(block.pos)),
+		pTex(std::move(block.pTex))
 	{}
 	Block& operator = (const Block& rhs)
 	{
