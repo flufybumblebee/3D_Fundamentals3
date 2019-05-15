@@ -99,10 +99,14 @@ public:
 	
 	void DrawLine(int x1, int y1, int x2, int y2, Color c);
 
-	void DrawRect(int x1, int y1, int x2, int y2, Color c);
-	void DrawRect(RectI rect, Color c)
+	void DrawRect(bool filled, int x1, int y1, int x2, int y2, Color c);
+	void DrawRect(bool filled, const Vei2& p0, const Vei2& p1, const Color& c)
 	{
-		DrawRect(rect.left, rect.top, rect.right, rect.bottom, c);
+		DrawRect(filled,p0.x, p0.y, p1.x, p1.y, c);
+	}
+	void DrawRect(bool filled, RectI rect, Color c)
+	{
+		DrawRect(filled,rect.left, rect.top, rect.right, rect.bottom, c);
 	}
 
 private:

@@ -29,37 +29,35 @@ private:
 	Sound sound_gameover;
 
 private:
-	static constexpr unsigned int	nTetro	= 7u;
-	static constexpr unsigned int	nCount	= 10u;
+	static const unsigned int	tetroNUM	= 7u;
+	static const unsigned int	countNUM	= 10u;
+
+	/*------------------------------------------*/
+	
+	static const unsigned int	tetroCOLS	= 4u;
+	static const unsigned int	tetroROWS	= 4u;
+	static const unsigned int	fieldCOLS	= 12u;
+	static const unsigned int	fieldROWS	= 18u;
+	static const unsigned int	scoreCOLS	= 10u;
+	static const unsigned int	scoreROWS	= 10u;
 
 	/*------------------------------------------*/
 
-	/* ...W = columns, ...H = rows */
+	std::array<std::string, tetroNUM>					tetromino;
+	std::array<std::array<Block, fieldCOLS>, fieldROWS>	blocks_Field;
+	std::array<std::array<Block, tetroCOLS>, tetroROWS>	blocks_NextTetro;
 
-	static constexpr unsigned int	tetroW	= 4u;
-	static constexpr unsigned int	tetroH	= 4u;
-	static constexpr unsigned int	fieldW	= 12u;
-	static constexpr unsigned int	fieldH	= 18u;
-	static constexpr unsigned int	scoreW	= 10u;
-	static constexpr unsigned int	scoreH	= 10u;
-
-	/*------------------------------------------*/
-
-	std::array<std::string, nTetro>					tetromino;
-	std::array<std::array<Block, fieldW>, fieldH>	blocks_Field;
-	std::array<std::array<Block, tetroW>, tetroH>	blocks_NextTetro;
-
-	std::array<char, (fieldW* fieldH)>				blockBuffer_Fixed{};
-	std::array<char, (fieldW* fieldH)>				blockBuffer_Shown{};
-	std::array<std::array<Block, scoreW>, scoreH>	blocks_Score;
-	std::array<Block, nCount>						blocks_Counter;
+	std::array<char, (fieldCOLS * fieldROWS)>			blockBuffer_Fixed{};
+	std::array<char, (fieldCOLS * fieldROWS)>			blockBuffer_Shown{};
+	std::array<std::array<Block, scoreCOLS>, scoreROWS>	blocks_Score;
+	std::array<Block, countNUM>							blocks_Counter;
 
 	/*------------------------------------------*/
-
-	/* ...W = width (in pixels), ...H = height (in pixels) */
-
+	
 	const unsigned int	scrW		= gfx.ScreenWidth;
 	const unsigned int	scrH		= gfx.ScreenHeight;
+	const unsigned int	keyW		= 50u;
+	const unsigned int	keyH		= 50u;
 	const unsigned int	buttonW		= 50u;
 	const unsigned int	buttonH		= 50u;
 	const unsigned int	blockW		= 25u;
@@ -73,21 +71,25 @@ private:
 
 	/*------------------------------------------*/
 
-	const unsigned int	nBlur = 7u;
+	const unsigned int	blurNUM = 7u;
 
 	const int ROTATE_CW = 1;
 	const int MOVE_LEFT = -1;
 	const int MOVE_RIGHT = 1;
 	const int MOVE_DOWN = 1;
 
-	enum BUTTON
+	enum KEY
 	{
 		RESTART,
-		UP,
+		ROTATE,
 		PAUSE,
 		LEFT,
 		DOWN,
-		RIGHT,
+		RIGHT
+	};
+
+	enum BUTTON
+	{
 		QUIT,
 		SETTINGS,
 		SOUND
@@ -100,16 +102,6 @@ private:
 	std::vector<Surface>	texture_Digits;
 	std::vector<Surface>	texture_Pause;
 	std::vector<Surface>	texture_GameOver;
-	
-	std::vector<Surface>	quit_button_textures;		// to be deleted at some point
-	std::vector<Surface>	settings_button_textures;	// to be deleted at some point
-	std::vector<Surface>	sound_button_textures;		// to be deleted at some point
-
-	std::vector<Surface>	button_textures;
-	std::vector<RectUI>		button_rects;
-	std::vector<RectUI>		rect_KeyPressed;			// to be deleted in the future
-
-	std::vector<Surface>	box_texture;
 
 	/*------------------------------------------*/
 
@@ -117,19 +109,49 @@ private:
 	Block block_Pause;
 	Block block_GameOver;
 
-	Block box_block;
+	/*------------------------------------------*/
+
+	std::vector<Surface>	key_texture;
+	std::vector<Surface>	key_b_texture;
+	std::vector<RectUI>		key_a_position;
+	std::vector<RectUI>		key_b_position;
+
+	std::vector<Button>		key;
+
+	std::vector<bool>		mouseOverKey;
+	std::vector<bool>		mousePressKey;
+
+	bool	keyIsPressed_UP		= false;
+	bool	keyIsPressed_DOWN	= false;
+	bool	keyIsPressed_LEFT	= false;
+	bool	keyIsPressed_RIGHT	= false;
+	bool	keyIsPressed_SPACE	= false;
+	bool	keyIsPressed_ESCAPE = false;
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>	button_a_texture;
+	std::vector<Surface>	button_b_texture;
+	std::vector<RectUI>		button_a_position;
+	std::vector<RectUI>		button_b_position;
+
+	std::vector<Button2>	button;
+
+	std::vector<bool>		mouseOverButton;
+	std::vector<bool>		mousePressButton;
+
+	bool	button_Volume_FULL	 = false;
+	bool	button_Settings_SHOW = false;	
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>	box_texture;
+	Block					box_block;
 
 	/*------------------------------------------*/
 
 	std::vector<unsigned int>	blockBuffer_Score;
 	std::vector<unsigned int>	lines;
-	
-	std::vector<bool>			mouseOverButton;
-	std::vector<bool>			mousePressButton;
-
-	/*------------------------------------------*/
-
-	std::vector<Button> buttons;	
 	
 	/*------------------------------------------*/
 
@@ -151,19 +173,10 @@ private:
 	unsigned int	counterTetro	= 0u;
 	unsigned int	counterSpeed	= 0u;
 
-	bool	keyIsPressed_UP		= false;
-	bool	keyIsPressed_DOWN	= false;
-	bool	keyIsPressed_LEFT	= false;
-	bool	keyIsPressed_RIGHT	= false;
-	bool	keyIsPressed_SPACE	= false;
-	bool	keyIsPressed_ESCAPE = false;
 	bool	mouseIsPressed		= false;
 
 	bool	gameIsPaused		= false;
 	bool	gameIsOver			= false;
-
-	bool	button_Volume_FULL	 = false;
-	bool	button_Settings_SHOW = false;
 
 	/*-------------------------------------------*/
 
@@ -192,11 +205,13 @@ private:
 	void	InitialisePause();
 	void	InitialiseGameOver();
 	void	InitialiseCounter();
+	void	InitialiseKeys();
 	void	InitialiseButtons();
 	void	InitialiseSettingsBox();
 
 	void	Input();
-	void	InputMouse();
+	void	SetKeysWithMouse();
+	void	SetButtonsWithMouse();
 	void	InputKeyboard();
 	void	Pause();
 	void	Reset();
@@ -228,6 +243,7 @@ private:
 	void	DrawPause();
 	void	DrawGameOver();
 	void	DrawCounter();
+	void	DrawKeys();
 	void	DrawButtons();
 
 	void	DrawBox();

@@ -771,22 +771,33 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
 
 }
 
-void Graphics::DrawRect(int x1, int y1, int x2, int y2, Color c)
+void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 {
-	assert(y2 > y1 && x2 > x1);
+	int width = std::abs(x2 - x1);
+	int height = std::abs(y2 - y1);
 
-	int width = x2 - x1;
-	int height = y2 - y1;
-
-	for (int i = 0; i < width; i++)
+	if (filled)
 	{
-		PutPixel(x1 + i, y1, c);
-		PutPixel(x1 + i, y2, c);
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				PutPixel(x1 + x, y1 + y, c);
+			}
+		}
 	}
-
-	for (int i = 0; i < height; i++)
+	else
 	{
-		PutPixel(x1, y1 + i, c);
-		PutPixel(x2, y1 + i, c);
+		for (int i = 0; i < width; i++)
+		{
+			PutPixel(x1 + i, y1, c);
+			PutPixel(x1 + i, y2, c);
+		}
+
+		for (int i = 0; i < height; i++)
+		{
+			PutPixel(x1, y1 + i, c);
+			PutPixel(x2, y1 + i, c);
+		}
 	}
 }
