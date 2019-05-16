@@ -7,7 +7,7 @@
 #include <Windows.h>
 
 #include "Block.h"
-#include "Mouse.h"
+#include "Mouse.h   "
 #include "Keyboard.h"
 #include "Sound.h"
 #include "Button.h"
@@ -17,20 +17,12 @@ class Tetris
 private:
 	Keyboard& kbd;
 	Mouse& mouse;
-	Graphics& gfx;
-
-private:
-	Sound sound_move;
-	Sound sound_line1;
-	Sound sound_line2;
-	Sound sound_line3;
-	Sound sound_line4;
-	Sound sound_new_tetro;
-	Sound sound_gameover;
+	Graphics& gfx;	
 
 private:
 	static const unsigned int	tetroNUM	= 7u;
 	static const unsigned int	countNUM	= 10u;
+	/*--*/ const unsigned int	blurNUM		= 7u;
 
 	/*------------------------------------------*/
 	
@@ -68,33 +60,7 @@ private:
 	const unsigned int	pauseH		= 100u;
 	const unsigned int	gameOverW	= 580u;
 	const unsigned int	gameOverH	= 290u;
-
-	/*------------------------------------------*/
-
-	const unsigned int	blurNUM = 7u;
-
-	const int ROTATE_CW = 1;
-	const int MOVE_LEFT = -1;
-	const int MOVE_RIGHT = 1;
-	const int MOVE_DOWN = 1;
-
-	enum KEY
-	{
-		RESTART,
-		ROTATE,
-		PAUSE,
-		LEFT,
-		DOWN,
-		RIGHT
-	};
-
-	enum BUTTON
-	{
-		QUIT,
-		SETTINGS,
-		SOUND
-	};
-
+	
 	/*------------------------------------------*/
 	
 	std::vector<Surface>	texture_Background;
@@ -145,6 +111,13 @@ private:
 
 	/*------------------------------------------*/
 
+	std::vector<Sound> sounds;
+
+	float volume	= 1.0f;
+	float frequency = 1.0f;
+
+	/*------------------------------------------*/
+
 	std::vector<Surface>	box_texture;
 	Block					box_block;
 
@@ -177,13 +150,7 @@ private:
 
 	bool	gameIsPaused		= false;
 	bool	gameIsOver			= false;
-
-	/*-------------------------------------------*/
-
-	float volume	= 1.0f;
-	float frequency = 1.0f;
-
-
+	
 public:
 	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
 	~Tetris() = default;
@@ -208,6 +175,7 @@ private:
 	void	InitialiseKeys();
 	void	InitialiseButtons();
 	void	InitialiseSettingsBox();
+	void	InitialiseSounds();
 
 	void	Input();
 	void	SetKeysWithMouse();
@@ -217,9 +185,7 @@ private:
 	void	Reset();
 	void	Quit();
 	void	Settings();
-	void	Sound();
-
-	void	SetButton(BUTTON btn);
+	void	Volume();
 
 	void	SetBackground();
 	void	ResetScore();

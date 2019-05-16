@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "Random.h"
+#include "Bumble.h"
 
 using namespace rnd;
 
@@ -23,14 +24,7 @@ Tetris::Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx)
 	:
 	kbd(kbd),
 	mouse(mouse),
-	gfx(gfx),
-	sound_move(		L"Sounds\\pop1.wav" ),
-	sound_line1(	L"Sounds\\success0.wav"),
-	sound_line2(	L"Sounds\\success1.wav"),
-	sound_line3(	L"Sounds\\success2.wav"),
-	sound_line4(	L"Sounds\\success3.wav"),
-	sound_new_tetro(L"Sounds\\pop0.wav"),
-	sound_gameover(	L"Sounds\\fail0.wav")
+	gfx(gfx)
 {
 	Initialise();
 	Setup();
@@ -52,6 +46,7 @@ void Tetris::Initialise()
 	InitialiseKeys();
 	InitialiseButtons();
 	InitialiseSettingsBox();
+	InitialiseSounds();
 }
 void Tetris::Setup()
 {	
@@ -82,10 +77,10 @@ void Tetris::Input()
 	SetButtonsWithMouse();
 	InputKeyboard();
 	Pause();
-	Reset();
+	Reset(); 
 	Quit();
 	Settings();
-	Sound();
+	Volume();
 }
 
 /*-------------------------------------------*/
@@ -98,7 +93,7 @@ void Tetris::Update()
 	{
 		if (frameCounter == speed)
 		{
-			if (DoesTetroFit(0,0,MOVE_DOWN))
+			if (DoesTetroFit(0,0,MOVE::DOWN))
 			{
 				if(!keyIsPressed_DOWN) currentY++; // force tetris down
 			}
@@ -108,9 +103,9 @@ void Tetris::Update()
 				CheckForLines();
 				SetScore();
 				SetNextTetro();
-				
+
 				gameIsOver = !DoesTetroFit(0, 0, 0);
-				if(gameIsOver) sound_gameover.Play(frequency, volume);
+				if (gameIsOver) sounds[SOUND::GAME_OVER].Play(frequency, volume);
 			}
 
 			frameCounter = 0;
@@ -143,6 +138,7 @@ void Tetris::Draw()
 
 void Tetris::InitialiseTextures()
 {
+	// BACKGROUND TEXTURES
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.png"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.png"));
@@ -154,6 +150,7 @@ void Tetris::InitialiseTextures()
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.png"));
 	texture_Background.push_back(Surface::FromFile(L"Textures\\Backgrounds\\Space1.png"));
 
+	// BLOCK TEXTURES
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_DarkGrey.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Orange.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Cyan.png"));
@@ -165,27 +162,31 @@ void Tetris::InitialiseTextures()
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Red.png"));
 	texture_Blocks.push_back(Surface::FromFile(L"Textures\\Blocks\\Block_Grey.png"));
 	
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 0.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 1.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 2.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 3.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 4.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 5.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 6.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 7.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 8.png"));
-	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\Digit - 9.png"));
-	
+	// WORD TEXTURES
 	texture_Pause.push_back(Surface::FromFile(L"Textures\\Words\\Pause.png"));
 	texture_GameOver.push_back(Surface::FromFile(L"Textures\\Words\\GameOver.png"));
 
-	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_quit.png"));
+	// DIGIT TEXTURES
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_0.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_1.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_2.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_3.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_4.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_5.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_6.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_7.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_8.png"));
+	texture_Digits.push_back(Surface::FromFile(L"Textures\\Digits\\digit_9.png"));
+
+	// KEY TEXTURES
+	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_restart.png"));
 	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_up.png"));
 	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_pause.png"));
 	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_left.png"));
 	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_down.png"));
 	key_texture.push_back(Surface::FromFile(L"Textures\\Keys\\key_right.png"));
 	
+	// BUTTON TEXTURES
 	button_a_texture.push_back(Surface::FromFile(L"Textures\\Buttons\\quit_green.png"));
 	button_b_texture.push_back(Surface::FromFile(L"Textures\\Buttons\\quit_red.png"));
 
@@ -198,15 +199,16 @@ void Tetris::InitialiseTextures()
 	button_b_texture.push_back(Surface::FromFile(L"Textures\\Buttons\\sound_off_white.png"));
 	button_b_texture.push_back(Surface::FromFile(L"Textures\\Buttons\\sound_off_green.png"));
 	
+	// SETTINGS TEXTURE
 	box_texture.push_back(Surface::FromFile(L"Textures\\Box.png"));
 }
 void Tetris::InitialiseBackground()
 {
-	RectI rect = { 0,static_cast<int>(scrH-1),0,static_cast<int>(scrW-1) };	
+	RectUI rect = { 0,scrH-1,0,scrW-1 };	
 	uint min = 0u;
 	uint max = static_cast<uint>(texture_Background.size()) - 1u;
 	index = RandomInt(min, max);
-	block_Background = Block(rect, &texture_Background[index]);
+	block_Background = Block(std::move(rect), &texture_Background[index]);
 }
 void Tetris::InitialiseBlockPositions()
 {
@@ -474,12 +476,12 @@ void Tetris::InitialiseButtons()
 		button_a_position.emplace_back(std::move(rect));
 		button_b_position.emplace_back(std::move(rect));
 
-		Block block_a(button_a_position[QUIT], &button_a_texture[QUIT]);
-		Block block_b(button_a_position[QUIT], &button_b_texture[QUIT]);
+		Block block_a(button_a_position[BUTTON::QUIT], &button_a_texture[BUTTON::QUIT]);
+		Block block_b(button_a_position[BUTTON::QUIT], &button_b_texture[BUTTON::QUIT]);
 		Button button_a(false, std::move(block_a), std::move(block_b));
 
-		Block block_c(button_b_position[QUIT], &button_a_texture[QUIT]);
-		Block block_d(button_b_position[QUIT], &button_b_texture[QUIT]);
+		Block block_c(button_b_position[BUTTON::QUIT], &button_a_texture[BUTTON::QUIT]);
+		Block block_d(button_b_position[BUTTON::QUIT], &button_b_texture[BUTTON::QUIT]);
 		Button button_b(false, std::move(block_c), std::move(block_d));
 
 		Button2 button2(false, std::move(button_a), std::move(button_b));
@@ -498,12 +500,12 @@ void Tetris::InitialiseButtons()
 		button_a_position.emplace_back(std::move(rect));
 		button_b_position.emplace_back(std::move(rect));
 
-		Block block_a(button_a_position[SETTINGS], &button_a_texture[SETTINGS]);
-		Block block_b(button_a_position[SETTINGS], &button_b_texture[SETTINGS]);
+		Block block_a(button_a_position[BUTTON::SETTINGS], &button_a_texture[BUTTON::SETTINGS]);
+		Block block_b(button_a_position[BUTTON::SETTINGS], &button_b_texture[BUTTON::SETTINGS]);
 		Button button_a(false, std::move(block_a), std::move(block_b));
 
-		Block block_c(button_b_position[SETTINGS], &button_a_texture[SETTINGS]);
-		Block block_d(button_b_position[SETTINGS], &button_b_texture[SETTINGS]);
+		Block block_c(button_b_position[BUTTON::SETTINGS], &button_a_texture[BUTTON::SETTINGS]);
+		Block block_d(button_b_position[BUTTON::SETTINGS], &button_b_texture[BUTTON::SETTINGS]);
 		Button button_b(false, std::move(block_c), std::move(block_d));
 
 		Button2 button2(false, std::move(button_a), std::move(button_b));
@@ -511,7 +513,7 @@ void Tetris::InitialiseButtons()
 	}
 	
 	{
-		// SOUND BUTTON
+		// VOLUME BUTTON
 
 		const uint top		= (scrH - 1u) - (buttonH * 2u);
 		const uint bottom	= (scrH - 1u) - (buttonH * 1u);
@@ -522,12 +524,12 @@ void Tetris::InitialiseButtons()
 		button_a_position.emplace_back(std::move(rect));
 		button_b_position.emplace_back(std::move(rect));
 
-		Block block_a(button_a_position[SOUND], &button_a_texture[SOUND]);
-		Block block_b(button_a_position[SOUND], &button_a_texture[SOUND + 1]);
+		Block block_a(button_a_position[BUTTON::VOLUME], &button_a_texture[BUTTON::VOLUME]);
+		Block block_b(button_a_position[BUTTON::VOLUME], &button_a_texture[BUTTON::VOLUME + 1]);
 		Button button_a(false, std::move(block_a), std::move(block_b));
 
-		Block block_c(button_b_position[SOUND], &button_b_texture[SOUND]);
-		Block block_d(button_b_position[SOUND], &button_b_texture[SOUND + 1]);
+		Block block_c(button_b_position[BUTTON::VOLUME], &button_b_texture[BUTTON::VOLUME]);
+		Block block_d(button_b_position[BUTTON::VOLUME], &button_b_texture[BUTTON::VOLUME + 1]);
 		Button button_b(false, std::move(block_c), std::move(block_d));
 
 		Button2 button2(false, std::move(button_a), std::move(button_b));
@@ -536,6 +538,16 @@ void Tetris::InitialiseButtons()
 
 	mouseOverButton.assign(button.size(), false);
 	mousePressButton.assign(button.size(), false);
+}
+void Tetris::InitialiseSounds()
+{
+	sounds.emplace_back(Sound(L"Sounds\\pop1.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\success0.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\success1.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\success2.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\success3.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\pop0.wav"));
+	sounds.emplace_back(Sound(L"Sounds\\fail0.wav"));
 }
 
 void Tetris::InitialiseSettingsBox()
@@ -655,9 +667,9 @@ void Tetris::InputKeyboard()
 				 	
 		if (!keyIsPressed_LEFT)
 		{
-			if (kbd.KeyIsPressed(VK_LEFT) || mousePressKey[LEFT])
+			if (kbd.KeyIsPressed(VK_LEFT) || mousePressKey[KEY::LEFT])
 			{
-				if (DoesTetroFit(0, MOVE_LEFT, 0))
+				if (DoesTetroFit(0, MOVE::LEFT, 0))
 				{
 					currentX--;
 				}
@@ -666,7 +678,7 @@ void Tetris::InputKeyboard()
 		}
 		else
 		{
-			if (!kbd.KeyIsPressed(VK_LEFT) && !mousePressKey[LEFT])
+			if (!kbd.KeyIsPressed(VK_LEFT) && !mousePressKey[KEY::LEFT])
 			{
 				keyIsPressed_LEFT = false;
 			}
@@ -674,9 +686,9 @@ void Tetris::InputKeyboard()
 
 		if (!keyIsPressed_RIGHT)
 		{
-			if (kbd.KeyIsPressed(VK_RIGHT) || mousePressKey[RIGHT])
+			if (kbd.KeyIsPressed(VK_RIGHT) || mousePressKey[KEY::RIGHT])
 			{
-				if (DoesTetroFit(0, MOVE_RIGHT, 0))
+				if (DoesTetroFit(0, MOVE::RIGHT, 0))
 				{
 					currentX++;
 				}
@@ -685,7 +697,7 @@ void Tetris::InputKeyboard()
 		}
 		else
 		{
-			if (!kbd.KeyIsPressed(VK_RIGHT) && !mousePressKey[RIGHT])
+			if (!kbd.KeyIsPressed(VK_RIGHT) && !mousePressKey[KEY::RIGHT])
 			{
 				keyIsPressed_RIGHT = false;
 			}
@@ -693,9 +705,9 @@ void Tetris::InputKeyboard()
 
 		if (!keyIsPressed_DOWN)
 		{
-			if (kbd.KeyIsPressed(VK_DOWN) || mousePressKey[DOWN])
+			if (kbd.KeyIsPressed(VK_DOWN) || mousePressKey[KEY::DOWN])
 			{
-				if (DoesTetroFit(0, 0, MOVE_DOWN))
+				if (DoesTetroFit(0, 0, MOVE::DOWN))
 				{
 					currentY++;
 				}
@@ -704,7 +716,7 @@ void Tetris::InputKeyboard()
 		}
 		else
 		{
-			if (!kbd.KeyIsPressed(VK_DOWN) && !mousePressKey[DOWN])
+			if (!kbd.KeyIsPressed(VK_DOWN) && !mousePressKey[KEY::DOWN])
 			{
 				keyIsPressed_DOWN = false;
 			}
@@ -712,12 +724,12 @@ void Tetris::InputKeyboard()
 
 		if (!keyIsPressed_UP)
 		{
-			if (kbd.KeyIsPressed(VK_UP) || mousePressKey[ROTATE])
+			if (kbd.KeyIsPressed(VK_UP) || mousePressKey[KEY::ROTATE])
 			{
-				if (DoesTetroFit(ROTATE_CW, 0, 0))
+				if (DoesTetroFit(MOVE::ROTATE, 0, 0))
 				{
 					currentRotation++;
-					sound_move.Play(frequency, volume);
+					sounds[SOUND::ROTATE].Play(frequency, volume);
 				}
 
 				keyIsPressed_UP = true;
@@ -725,7 +737,7 @@ void Tetris::InputKeyboard()
 		}
 		else
 		{
-			if (!kbd.KeyIsPressed(VK_UP) && !mousePressKey[ROTATE])
+			if (!kbd.KeyIsPressed(VK_UP) && !mousePressKey[KEY::ROTATE])
 			{
 				keyIsPressed_UP = false;
 			}
@@ -738,7 +750,7 @@ void Tetris::Pause()
 	{
 		if (!keyIsPressed_SPACE)
 		{
-			if (kbd.KeyIsPressed(VK_SPACE) || mousePressKey[PAUSE])
+			if (kbd.KeyIsPressed(VK_SPACE) || mousePressKey[KEY::PAUSE])
 			{
 				if (!gameIsPaused)
 				{
@@ -754,7 +766,7 @@ void Tetris::Pause()
 		}
 		else
 		{
-			if (!kbd.KeyIsPressed(VK_SPACE) && !mousePressKey[PAUSE])
+			if (!kbd.KeyIsPressed(VK_SPACE) && !mousePressKey[KEY::PAUSE])
 			{
 				keyIsPressed_SPACE = false;
 			}
@@ -765,7 +777,7 @@ void Tetris::Reset()
 {
 	if (gameIsPaused || gameIsOver)
 	{
-		if (mousePressKey[RESTART] || kbd.KeyIsPressed(VK_RETURN))
+		if (mousePressKey[KEY::RESTART] || kbd.KeyIsPressed(VK_RETURN))
 		{
 			Setup();
 		}
@@ -773,7 +785,7 @@ void Tetris::Reset()
 }
 void Tetris::Quit()
 {
-	if (mousePressButton[QUIT])
+	if (mousePressButton[BUTTON::QUIT])
 	{
 		PostQuitMessage(0);
 	}
@@ -782,7 +794,7 @@ void Tetris::Settings()
 {
 	if (!mouseIsPressed)
 	{
-		if (mousePressButton[SETTINGS])
+		if (mousePressButton[BUTTON::SETTINGS])
 		{
 			if (button_Settings_SHOW)
 			{				
@@ -810,21 +822,21 @@ void Tetris::Settings()
 		button_Settings_SHOW = false;
 	}
 }
-void Tetris::Sound()
+void Tetris::Volume()
 {
 	if (!mouseIsPressed)
 	{
-		if (mousePressButton[SOUND])
+		if (mousePressButton[BUTTON::VOLUME])
 		{
 			if (button_Volume_FULL)
 			{				
-				button_Volume_FULL = false;
 				volume = 0.0f;
+				button_Volume_FULL = false;
 			}
 			else
 			{
-				button_Volume_FULL = true;
 				volume = 1.0f;
+				button_Volume_FULL = true;
 			}
 
 			mouseIsPressed = true;
@@ -839,34 +851,34 @@ void Tetris::Sound()
 	}
 }
 
-void Tetris::SetButton(BUTTON btn)
-{
-	size_t button = static_cast<size_t>(btn);
-
-	if (!mouseIsPressed)
-	{
-		if (mousePressButton[button])
-		{
-			if (true)
-			{
-								
-			}
-			else
-			{
-								
-			}
-
-			mouseIsPressed = true;
-		}
-	}
-	else
-	{
-		if (!mouse.LeftIsPressed())
-		{
-			mouseIsPressed = false;
-		}
-	}
-}
+//void Tetris::SetButton(BUTTON btn)
+//{
+//	size_t button = static_cast<size_t>(btn);
+//
+//	if (!mouseIsPressed)
+//	{
+//		if (mousePressButton[button])
+//		{
+//			if (true)
+//			{
+//								
+//			}
+//			else
+//			{
+//								
+//			}
+//
+//			mouseIsPressed = true;
+//		}
+//	}
+//	else
+//	{
+//		if (!mouse.LeftIsPressed())
+//		{
+//			mouseIsPressed = false;
+//		}
+//	}
+//}
 
 /*-------------------------------------------*/
 
@@ -935,7 +947,7 @@ void Tetris::SetNextTetro()
 		}
 	}
 
-	sound_new_tetro.Play(frequency,volume);
+	sounds[SOUND::NEW_TETRO].Play(frequency,volume);
 }
 void Tetris::SetScore()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 {
@@ -1028,16 +1040,16 @@ void Tetris::DeleteLines()
 		switch (nLines)
 		{
 		case 1:
-			sound_line1.Play(frequency, volume);
+			sounds[SOUND::LINE_ONE].Play(frequency, volume);
 			break;
 		case 2:
-			sound_line2.Play(frequency, volume);
+			sounds[SOUND::LINE_TWO].Play(frequency, volume);
 			break;
 		case 3:
-			sound_line3.Play(frequency, volume);
+			sounds[SOUND::LINE_THREE].Play(frequency, volume);
 			break;
 		case 4:
-			sound_line4.Play(frequency, volume);
+			sounds[SOUND::LINE_FOUR].Play(frequency, volume);
 			break;
 		default:
 			break;

@@ -143,7 +143,7 @@ public:
 		return *this + (dest - *this) * alpha;
 	}
 public:
-	T z;
+	T z = (T)0;
 };
 
 typedef _Vec3<float> Vec3;

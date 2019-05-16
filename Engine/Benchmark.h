@@ -19,8 +19,19 @@ public:
 	{
 		B = std::chrono::steady_clock::now();
 	}
-	float TimeBetween()
+	auto TimeBetween()
 	{
-		return std::chrono::duration<float,std::micro>(B - A).count();
+		return (B - A);
+	}
+
+	template< typename T>
+	bool TimeBetween(std::chrono::duration<T> time)
+	{
+		if ( (B - A) >= time )
+		{
+			return true;
+		}
+			
+		return false;		
 	}
 };
