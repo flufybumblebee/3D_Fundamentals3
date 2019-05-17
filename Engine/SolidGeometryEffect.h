@@ -62,7 +62,7 @@ public:
 	// default vs rotates and translates vertices
 	// does not touch attributes
 	typedef DefaultVertexShader<Vertex> VertexShader;
-	// gs colors vertices using their index from a table
+	// gs colors vertices using their current_background from a table
 	// every two triangles are colored from the same entry
 	class GeometryShader
 	{

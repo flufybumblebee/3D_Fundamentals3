@@ -189,12 +189,12 @@ public:
 			{
 				if (*reinterpret_cast<const int*>(&pFileIn[i]) == ' tmf')
 				{
-					memcpy(&format, &pFileIn[i + 8], sizeof(format));
+					memcpy(&format, &pFileIn[i + 8u], sizeof(format));
 					bFilledFormat = true;
 					break;
 				}
 				// chunk size + size entry size + chunk id entry size + word padding
-				i += (*reinterpret_cast<const int*>(&pFileIn[i + 4]) + 9) & 0xFFFFFFFE;
+				i += (*reinterpret_cast<const int*>(&pFileIn[i + 4u]) + 9) & 0xFFFFFFFE;
 			}
 			if (!bFilledFormat)
 			{
@@ -235,12 +235,12 @@ public:
 			bool bFilledData = false;
 			for (unsigned int i = 12; i < fileSize; )
 			{
-				const int chunkSize = *reinterpret_cast<const int*>(&pFileIn[i + 4]);
+				const int chunkSize = *reinterpret_cast<const int*>(&pFileIn[i + 4u]);
 				if (*reinterpret_cast<const int*>(&pFileIn[i]) == 'atad')
 				{
 					pData = std::make_unique<BYTE[]>(chunkSize);
 					nBytes = chunkSize;
-					memcpy(pData.get(), &pFileIn[i + 8], nBytes);
+					memcpy(pData.get(), &pFileIn[i + 8u], nBytes);
 
 					bFilledData = true;
 					break;
@@ -263,7 +263,7 @@ public:
 		}
 	}
 	Sound(const Sound&) = delete;
-	Sound(Sound&& donor)
+	Sound(Sound&& donor) noexcept
 		:
 		nBytes(donor.nBytes),
 		pData(std::move(donor.pData)),

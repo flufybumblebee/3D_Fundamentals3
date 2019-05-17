@@ -20,67 +20,80 @@ private:
 	Graphics& gfx;	
 
 private:
-	static const unsigned int	tetroNUM	= 7u;
-	static const unsigned int	countNUM	= 10u;
-	/*--*/ const unsigned int	blurNUM		= 7u;
+	static const unsigned int	TETRO_NUM	= 7u;
+	static const unsigned int	COUNT_NUM	= 10u;
+	/*--*/ const unsigned int	BLUR_NUM	= 7u;
 
 	/*------------------------------------------*/
 	
-	static const unsigned int	tetroCOLS	= 4u;
-	static const unsigned int	tetroROWS	= 4u;
-	static const unsigned int	fieldCOLS	= 12u;
-	static const unsigned int	fieldROWS	= 18u;
-	static const unsigned int	scoreCOLS	= 10u;
-	static const unsigned int	scoreROWS	= 10u;
+	static const unsigned int	TETRO_COLS	= 4u;
+	static const unsigned int	TETRO_ROWS	= 4u;
+	static const unsigned int	FIELD_COLS	= 12u;
+	static const unsigned int	FIELD_ROWS	= 18u;
+	static const unsigned int	SCORE_COLS	= 10u;
+	static const unsigned int	SCORE_ROWS	= 10u;
 
 	/*------------------------------------------*/
 
-	std::array<std::string, tetroNUM>					tetromino;
-	std::array<std::array<Block, fieldCOLS>, fieldROWS>	blocks_Field;
-	std::array<std::array<Block, tetroCOLS>, tetroROWS>	blocks_NextTetro;
+	std::array<std::string, TETRO_NUM>						tetromino;
+	std::array<std::array<Block, FIELD_COLS>, FIELD_ROWS>	field_blocks;
+	std::array<std::array<Block, TETRO_COLS>, TETRO_ROWS>	next_tetro_blocks;
 
-	std::array<char, (fieldCOLS * fieldROWS)>			blockBuffer_Fixed{};
-	std::array<char, (fieldCOLS * fieldROWS)>			blockBuffer_Shown{};
-	std::array<std::array<Block, scoreCOLS>, scoreROWS>	blocks_Score;
-	std::array<Block, countNUM>							blocks_Counter;
+	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Fixed{};
+	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Shown{};
+	std::array<std::array<Block, SCORE_COLS>, SCORE_ROWS>	score_blocks;
+	std::array<Block, COUNT_NUM>							counter_blocks;
 
-	/*------------------------------------------*/
-	
-	const unsigned int	scrW		= gfx.ScreenWidth;
-	const unsigned int	scrH		= gfx.ScreenHeight;
-	const unsigned int	keyW		= 50u;
-	const unsigned int	keyH		= 50u;
-	const unsigned int	buttonW		= 50u;
-	const unsigned int	buttonH		= 50u;
-	const unsigned int	blockW		= 25u;
-	const unsigned int	blockH		= 25u;
-	const unsigned int	digitW		= 50u;
-	const unsigned int	digitH		= 50u;
-	const unsigned int	pauseW		= 580u;
-	const unsigned int	pauseH		= 100u;
-	const unsigned int	gameOverW	= 580u;
-	const unsigned int	gameOverH	= 290u;
-	
 	/*------------------------------------------*/
 	
-	std::vector<Surface>	texture_Background;
-	std::vector<Surface>	texture_Blocks;
-	std::vector<Surface>	texture_Digits;
-	std::vector<Surface>	texture_Pause;
-	std::vector<Surface>	texture_GameOver;
+	const unsigned int	SCREEN_W	= gfx.ScreenWidth;
+	const unsigned int	SCREEN_H	= gfx.ScreenHeight;
+	const unsigned int	BLOCK_W		= 25u;
+	const unsigned int	BLOCK_H		= 25u;
+	const unsigned int	KEY_W		= 50u;
+	const unsigned int	KEY_H		= 50u;
+	const unsigned int	BUTTON_W	= 50u;
+	const unsigned int	BUTTON_H	= 50u;
+	const unsigned int	DIGIT_W		= 50u;
+	const unsigned int	DIGIT_H		= 50u;
+	const unsigned int	PAUSE_W		= 580u;
+	const unsigned int	PAUSE_H		= 100u;
+	const unsigned int	GAMEOVER_W	= 580u;
+	const unsigned int	GAMEOVER_H	= 290u;
+	
+	/*------------------------------------------*/
+	
+	std::vector<Surface>	block_textures;
+	std::vector<Surface>	digit_textures;
+	std::vector<Surface>	pause_textures;
+	std::vector<Surface>	gameover_textures;
 
 	/*------------------------------------------*/
 
-	Block block_Background;
-	Block block_Pause;
-	Block block_GameOver;
+	std::vector<Surface>	background_textures;
+	RectUI					background_position;
+	Block					background_block;
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>	key_texture;
-	std::vector<Surface>	key_b_texture;
-	std::vector<RectUI>		key_a_position;
-	std::vector<RectUI>		key_b_position;
+	RectUI	field_position;
+	Block	field_block;
+
+	/*------------------------------------------*/
+
+	RectUI	pause_position;
+	Block	pause_block;
+
+	/*------------------------------------------*/
+
+	RectUI	gameover_position;
+	Block	gameover_block;
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>	key_textures;
+	std::vector<RectUI>		key_position_a;
+	std::vector<RectUI>		key_position_b;
 
 	std::vector<Button>		key;
 
@@ -95,16 +108,27 @@ private:
 	bool	keyIsPressed_ESCAPE = false;
 
 	/*------------------------------------------*/
+	
+	std::vector<Surface>	button_texture_a;
+	std::vector<Surface>	button_texture_b;
+	std::vector<RectUI>		button_position;
 
-	std::vector<Surface>	button_a_texture;
-	std::vector<Surface>	button_b_texture;
-	std::vector<RectUI>		button_a_position;
-	std::vector<RectUI>		button_b_position;
-
-	std::vector<Button2>	button;
+	std::vector<Button>		button;
 
 	std::vector<bool>		mouseOverButton;
 	std::vector<bool>		mousePressButton;
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>	button2_texture_a;
+	std::vector<Surface>	button2_texture_b;
+	std::vector<RectUI>		button2_position_a;
+	std::vector<RectUI>		button2_position_b;
+
+	std::vector<Button>		button2;
+
+	std::vector<bool>		mouseOverButton2;
+	std::vector<bool>		mousePressButton2;
 
 	bool	button_Volume_FULL	 = false;
 	bool	button_Settings_SHOW = false;	
@@ -118,7 +142,7 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>	box_texture;
+	std::vector<Surface>	box_textures;
 	Block					box_block;
 
 	/*------------------------------------------*/
@@ -128,8 +152,7 @@ private:
 	
 	/*------------------------------------------*/
 
-	unsigned int	score			= 0u;
-	unsigned int	index			= 0u;
+	unsigned int	current_background	= 0u;
 
 	unsigned int	currentX		= 0u;
 	unsigned int	currentY		= 0u;
@@ -138,10 +161,10 @@ private:
 	unsigned int	nextTetro		= 0u;
 
 	unsigned int	frameCounter	= 0u;
+	unsigned int	score			= 0u;
 	unsigned int	speed			= 0u;
 	unsigned int	level			= 0u;
 	unsigned int	prevLevel		= 0u;
-
 	unsigned int	tickCounter		= 0u;
 	unsigned int	counterTetro	= 0u;
 	unsigned int	counterSpeed	= 0u;
@@ -165,7 +188,7 @@ private:
 
 	void	InitialiseTextures();
 	void	InitialiseBackground();
-	void	InitialiseBlockPositions();
+	void	InitialiseField();
 	void	InitialiseTetrominos();
 	void	InitialiseNextTetro();
 	void	InitialiseScore();
@@ -222,7 +245,7 @@ private:
 	int		ConvertCharToInt(const char value);
 
 	std::vector<Color>	ConvertSurfaceToColorVector(Surface surface);
-	std::vector<Color>	Blur(const int w,const int h,const std::vector<Color>& input);
+	std::vector<Color>	Blur(const int WIDTH, const int HEIGHT,const std::vector<Color>& input);
 
 	/* FUNCTIONS I COULDN'T GET TO WORK */
 	/*void	Benchmark(void* pFunction);*/

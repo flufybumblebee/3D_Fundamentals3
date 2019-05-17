@@ -142,7 +142,7 @@ typedef struct {
   real_t transmittance[3];
   real_t emission[3];
   real_t shininess;
-  real_t ior;       // index of refraction
+  real_t ior;       // current_background of refraction
   real_t dissolve;  // 1 == opaque; 0 == fully transparent
   // illumination model (see http://www.fileformat.info/format/material/)
   int illum;
@@ -242,9 +242,9 @@ typedef struct callback_t_ {
 
   // called per 'f' line. num_indices is the number of face indices(e.g. 3 for
   // triangle, 4 for quad)
-  // 0 will be passed for undefined index in index_t members.
+  // 0 will be passed for undefined current_background in index_t members.
   void (*index_cb)(void *user_data, index_t *indices, int num_indices);
-  // `name` material name, `material_id` = the array index of material_t[]. -1
+  // `name` material name, `material_id` = the array current_background of material_t[]. -1
   // if
   // a material not found in .mtl
   void (*usemtl_cb)(void *user_data, const char *name, int material_id);
@@ -426,7 +426,7 @@ static std::istream &safeGetline(std::istream &is, std::string &t) {
   (static_cast<unsigned int>((x) - '0') < static_cast<unsigned int>(10))
 #define IS_NEW_LINE(x) (((x) == '\r') || ((x) == '\n') || ((x) == '\0'))
 
-// Make index zero-base, and also support relative index.
+// Make current_background zero-base, and also support relative current_background.
 static inline int fixIndex(int idx, int n) {
   if (idx > 0) return idx - 1;
   if (idx == 0) return 0;
@@ -692,7 +692,7 @@ static tag_sizes parseTagTriple(const char **token) {
   return ts;
 }
 
-// Parse triples with index offsets: i, i/j/k, i//k, i/j
+// Parse triples with current_background offsets: i, i/j/k, i//k, i/j
 static vertex_index parseTriple(const char **token, int vsize, int vnsize,
                                 int vtsize) {
   vertex_index vi(-1);
@@ -728,7 +728,7 @@ static vertex_index parseTriple(const char **token, int vsize, int vnsize,
 
 // Parse raw triples: i, i/j/k, i//k, i/j
 static vertex_index parseRawTriple(const char **token) {
-  vertex_index vi(static_cast<int>(0));  // 0 is an invalid index in OBJ
+  vertex_index vi(static_cast<int>(0));  // 0 is an invalid current_background in OBJ
 
   vi.v_idx = atoi((*token));
   (*token) += strcspn((*token), "/ \t\r");
@@ -1084,7 +1084,7 @@ void LoadMtl(std::map<std::string, int> *material_map,
       continue;
     }
 
-    // ior(index of refraction)
+    // ior(current_background of refraction)
     if (token[0] == 'N' && token[1] == 'i' && IS_SPACE((token[2]))) {
       token += 2;
       material.ior = parseReal(&token);

@@ -75,12 +75,12 @@ public:
 			} );
 		}
 
-		// extract index data
+		// extract current_background data
 		// obj file can contain multiple meshes, we assume just 1
 		const auto& mesh = shapes[0].mesh;
 		// mesh contains a std::vector of num_face_vertices (uchar)
 		// and a flat std::vector of indices. If all faces are triangles
-		// then for any face f, the first index of that faces is [f * 3n]
+		// then for any face f, the first current_background of that faces is [f * 3n]
 		tl.indices.reserve( mesh.indices.size() );
 		for( size_t f = 0; f < mesh.num_face_vertices.size(); f++ )
 		{
@@ -93,7 +93,7 @@ public:
 				throw std::runtime_error( ss.str().c_str() );
 			}
 
-			// load set of 3 indices for each face into OUR index std::vector
+			// load set of 3 indices for each face into OUR current_background std::vector
 			for( size_t vn = 0; vn < 3u; vn++ )
 			{
 				const auto idx = mesh.indices[f * 3u + vn];
@@ -165,12 +165,12 @@ public:
 			} );
 		}
 
-		// extract index data
+		// extract current_background data
 		// obj file can contain multiple meshes, we assume just 1
 		const auto& mesh = shapes[0].mesh;
 		// mesh contains a std::vector of num_face_vertices (uchar)
 		// and a flat std::vector of indices. If all faces are triangles
-		// then for any face f, the first index of that faces is [f * 3n]
+		// then for any face f, the first current_background of that faces is [f * 3n]
 		tl.indices.reserve( mesh.indices.size() );
 		for( size_t f = 0; f < mesh.num_face_vertices.size(); f++ )
 		{
@@ -183,7 +183,7 @@ public:
 				throw std::runtime_error( ss.str().c_str() );
 			}
 
-			// load set of 3 indices for each face into OUR index std::vector
+			// load set of 3 indices for each face into OUR current_background std::vector
 			for( size_t vn = 0; vn < 3u; vn++ )
 			{
 				const auto idx = mesh.indices[f * 3u + vn];

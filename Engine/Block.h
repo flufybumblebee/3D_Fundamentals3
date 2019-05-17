@@ -42,7 +42,9 @@ public:
 		:
 		pos(std::move(block.pos)),
 		pTex(std::move(block.pTex))
-	{}
+	{
+		block.pTex = nullptr;
+	}
 	Block& operator = (const Block& rhs)
 	{
 		pos = rhs.pos;
