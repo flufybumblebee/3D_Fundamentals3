@@ -22,6 +22,7 @@
 
 #include "Vec2.h"
 #include <algorithm>
+#include <memory>
 
 template < typename T >
 class _Rect
@@ -30,18 +31,43 @@ public:
 	inline	_Rect() {}
 	inline	_Rect( T top,T bottom,T left,T right )
 		:
-	top( top ),
-	bottom( bottom ),
-	left( left ),
-	right( right )
+		top(	top ),
+		bottom( bottom ),
+		left(	left ),
+		right(	right )
 	{}
 	inline	_Rect( const _Rect& rect )
 		:
-	top( rect.top ),
-	bottom( rect.bottom ),
-	left( rect.left ),
-	right( rect.right )
+		top(	rect.top ),
+		bottom( rect.bottom ),
+		left(	rect.left ),
+		right(	rect.right )
 	{}
+	inline _Rect( _Rect&& rect ) noexcept
+		:
+		top(	std::move(rect.top)),
+		bottom(	std::move(rect.bottom)),
+		left(	std::move(rect.left)),
+		right(	std::move(rect.right))
+	{}
+	inline _Rect<T>& operator = (const _Rect<T>& rhs)
+	{
+		top		= rhs.top;
+		bottom	= rhs.bottom;
+		left	= rhs.left;
+		right	= rhs.right;
+
+		return *this;
+	}
+	inline _Rect<T>& operator + (const _Rect<T>& rhs)
+	{
+		top += rhs.top;
+		bottom += rhs.bottom;
+		left += rhs.left;
+		right += rhs.right;
+
+		return *this;
+	}
 	inline	_Rect( _Vec2<T> p0,_Vec2<T> p1 )
 		:
 		_Rect( min( p0.y,p1.y ),
@@ -66,21 +92,12 @@ public:
 		return { (T2)top,(T2)bottom,(T2)left,(T2)right };
 	}
 	
-	inline _Rect<T>& operator + (const _Rect<T>& rhs)
-	{
-		top += rhs.top;
-		bottom += rhs.bottom;
-		left += rhs.left;
-		right += rhs.right;
-
-		return *this;
-	}
 	inline	void ClipTo( const _Rect& rect )
 	{
-		top = std::max( top,rect.top );
-		bottom = std::min( bottom,rect.bottom );
-		left = std::max( left,rect.left );
-		right = std::min( right,rect.right );
+		top		= std::max( top,	rect.top );
+		bottom	= std::min( bottom,	rect.bottom );
+		left	= std::max( left,	rect.left );
+		right	= std::min( right,	rect.right );
 	}
 	inline	T GetWidth() const
 	{
@@ -92,8 +109,10 @@ public:
 	}
 	inline	bool Overlaps( const _Rect& rect ) const
 	{
-		return top < rect.bottom && bottom > rect.top && 
-			left < rect.right && right > rect.left;
+		return	top		< rect.bottom	&&
+				bottom	> rect.top		&& 
+				left	< rect.right	&&
+				right	> rect.left;
 	}
 	template <typename T2>
 	inline	bool Contains( _Vec2<T2> p ) const
@@ -106,10 +125,10 @@ public:
 		return p.top >= top && p.bottom <= bottom && p.left >= left && p.right <= right;
 	}
 public:
-	T top = 0;
-	T bottom = 0;
-	T left = 0;
-	T right = 0;
+	T top		= 0;
+	T bottom	= 0;
+	T left		= 0;
+	T right		= 0;
 };
 
 typedef _Rect< unsigned int > RectUI;

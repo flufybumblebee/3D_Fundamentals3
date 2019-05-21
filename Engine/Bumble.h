@@ -23,15 +23,20 @@ namespace KEY
 
 namespace BUTTON
 {
-	const size_t QUIT = 0;
-	const size_t SETTINGS = 1;
-	const size_t VOLUME = 2;
+	const size_t QUIT		= 0;
+	const size_t SETTINGS	= 1;
+	const size_t VOLUME		= 2;
+};
+
+namespace BUTTON2
+{
+	const size_t VOLUME = 0;
 };
 
 namespace MOVE
 {
-	const int LEFT = -1;
-	const int RIGHT = 1;
-	const int DOWN = 1;
-	const int ROTATE = 1;
+	const int LEFT		= -1;
+	const int RIGHT		= 1;
+	const int DOWN		= 1;
+	const int ROTATE	= 1;
 }

@@ -32,7 +32,10 @@ public:
 		state(std::move(move.state)),
 		blockA(std::move(move.blockA)),
 		blockB(std::move(move.blockB))		
-	{}
+	{
+		move.blockA.SetTexture(nullptr);
+		move.blockB.SetTexture(nullptr);
+	}
 	Button& operator = (const Button& rhs)
 	{
 		state = rhs.state;
@@ -56,7 +59,7 @@ public:
 	void SetTextures(Surface* pTexA, Surface* pTexB)
 	{
 		blockA.SetTexture(pTexA);
-		blockB.SetTexture(pTexA);
+		blockB.SetTexture(pTexB);
 	}
 	bool GetState() const
 	{

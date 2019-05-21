@@ -4,13 +4,14 @@
 #include "Surface.h"
 #include "TexVertex.h"
 #include "Rect.h"
+#include <memory>
 
 /*
 
 NOTES:
 
-pos		= position
-tc		= texture coordinate
+pos		= position & size of texture when drawn
+TC		= texture coordinate
 pTex	= pointer to a texture
 rhs		= right hand side (of the assignment)
 
@@ -20,15 +21,11 @@ class Block
 {
 private:
 	RectF pos;
-	const Vec2 tc0 = { 0.0f,0.0f };
-	const Vec2 tc1 = { 1.0f,0.0f };
-	const Vec2 tc2 = { 1.0f,1.0f };
-	const Vec2 tc3 = { 0.0f,1.0f };
 	Surface* pTex = nullptr;
 
 public:
 	Block() = default;
-	Block(const RectI& position, Surface* pTex)
+	Block(const RectF& position, Surface* pTex)
 		:
 		pos(position),
 		pTex(pTex)
@@ -38,10 +35,10 @@ public:
 		pos(copy.pos),
 		pTex(copy.pTex)
 	{}
-	Block( Block&& block ) noexcept
+	Block(Block&& block) noexcept
 		:
-		pos(std::move(block.pos)),
-		pTex(std::move(block.pTex))
+		pos(block.pos),
+		pTex(block.pTex)
 	{
 		block.pTex = nullptr;
 	}
@@ -52,9 +49,25 @@ public:
 
 		return *this;
 	}
-	
+	Block& operator = (Block&& rhs) noexcept
+	{
+		if (&rhs != this)
+		{
+			pos = rhs.pos;
+			pTex = rhs.pTex;
+
+			rhs.pTex = nullptr;
+		}
+
+		return *this;
+	}
+	~Block()
+	{
+		delete pTex;
+		pTex = nullptr;
+	}
 public:
-	void SetPosition(RectI new_position)
+	void SetPosition(const RectF& new_position)
 	{
 		pos = new_position;
 	}
@@ -63,16 +76,16 @@ public:
 		pTex = new_texture;
 	}
 	void Draw(Graphics& gfx)
-	{		
+	{
 		gfx.DrawTriangleTex(
-			{ {pos.left,	pos.top,	0.0f},tc0 },
-			{ {pos.right,	pos.top,	0.0f},tc1 },
-			{ {pos.right,	pos.bottom,	0.0f},tc2 },
+			{ {pos.left,	pos.top,	0.0f},{ 0.0f,0.0f } },
+			{ {pos.right,	pos.top,	0.0f},{ 1.0f,0.0f } },
+			{ {pos.right,	pos.bottom,	0.0f},{ 1.0f,1.0f } },
 			*pTex);
 		gfx.DrawTriangleTex(
-			{ {pos.left,	pos.top,	0.0f},tc0 },
-			{ {pos.right,	pos.bottom,	0.0f},tc2 },
-			{ {pos.left,	pos.bottom,	0.0f},tc3 },
+			{ {pos.left,	pos.top,	0.0f},{ 0.0f,0.0f } },
+			{ {pos.right,	pos.bottom,	0.0f},{ 1.0f,1.0f } },
+			{ {pos.left,	pos.bottom,	0.0f},{ 0.0f,1.0f } },
 			*pTex);
 	}
 };

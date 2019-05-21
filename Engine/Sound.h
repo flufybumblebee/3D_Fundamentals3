@@ -185,16 +185,16 @@ public:
 			//look for 'fmt ' chunk id
 			WAVEFORMATEX format;
 			bool bFilledFormat = false;
-			for (unsigned int i = 12; i < fileSize; )
+			for (size_t i = 12u; i < fileSize; )
 			{
 				if (*reinterpret_cast<const int*>(&pFileIn[i]) == ' tmf')
 				{
-					memcpy(&format, &pFileIn[i + 8u], sizeof(format));
+					memcpy(&format, &pFileIn[i + static_cast<size_t>(8)], sizeof(format));
 					bFilledFormat = true;
 					break;
 				}
 				// chunk size + size entry size + chunk id entry size + word padding
-				i += (*reinterpret_cast<const int*>(&pFileIn[i + 4u]) + 9) & 0xFFFFFFFE;
+				i += (*reinterpret_cast<const int*>(&pFileIn[i + static_cast<size_t>(4)]) + 9) & 0xFFFFFFFE;
 			}
 			if (!bFilledFormat)
 			{
@@ -233,14 +233,14 @@ public:
 
 			//look for 'data' chunk id
 			bool bFilledData = false;
-			for (unsigned int i = 12; i < fileSize; )
+			for (size_t i = 12; i < fileSize; )
 			{
-				const int chunkSize = *reinterpret_cast<const int*>(&pFileIn[i + 4u]);
+				const int chunkSize = *reinterpret_cast<const int*>(&pFileIn[i + static_cast<size_t>(4)]);
 				if (*reinterpret_cast<const int*>(&pFileIn[i]) == 'atad')
 				{
 					pData = std::make_unique<BYTE[]>(chunkSize);
 					nBytes = chunkSize;
-					memcpy(pData.get(), &pFileIn[i + 8u], nBytes);
+					memcpy(pData.get(), &pFileIn[i + static_cast<size_t>(8)], nBytes);
 
 					bFilledData = true;
 					break;
