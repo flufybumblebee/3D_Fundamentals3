@@ -184,9 +184,9 @@ void Tetris::Draw()
 
 	if (!button_settings_SHOW && !gameIsPaused && !gameIsOver)
 	{
+		DrawFieldGrid();
 		DrawField();
 		DrawNextTetro();
-		DrawFieldGrid();
 	}
 
 	DrawBox();
@@ -226,7 +226,7 @@ void Tetris::InitialiseBackground()
 }
 void Tetris::InitialiseBlocks()
 {
-	if (true)
+	if (false)
 	{
 		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksA\\Block_DarkGrey.png")));
 		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksA\\Block_Orange.png")));
@@ -267,7 +267,16 @@ void Tetris::InitialiseBlocks()
 	}
 	else
 	{
-
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
+		block_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Blocks\\BlocksC\\tile_magenta.png")));
 	}
 }
 void Tetris::InitialiseDigits()
@@ -345,28 +354,7 @@ void Tetris::InitialiseField()
 }
 void Tetris::InitialiseFieldGrid()
 {
-	Surface surf(FIELD_W, FIELD_H);
-
-	Color c;
-
-	for (uint y = 0; y < FIELD_H; y++)
-	{
-		for (uint x = 0; x < FIELD_W; x++)
-		{
-			if ((x == 0 || x == FIELD_COLS * x) || (y == 0 || y == FIELD_ROWS * y))
-			{
-				c = Color(155, 0, 0, 0);
-			}
-			else
-			{
-				c = Color(0, 0, 0, 0);
-			}
-
-			surf.PutPixel(x, y, c);
-		}
-	}
-
-	field_grid_textures.emplace_back(std::move(surf));
+	field_grid_textures.emplace_back(std::move(Surface::FromFile(L"Textures\\Fields\\field_grid_square_curved.png")));
 	field_grid_block = std::move(Block(field_position, &field_grid_textures[0]));
 }
 void Tetris::InitialiseNextTetro()
