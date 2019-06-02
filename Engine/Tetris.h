@@ -31,6 +31,8 @@ private:
 	static constexpr unsigned int	FIELD_ROWS	= 18u;
 	static constexpr unsigned int	SCORE_COLS	= 10u;
 	static constexpr unsigned int	SCORE_ROWS	= 10u;
+	static constexpr unsigned int	LEVEL_COLS	= 2u;
+	static constexpr unsigned int	LEVEL_ROWS	= 10u;
 
 	/*------------------------------------------*/
 
@@ -41,29 +43,25 @@ private:
 	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Fixed{};
 	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Shown{};
 	std::array<std::array<Block, SCORE_COLS>, SCORE_ROWS>	score_blocks;
+	std::array<std::array<Block, LEVEL_COLS>, LEVEL_ROWS>	level_blocks;
 	std::array<Block, COUNT_NUM>							counter_blocks;
 
 	/*------------------------------------------*/
 	
 	const unsigned int	SCREEN_W	= gfx.ScreenWidth;
 	const unsigned int	SCREEN_H	= gfx.ScreenHeight;
-	const unsigned int	BLOCK_W		= 25u;
-	const unsigned int	BLOCK_H		= 25u;
-	const unsigned int	KEY_W		= 50u;
-	const unsigned int	KEY_H		= 50u;
-	const unsigned int	BUTTON_W	= 50u;
-	const unsigned int	BUTTON_H	= 50u;
-	const unsigned int	DIGIT_W		= 50u;
-	const unsigned int	DIGIT_H		= 50u;
-	const unsigned int	PAUSE_W		= 580u;
-	const unsigned int	PAUSE_H		= 100u;
-	const unsigned int	GAMEOVER_W	= 580u;
-	const unsigned int	GAMEOVER_H	= 290u;
-
-	const unsigned int	BLUR_NUM	= 7u;
-
+	const unsigned int	BLOCK_W		= SCREEN_H / 20;
+	const unsigned int	BLOCK_H		= SCREEN_H / 20;
+	const unsigned int	KEY_W		= BLOCK_W * 2;
+	const unsigned int	KEY_H		= BLOCK_H * 2;
+	const unsigned int	BUTTON_W	= KEY_W;
+	const unsigned int	BUTTON_H	= KEY_H;
+	const unsigned int	DIGIT_W		= KEY_W;
+	const unsigned int	DIGIT_H		= KEY_H;
 	const unsigned int	FIELD_W		= BLOCK_W * FIELD_COLS;
 	const unsigned int	FIELD_H		= BLOCK_H * FIELD_ROWS;
+
+	const unsigned int	BLUR_NUM	= 7u;
 	
 	/*------------------------------------------*/
 	
@@ -91,12 +89,14 @@ private:
 	std::vector<Surface>	pause_textures;
 	RectUI					pause_position;
 	Block					pause_block;
+	bool					gameIsPaused		= false;
 
 	/*------------------------------------------*/
 
 	std::vector<Surface>	gameover_textures;
 	RectUI					gameover_position;
 	Block					gameover_block;
+	bool					gameIsOver			= false;
 
 	/*------------------------------------------*/
 
@@ -107,8 +107,6 @@ private:
 	std::vector<RectUI>		key_position_b;
 	std::vector<Block>		key_a;
 	std::vector<Block>		key_b;
-
-
 	std::vector<bool>		key_mouseover;
 	std::vector<bool>		key_mousepress;
 
@@ -123,6 +121,7 @@ private:
 	
 	std::vector<Surface>	button_texture_a;
 	std::vector<Surface>	button_texture_b;
+
 	std::vector<RectUI>		button_position;
 
 	std::vector<Block>		button_a;
@@ -166,9 +165,30 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<unsigned int>	blockBuffer_Score;
+	std::vector<Surface>		level_textures;
+	Block						level_block;
+	std::vector<unsigned int>	level_buffer;
+	unsigned int				level				= 0u;
+	unsigned int				prevLevel			= 0u;
+	bool						level_goal			= false;
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>		score_textures;
+	Block						score_block;
+	std::vector<unsigned int>	score_buffer;
+
+	/*------------------------------------------*/
+
 	std::vector<unsigned int>	lines;
-	
+	unsigned int				line_count = 0;
+
+	/*------------------------------------------*/
+
+	std::vector<Surface>		tetris_textures;
+	RectUI						tetris_position;
+	Block						tetris_block;
+
 	/*------------------------------------------*/
 
 	size_t	current_background	= 0u;
@@ -182,19 +202,13 @@ private:
 	unsigned int	frameCounter		= 0u;
 	unsigned int	score				= 0u;
 	unsigned int	speed				= 0u;
-	unsigned int	level				= 0u;
-	unsigned int	prevLevel			= 0u;
 	unsigned int	tickCounter			= 0u;
 	unsigned int	counterTetro		= 0u;
 	unsigned int	counterSpeed		= 0u;
-
+	
 	/*------------------------------------------*/
 
 	bool	mouseIsPressed	= false;
-
-	bool	gameIsPaused	= false;
-	bool	gameIsOver		= false;
-
 	bool	mouse_press_LEFT = false;
 	
 public:
@@ -221,6 +235,7 @@ private:
 	void	InitialisePause();
 	void	InitialiseGameOver();
 
+	void	InitialiseLevel();
 	void	InitialiseScore();
 	void	InitialiseCounter();
 
@@ -231,6 +246,8 @@ private:
 	void	InitialiseSounds();
 
 	void	InitialiseSettingsBox();
+
+	void	InitialiseTetris();
 
 	/*------------------------------------------*/
 
@@ -247,6 +264,7 @@ private:
 	/*------------------------------------------*/
 
 	void	SetBackground();
+	void	ResetField();
 	void	SetFieldBlocks();
 	void	SetNextTetro();
 	void	CheckForLines();
@@ -257,8 +275,6 @@ private:
 	void	SetScore();
 	void	SetLevel();
 	void	SetCounter();
-	void	ResetScore();
-	void	ResetField();
 
 	/*------------------------------------------*/
 
@@ -268,8 +284,11 @@ private:
 	void	DrawBlur();
 	void	DrawPause();
 	void	DrawGameOver();
+
 	void	DrawScore();
+	void	DrawLevel();
 	void	DrawCounter();
+
 	void	DrawKeys();
 	void	DrawButtons();
 	void	DrawButtons2();
@@ -277,6 +296,8 @@ private:
 	void	DrawFieldGrid();
 
 	void	DrawBox();
+
+	void	DrawTetris();
 
 private:
 	int		Rotate(int x, int y, int r);
