@@ -413,10 +413,10 @@ void Tetris::InitialiseGameOver()
 	const size_t MAX	= SIZE - 1u;
 	const size_t INDEX	= (SIZE > 1u) ? RandomInt(MIN,MAX) : 0u;
 
-	const unsigned int LEFT		= BLOCK_W * 2u;
-	const unsigned int RIGHT	= FIELD_W;
 	const unsigned int TOP		= SCREEN_H / 2u - DIGIT_H;
 	const unsigned int BOTTOM	= SCREEN_H / 2u + DIGIT_H;
+	const unsigned int LEFT		= BLOCK_W * 3u;
+	const unsigned int RIGHT	= BLOCK_W * 11u;
 
 	gameover_block = std::move(Block(RectUI(TOP, BOTTOM, LEFT, RIGHT), &gameover_textures[INDEX]));
 }
@@ -630,10 +630,10 @@ void Tetris::InitialiseButtons()
 	{
 		// QUIT BUTTON
 
-		const uint TOP		= (SCREEN_H - 1u) - (BUTTON_H * 3u);
-		const uint BOTTOM	= (SCREEN_H - 1u) - (BUTTON_H * 2u);
-		const uint LEFT		= BUTTON_W * 0u;
-		const uint RIGHT	= BUTTON_W * 1u;
+		const uint TOP		= BLOCK_H * 16u;
+		const uint BOTTOM	= BLOCK_H * 18u;
+		const uint LEFT		= BLOCK_W * 2u;
+		const uint RIGHT	= BLOCK_W * 4u;
 
 		RectUI position = { TOP,BOTTOM,LEFT,RIGHT };
 		button_position.emplace_back(std::move(position));
@@ -648,10 +648,10 @@ void Tetris::InitialiseButtons()
 	{
 		// SETTINGS BUTTON
 
-		const uint TOP		= (SCREEN_H - 1u) - (BUTTON_H * 1u);
-		const uint BOTTOM	= (SCREEN_H - 1u) - (BUTTON_H * 0u);
-		const uint LEFT		= BUTTON_W * 0u;
-		const uint RIGHT	= BUTTON_W * 1u;
+		const uint TOP		= BLOCK_H * 16u;
+		const uint BOTTOM	= BLOCK_H * 18u;
+		const uint LEFT		= BLOCK_W * 6u;
+		const uint RIGHT	= BLOCK_W * 8u;
 
 		RectUI position = { TOP,BOTTOM,LEFT,RIGHT };
 		button_position.emplace_back(std::move(position));
@@ -679,10 +679,10 @@ void Tetris::InitialiseButtons2()
 	{
 		// VOLUME BUTTON
 
-		const uint TOP		= (SCREEN_H - 1u) - (BUTTON_H * 2u);
-		const uint BOTTOM	= (SCREEN_H - 1u) - (BUTTON_H * 1u);
-		const uint LEFT		= BUTTON_W * 0u;
-		const uint RIGHT	= BUTTON_W * 1u;
+		const uint TOP		= BLOCK_H * 16u;
+		const uint BOTTOM	= BLOCK_H * 18u;
+		const uint LEFT		= BLOCK_W * 10u;
+		const uint RIGHT	= BLOCK_W * 12u;
 
 		RectUI rect = { TOP,BOTTOM,LEFT,RIGHT };
 
@@ -807,7 +807,7 @@ void Tetris::SetKeys()
 }
 void Tetris::SetButtons()
 {
-	if (mouse.IsInWindow())
+	if (mouse.IsInWindow() && (gameIsOver || gameIsPaused))
 	{
 		const uint MOUSE_X = mouse.GetPosX();
 		const uint MOUSE_Y = mouse.GetPosY();
@@ -842,7 +842,7 @@ void Tetris::SetButtons()
 }
 void Tetris::SetButtons2()
 {
-	if (mouse.IsInWindow())
+	if (mouse.IsInWindow() && (gameIsOver || gameIsPaused))
 	{
 		const uint MOUSE_X = mouse.GetPosX();
 		const uint MOUSE_Y = mouse.GetPosY();
@@ -1061,8 +1061,6 @@ void Tetris::SetScore()
 }
 void Tetris::SetLevel()
 {
-	ExtractDigits(level_buffer, level);
-
 	if (line_count >= 4u)
 	{
 		line_count -= 4u;
@@ -1077,7 +1075,9 @@ void Tetris::SetLevel()
 		speed -= 1u;
 		level_goal = false;
 	}	
-	
+
+	ExtractDigits(level_buffer, level);
+
 	//switch (level)
 	//{
 	//case 0:
@@ -1413,17 +1413,20 @@ void Tetris::DrawButtons()
 		}
 	}
 	
-	for (size_t i = 0u; i < button_a.size(); i++)
+	if (gameIsOver || gameIsPaused)
 	{
-		if (button_mouseover[i])
+		for (size_t i = 0u; i < button_a.size(); i++)
 		{
-			button_b[i].Draw(gfx);
+			if (button_mouseover[i])
+			{
+				button_b[i].Draw(gfx);
+			}
+			else
+			{
+				button_a[i].Draw(gfx);
+			}
 		}
-		else
-		{
-			button_a[i].Draw(gfx);
-		}
-	}	
+	}
 }
 void Tetris::DrawButtons2()
 {
@@ -1452,28 +1455,31 @@ void Tetris::DrawButtons2()
 		}
 	}
 
-	for (size_t i = 0u; i < button2_a.size(); i++)
+	if (gameIsOver || gameIsPaused)
 	{
-		if (button2_volume_FULL)
+		for (size_t i = 0u; i < button2_a.size(); i++)
 		{
-			if (button2_mouseover[i])
+			if (button2_volume_FULL)
 			{
-				button2_b[i].Draw(gfx);
+				if (button2_mouseover[i])
+				{
+					button2_b[i].Draw(gfx);
+				}
+				else
+				{
+					button2_a[i].Draw(gfx);
+				}
 			}
 			else
 			{
-				button2_a[i].Draw(gfx);
-			}
-		}
-		else
-		{
-			if (button2_mouseover[i])
-			{
-				button2_d[i].Draw(gfx);
-			}
-			else
-			{
-				button2_c[i].Draw(gfx);
+				if (button2_mouseover[i])
+				{
+					button2_d[i].Draw(gfx);
+				}
+				else
+				{
+					button2_c[i].Draw(gfx);
+				}
 			}
 		}
 	}
@@ -1515,7 +1521,10 @@ void Tetris::DrawBox()
 
 void Tetris::DrawTetris()
 {
-	tetris_block.Draw(gfx);
+	if (gameIsOver || gameIsPaused)
+	{
+		tetris_block.Draw(gfx);
+	}
 }
 
 void Tetris::DrawLevel()
