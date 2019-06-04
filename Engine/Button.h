@@ -3,77 +3,116 @@
 #include "Block.h"
 #include "Surface.h"
 #include "Graphics.h"
+#include "Rect.h"
+#include "Mouse.h"
 
 #include <vector>
-#include <string>
 
 class Button
 {
 private:
-	bool state = false;
-	Block blockA;
-	Block blockB;
+	bool mousepress = false;
+	bool mouseover = false;
+	RectUI position;
+	Block block_a;
+	Block block_b;
+	Block block_c; 
+	Block block_d;
 public:
 	Button() = default;
-	Button(const bool& state, const Block& block_a, const Block& block_b)
+	Button(const Block& block_A, const Block& block_B, const Block& block_C, const Block& block_D )
 		:
-		state(state),
-		blockA(block_a),
-		blockB(block_b)
-	{}
+		block_a(block_A),
+		block_b(block_B),
+		block_c(block_C),
+		block_d(block_D)
+	{
+		position = block_a.GetPosition();
+	}
 	Button(const Button& copy)
 		:
-		state(copy.state),
-		blockA(copy.blockA),
-		blockB(copy.blockB)
-	{}
-	Button(Button&& move) noexcept
-		:
-		state(std::move(move.state)),
-		blockA(std::move(move.blockA)),
-		blockB(std::move(move.blockB))		
+		block_a(copy.block_a),
+		block_b(copy.block_b),
+		block_c(copy.block_c),
+		block_d(copy.block_d)
 	{
-		move.blockA.SetTexture(nullptr);
-		move.blockB.SetTexture(nullptr);
+		position = copy.position;
 	}
+	/*Button(Button&& move) noexcept
+		:
+		blocks(std::move(move.blocks))
+	{}
 	Button& operator = (const Button& rhs)
 	{
-		state = rhs.state;
-		blockA = rhs.blockA;
-		blockB = rhs.blockB;
-
+		blocks = rhs.blocks;
+	
 		return *this;
-	}
+	}*/
 	~Button() = default;
 public:
-	void Set(const Button& button)
+	void Set( Mouse& mouse )
 	{
-		state = button.state;
-		blockA = button.blockA;
-		blockB = button.blockB;
+		if (mouse.IsInWindow())
+		{
+			const unsigned int MOUSE_X = mouse.GetPosX();
+			const unsigned int MOUSE_Y = mouse.GetPosY();
+			const bool LEFT_IS_PRESSED = mouse.LeftIsPressed();
+
+			const bool FITS_TOP		= MOUSE_Y >=	position.top;
+			const bool FITS_BOTTOM	= MOUSE_Y <		position.bottom;
+			const bool FITS_LEFT	= MOUSE_X >=	position.left;
+			const bool FITS_RIGHT	= MOUSE_X <		position.right;
+
+			if (FITS_TOP && FITS_BOTTOM && FITS_LEFT && FITS_RIGHT)
+			{
+				mouseover = true;
+
+				if (mouseover && LEFT_IS_PRESSED)
+				{
+					mousepress = true;
+				}
+				else
+				{
+					mousepress = false;
+				}
+			}
+			else
+			{
+				mouseover = false;
+			}			
+		}
 	}
-	void SetState(const bool& new_state)
+	bool GetMouseOver() const
 	{
-		state = new_state;
+		return mouseover;
 	}
-	void SetTextures(Surface* pTexA, Surface* pTexB)
+	bool GetMousePress() const
 	{
-		blockA.SetTexture(pTexA);
-		blockB.SetTexture(pTexB);
-	}
-	bool GetState() const
-	{
-		return state;
+		return mousepress;
 	}
 	void Draw(Graphics& gfx)
 	{
-		if (!state)
+		if (!mousepress)
 		{
-			blockA.Draw(gfx);
+			if (!mouseover)
+			{
+				block_a.Draw(gfx);
+			}
+			else
+			{
+				block_b.Draw(gfx);
+			}
 		}
 		else
 		{
-			blockB.Draw(gfx);
+			if (!mouseover)
+			{
+				block_c.Draw(gfx);
+			}
+			else
+			{
+				block_d.Draw(gfx);
+			}
 		}
 	}
 };

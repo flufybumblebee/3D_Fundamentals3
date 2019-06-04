@@ -34,6 +34,32 @@ namespace Gdiplus
 
 #pragma comment( lib,"gdiplus.lib" )
 
+Surface::Surface(const std::wstring& name)
+{	
+	Gdiplus::Bitmap bitmap(name.c_str());
+
+	if (bitmap.GetLastStatus() != Gdiplus::Status::Ok)
+	{
+		std::wstringstream ss;
+		ss << L"Loading image [" << name << L"]: failed to load.";
+		throw Exception(_CRT_WIDE(__FILE__), __LINE__, ss.str());
+	}
+
+	pitch = width = bitmap.GetWidth();
+	height = bitmap.GetHeight();
+	pBuffer = std::make_unique<Color[]>(size_t(width) * height);
+
+	for (unsigned int y = 0; y < height; y++)
+	{
+		for (unsigned int x = 0; x < width; x++)
+		{
+			Gdiplus::Color c;
+			bitmap.GetPixel(x, y, &c);
+			pBuffer[y * size_t(pitch) + x] = c.GetValue();
+		}
+	}
+}
+
 void Surface::PutPixelAlpha( unsigned int x,unsigned int y,Color c )
 {
 	assert( x >= 0 );

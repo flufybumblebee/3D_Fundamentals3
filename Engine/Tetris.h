@@ -63,6 +63,19 @@ private:
 
 	const unsigned int	BLUR_NUM	= 7u;
 	
+	std::vector<std::shared_ptr<Surface>> ptr_background_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_block_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_digit_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_pause_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_gameover_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_key_textures;
+	//std::vector<std::shared_ptr<Surface>> ptr_button_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_level_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_score_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_box_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_tetris_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_field_grid_textures;
+
 	/*------------------------------------------*/
 	
 	std::vector<Surface>	block_textures;
@@ -100,15 +113,19 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<unsigned char> virtual_keys;
+	// KEYS
 
-	std::vector<Surface>	key_textures;
-	std::vector<RectUI>		key_position_a;
+	std::array<unsigned char, 6> virtual_keys{ 
+		VK_RETURN, VK_UP, VK_SPACE, VK_LEFT, VK_DOWN, VK_RIGHT };
+	
+	/*std::vector<RectUI>		key_position_a;
 	std::vector<RectUI>		key_position_b;
 	std::vector<Block>		key_a;
 	std::vector<Block>		key_b;
 	std::vector<bool>		key_mouseover;
-	std::vector<bool>		key_mousepress;
+	std::vector<bool>		key_mousepress;*/
+
+	std::vector<Button> keys;
 
 	bool	keyIsPressed_UP		= false;
 	bool	keyIsPressed_DOWN	= false;
@@ -119,37 +136,15 @@ private:
 
 	/*------------------------------------------*/
 	
-	std::vector<Surface>	button_texture_a;
-	std::vector<Surface>	button_texture_b;
+	// BUTTONS
 
-	std::vector<RectUI>		button_position;
+	std::vector<std::shared_ptr<Surface>>	ptr_button_quit_textures;	
+	Button									button_quit;
 
-	std::vector<Block>		button_a;
-	std::vector<Block>		button_b;
-
-	std::vector<bool>		button_mouseover;
-	std::vector<bool>		button_mousepress;
-
-	bool	button_settings_SHOW = false;	
-
-	/*------------------------------------------*/
-
-	std::vector<Surface>	button2_texture_a;
-	std::vector<Surface>	button2_texture_b;
-	std::vector<Surface>	button2_texture_c;
-	std::vector<Surface>	button2_texture_d;
-
-	std::vector<RectUI>		button2_position;
-
-	std::vector<Block>		button2_a;
-	std::vector<Block>		button2_b;
-	std::vector<Block>		button2_c;
-	std::vector<Block>		button2_d;
-
-	std::vector<bool>		button2_mouseover;
-	std::vector<bool>		button2_mousepress;
-
-	bool	button2_volume_FULL	 = true;
+	std::vector<std::shared_ptr<Surface>>	ptr_button_volume_textures;
+	Button									button_volume;
+		
+	bool	button_volume_full	 = true;
 
 	/*------------------------------------------*/
 
@@ -160,12 +155,10 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>	box_textures;
 	Block					box_block;
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>		level_textures;
 	Block						level_block;
 	std::vector<unsigned int>	level_buffer;
 	unsigned int				level				= 0u;
@@ -174,7 +167,6 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>		score_textures;
 	Block						score_block;
 	std::vector<unsigned int>	score_buffer;
 
@@ -185,7 +177,6 @@ private:
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>		tetris_textures;
 	RectUI						tetris_position;
 	Block						tetris_block;
 
@@ -209,7 +200,6 @@ private:
 	/*------------------------------------------*/
 
 	bool	mouseIsPressed	= false;
-	bool	mouse_press_LEFT = false;
 	
 public:
 	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
@@ -232,33 +222,28 @@ private:
 	void	InitialiseField();
 	void	InitialiseFieldGrid();
 	void	InitialiseNextTetro();
+	void	InitialiseBox();
 	void	InitialisePause();
 	void	InitialiseGameOver();
 
 	void	InitialiseLevel();
 	void	InitialiseScore();
 	void	InitialiseCounter();
+	void	InitialiseTetris();
 
 	void	InitialiseKeys();
 	void	InitialiseButtons();
-	void	InitialiseButtons2();
 
 	void	InitialiseSounds();
-
-	void	InitialiseSettingsBox();
-
-	void	InitialiseTetris();
 
 	/*------------------------------------------*/
 
 	void	Input();
 	void	SetKeys();
 	void	SetButtons();
-	void	SetButtons2();
 	void	Pause();
 	void	Restart();
 	void	Quit();
-	void	Settings();
 	void	Volume();
 
 	/*------------------------------------------*/
@@ -291,7 +276,6 @@ private:
 
 	void	DrawKeys();
 	void	DrawButtons();
-	void	DrawButtons2();
 
 	void	DrawFieldGrid();
 

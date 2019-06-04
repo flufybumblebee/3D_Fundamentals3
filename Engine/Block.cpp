@@ -1,8 +1,8 @@
 #include "Block.h"
 
-Block::Block(const RectF& position, Surface* pTex)
+Block::Block(const RectUI& position, std::shared_ptr<Surface> pTex)
 	:
-	pos(position),
+	pos(static_cast<RectF>(position)),
 	pTex(pTex)
 {}
 Block::Block(const Block& copy)
@@ -36,11 +36,15 @@ Block& Block::operator = (Block&& rhs) noexcept
 
 	return *this;
 }
-void Block::SetPosition(const RectF& new_position)
+RectUI Block::GetPosition() const
 {
-	pos = new_position;
+	return RectUI(pos);
 }
-void Block::SetTexture(Surface* new_texture)
+void Block::SetPosition(const RectUI& new_position)
+{
+	pos = static_cast<RectF>(new_position);
+}
+void Block::SetTexture(std::shared_ptr<Surface> new_texture)
 {
 	pTex = new_texture;
 }
