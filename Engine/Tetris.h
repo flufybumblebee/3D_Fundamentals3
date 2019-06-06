@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <Windows.h>
+#include <map>
 
 #include "Block.h"
 #include "Mouse.h   "
@@ -35,41 +36,48 @@ private:
 	static constexpr unsigned int	LEVEL_ROWS	= 10u;
 
 	/*------------------------------------------*/
+	
+	std::map<char, int>										values;
 
 	std::array<std::string, TETRO_NUM>						tetromino;
+	std::array<char, (FIELD_COLS * FIELD_ROWS)>				fixed_buffer{};
+	std::array<char, (FIELD_COLS * FIELD_ROWS)>				shown_buffer{};
+
 	std::array<std::array<Block, FIELD_COLS>, FIELD_ROWS>	field_blocks;
 	std::array<std::array<Block, TETRO_COLS>, TETRO_ROWS>	next_tetro_blocks;
-
-	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Fixed{};
-	std::array<char, (FIELD_COLS * FIELD_ROWS)>				blockBuffer_Shown{};
 	std::array<std::array<Block, SCORE_COLS>, SCORE_ROWS>	score_blocks;
 	std::array<std::array<Block, LEVEL_COLS>, LEVEL_ROWS>	level_blocks;
+
 	std::array<Block, COUNT_NUM>							counter_blocks;
 
 	/*------------------------------------------*/
 	
 	const unsigned int	SCREEN_W	= gfx.ScreenWidth;
 	const unsigned int	SCREEN_H	= gfx.ScreenHeight;
-	const unsigned int	BLOCK_W		= SCREEN_H / 20;
-	const unsigned int	BLOCK_H		= SCREEN_H / 20;
-	const unsigned int	KEY_W		= BLOCK_W * 2;
-	const unsigned int	KEY_H		= BLOCK_H * 2;
+	const unsigned int	BLOCK_W		= SCREEN_H / 20u;
+	const unsigned int	BLOCK_H		= SCREEN_H / 20u;
+	const unsigned int	FIELD_W		= BLOCK_W * FIELD_COLS;
+	const unsigned int	FIELD_H		= BLOCK_H * FIELD_ROWS;
+
+	const unsigned int	KEY_W		= BLOCK_W * 2u;
+	const unsigned int	KEY_H		= BLOCK_H * 2u;
 	const unsigned int	BUTTON_W	= KEY_W;
 	const unsigned int	BUTTON_H	= KEY_H;
 	const unsigned int	DIGIT_W		= KEY_W;
 	const unsigned int	DIGIT_H		= KEY_H;
-	const unsigned int	FIELD_W		= BLOCK_W * FIELD_COLS;
-	const unsigned int	FIELD_H		= BLOCK_H * FIELD_ROWS;
 
 	const unsigned int	BLUR_NUM	= 7u;
 	
+	/*------------------------------------------*/
+
 	std::vector<std::shared_ptr<Surface>> ptr_background_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_block_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_digit_textures;
-	std::vector<std::shared_ptr<Surface>> ptr_pause_textures;
-	std::vector<std::shared_ptr<Surface>> ptr_gameover_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_key_textures;
-	//std::vector<std::shared_ptr<Surface>> ptr_button_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_button_quit_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_button_volume_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_paused_textures;
+	std::vector<std::shared_ptr<Surface>> ptr_gameover_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_level_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_score_textures;
 	std::vector<std::shared_ptr<Surface>> ptr_box_textures;
@@ -78,128 +86,85 @@ private:
 
 	/*------------------------------------------*/
 	
-	std::vector<Surface>	block_textures;
-	std::vector<Surface>	digit_textures;
+	RectUI	background_position;
+	RectUI	field_position;
+	RectUI	pause_position;
+	RectUI	gameover_position;
+	RectUI	tetris_position;
+
+	Block	background_block;
+	Block	field_block;
+	Block	field_grid_block;
+	Block	box_block;
+	Block	paused_block;
+	Block	gameover_block;
+	Block	level_block;
+	Block	score_block;
+	Block	tetris_block;
+
+	bool	game_is_paused		= false;
+	bool	game_is_over		= false;
+	bool	mouse_is_pressed	= false;
 
 	/*------------------------------------------*/
 
-	std::vector<Surface>	background_textures;
-	RectUI					background_position;
-	Block					background_block;
+	const bool	TESTING			= false;
 
 	/*------------------------------------------*/
 
-	RectUI					field_position;
-	Block					field_block;
-
-	/*------------------------------------------*/
-
-	std::vector<Surface>	field_grid_textures;
-	Block					field_grid_block;
-
-	/*------------------------------------------*/
-
-	std::vector<Surface>	pause_textures;
-	RectUI					pause_position;
-	Block					pause_block;
-	bool					gameIsPaused		= false;
-
-	/*------------------------------------------*/
-
-	std::vector<Surface>	gameover_textures;
-	RectUI					gameover_position;
-	Block					gameover_block;
-	bool					gameIsOver			= false;
-
-	/*------------------------------------------*/
-
-	// KEYS
-
-	std::array<unsigned char, 6> virtual_keys{ 
-		VK_RETURN, VK_UP, VK_SPACE, VK_LEFT, VK_DOWN, VK_RIGHT };
-	
-	/*std::vector<RectUI>		key_position_a;
-	std::vector<RectUI>		key_position_b;
-	std::vector<Block>		key_a;
-	std::vector<Block>		key_b;
-	std::vector<bool>		key_mouseover;
-	std::vector<bool>		key_mousepress;*/
-
-	std::vector<Button> keys;
-
-	bool	keyIsPressed_UP		= false;
-	bool	keyIsPressed_DOWN	= false;
-	bool	keyIsPressed_LEFT	= false;
-	bool	keyIsPressed_RIGHT	= false;
-	bool	keyIsPressed_SPACE	= false;
-	bool	keyIsPressed_ESCAPE = false;
-
-	/*------------------------------------------*/
-	
-	// BUTTONS
-
-	std::vector<std::shared_ptr<Surface>>	ptr_button_quit_textures;	
-	Button									button_quit;
-
-	std::vector<std::shared_ptr<Surface>>	ptr_button_volume_textures;
-	Button									button_volume;
+	// KEYS & BUTTONS
 		
-	bool	button_volume_full	 = true;
-
+	std::vector<Button> keys;
+	std::vector<bool>	key_is_pressed{false,false,false,false,false,false};
+	
+	Button				button_quit;
+	Button				button_volume;
+		
+	bool				button_volume_full	 = true;
+	 
 	/*------------------------------------------*/
+
+	// SOUNDS
 
 	std::vector<Sound> sounds;
 
 	float volume	= 1.0f;
 	float frequency = 1.0f;
-
+	
 	/*------------------------------------------*/
 
-	Block					box_block;
+	// LEVEL
 
-	/*------------------------------------------*/
-
-	Block						level_block;
 	std::vector<unsigned int>	level_buffer;
-	unsigned int				level				= 0u;
-	unsigned int				prevLevel			= 0u;
-	bool						level_goal			= false;
+	unsigned int				level		= 0u;
+	unsigned int				level_prev	= 0u;
+	bool						level_goal	= false;
 
 	/*------------------------------------------*/
-
-	Block						score_block;
+	
 	std::vector<unsigned int>	score_buffer;
 
 	/*------------------------------------------*/
 
 	std::vector<unsigned int>	lines;
-	unsigned int				line_count = 0;
+	unsigned int				line_count	= 0u;
 
 	/*------------------------------------------*/
-
-	RectUI						tetris_position;
-	Block						tetris_block;
-
-	/*------------------------------------------*/
-
+	
 	size_t	current_background	= 0u;
 
-	unsigned int	currentX			= 0u;
-	unsigned int	currentY			= 0u;
-	unsigned int	currentRotation		= 0u;
-	unsigned int	currentTetro		= 0u;
-	unsigned int	nextTetro			= 0u;
+	unsigned int	current_x			= 0u;
+	unsigned int	current_y			= 0u;
+	unsigned int	current_rotation	= 0u;
+	unsigned int	current_tetro		= 0u;
+	unsigned int	next_tetro			= 0u;
 
-	unsigned int	frameCounter		= 0u;
 	unsigned int	score				= 0u;
 	unsigned int	speed				= 0u;
-	unsigned int	tickCounter			= 0u;
-	unsigned int	counterTetro		= 0u;
-	unsigned int	counterSpeed		= 0u;
-	
-	/*------------------------------------------*/
-
-	bool	mouseIsPressed	= false;
+	unsigned int	counter_frames		= 0u;
+	unsigned int	counter_ticks		= 0u;
+	unsigned int	counter_tetro		= 0u;
+	unsigned int	counter_speed		= 0u;
 	
 public:
 	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);
@@ -223,24 +188,19 @@ private:
 	void	InitialiseFieldGrid();
 	void	InitialiseNextTetro();
 	void	InitialiseBox();
-	void	InitialisePause();
+	void	InitialisePaused();
 	void	InitialiseGameOver();
-
 	void	InitialiseLevel();
 	void	InitialiseScore();
 	void	InitialiseCounter();
 	void	InitialiseTetris();
-
 	void	InitialiseKeys();
 	void	InitialiseButtons();
-
 	void	InitialiseSounds();
 
 	/*------------------------------------------*/
 
 	void	Input();
-	void	SetKeys();
-	void	SetButtons();
 	void	Pause();
 	void	Restart();
 	void	Quit();
@@ -269,29 +229,22 @@ private:
 	void	DrawBlur();
 	void	DrawPause();
 	void	DrawGameOver();
-
 	void	DrawScore();
 	void	DrawLevel();
 	void	DrawCounter();
-
 	void	DrawKeys();
 	void	DrawButtons();
-
 	void	DrawFieldGrid();
-
 	void	DrawBox();
-
 	void	DrawTetris();
 
 private:
 	int		Rotate(int x, int y, int r);
 	bool	DoesTetroFit(int offsetRotation,int offsetX,int offsetY);
-	void	ExtractDigits(std::vector<unsigned int>& ints, const unsigned int num);
-	Color	ConvertCharToColor(const char value);
-	int		ConvertCharToInt(const char value);
+	void	ExtractDigits(std::vector<unsigned int>& ints, const unsigned int& NUM);
 
-	std::vector<Color>	ConvertSurfaceToColorVector(Surface&& surface);
-	std::vector<Color>	Blur(const int& WIDTH, const int& HEIGHT,const std::vector<Color>& input);
+	std::vector<Color>	ConvertSurfaceToColorVector(const Surface& surface);
+	std::vector<Color>	Blur(const int& WIDTH, const int& HEIGHT,const std::vector<Color>& INPUT);
 
 	/* FUNCTIONS I COULDN'T GET TO WORK */
 	/*void	Benchmark(void* pFunction);*/

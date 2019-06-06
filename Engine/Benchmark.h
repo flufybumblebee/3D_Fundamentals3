@@ -25,7 +25,7 @@ public:
 	}
 
 	template< typename T>
-	bool TimeBetween(std::chrono::duration<T> time)
+	bool isTime(std::chrono::duration<T> time)
 	{
 		if ( (B - A) >= time )
 		{
