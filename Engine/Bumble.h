@@ -24,13 +24,7 @@ namespace KEY
 namespace BUTTON
 {
 	const size_t QUIT		= 0;
-	const size_t SETTINGS	= 1;
-	const size_t VOLUME		= 2;
-};
-
-namespace BUTTON2
-{
-	const size_t VOLUME = 0;
+	const size_t VOLUME		= 1;
 };
 
 namespace MOVE

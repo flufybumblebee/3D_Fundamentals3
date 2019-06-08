@@ -52,21 +52,21 @@ private:
 
 	/*------------------------------------------*/
 	
-	const unsigned int	SCREEN_W	= gfx.ScreenWidth;
-	const unsigned int	SCREEN_H	= gfx.ScreenHeight;
-	const unsigned int	BLOCK_W		= SCREEN_H / 20u;
-	const unsigned int	BLOCK_H		= SCREEN_H / 20u;
-	const unsigned int	FIELD_W		= BLOCK_W * FIELD_COLS;
-	const unsigned int	FIELD_H		= BLOCK_H * FIELD_ROWS;
-
-	const unsigned int	KEY_W		= BLOCK_W * 2u;
-	const unsigned int	KEY_H		= BLOCK_H * 2u;
-	const unsigned int	BUTTON_W	= KEY_W;
-	const unsigned int	BUTTON_H	= KEY_H;
-	const unsigned int	DIGIT_W		= KEY_W;
-	const unsigned int	DIGIT_H		= KEY_H;
-
-	const unsigned int	BLUR_NUM	= 7u;
+	static constexpr unsigned int	SCREEN_W	= Graphics::ScreenWidth;
+	static constexpr unsigned int	SCREEN_H	= Graphics::ScreenHeight;
+	static constexpr unsigned int	BLOCK_W		= SCREEN_H / 20u;
+	static constexpr unsigned int	BLOCK_H		= SCREEN_H / 20u;
+	static constexpr unsigned int	FIELD_W		= BLOCK_W * FIELD_COLS;
+	static constexpr unsigned int	FIELD_H		= BLOCK_H * FIELD_ROWS;
+	
+	static constexpr unsigned int	KEY_W		= BLOCK_W * 2u;
+	static constexpr unsigned int	KEY_H		= BLOCK_H * 2u;
+	static constexpr unsigned int	BUTTON_W	= KEY_W;
+	static constexpr unsigned int	BUTTON_H	= KEY_H;
+	static constexpr unsigned int	DIGIT_W		= KEY_W;
+	static constexpr unsigned int	DIGIT_H		= KEY_H;
+	 
+	static constexpr unsigned int	BLUR_NUM	= 7u;
 	
 	/*------------------------------------------*/
 
@@ -108,7 +108,7 @@ private:
 
 	/*------------------------------------------*/
 
-	const bool	TESTING			= false;
+	static constexpr bool	TESTING	= false;
 
 	/*------------------------------------------*/
 
@@ -165,6 +165,10 @@ private:
 	unsigned int	counter_ticks		= 0u;
 	unsigned int	counter_tetro		= 0u;
 	unsigned int	counter_speed		= 0u;
+	unsigned int	counter_wait_0		= 0u;
+	unsigned int	counter_wait_1		= 0u;
+
+	bool wait = false;
 	
 public:
 	Tetris(Keyboard& kbd, Mouse& mouse, Graphics& gfx);

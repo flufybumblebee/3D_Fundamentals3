@@ -182,20 +182,21 @@ void Tetris::Update()
 	{
 		if (counter_frames == speed)
 		{
-			if (DoesTetroFit(0,0,MOVE::DOWN))
+			if (DoesTetroFit(0, 0, MOVE::DOWN))
 			{
-				if(!keys[KEY::DOWN].GetMousePress() || kbd.KeyIsPressed(VK_DOWN))
+				if (!keys[KEY::DOWN].GetMousePress() || kbd.KeyIsPressed(VK_DOWN))
 					current_y++; // force tetris down
 			}
 			else
 			{
 				SetFixedWithTetro();
 				CheckForLines();
+
 				DeleteLines();
 				SetNextTetro();
 
 				SetScore();
-				SetLevel();	
+				SetLevel();
 
 				game_is_over = !DoesTetroFit(0, 0, 0);
 				if (game_is_over) sounds[SOUND::GAME_OVER].Play(frequency, volume);
@@ -207,7 +208,7 @@ void Tetris::Update()
 		{
 			counter_frames++;
 		}
-
+		
 		SetShownWithFixed();
 		SetShownWithTetro();
 		SetFieldBlocks();
@@ -610,9 +611,9 @@ void Tetris::InitialiseButtons()
 
 	// VOLUME BUTTON
 
-	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_on_white_1.png"));
-	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_on_green.png"));
-	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_off_white_1.png"));
+	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_full_white.png"));
+	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_full_green.png"));
+	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_off_white.png"));
 	ptr_button_volume_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Buttons\\volume_off_green.png"));
 
 	{
@@ -641,11 +642,16 @@ void Tetris::InitialiseSounds()
 	sounds.emplace_back(Sound(L"Sounds\\pop0.wav"));		// new tetro
 	sounds.emplace_back(Sound(L"Sounds\\fail0.wav"));		// game over
 }
-
-void Tetris::InitialiseFieldGrid()
+void Tetris::InitialiseTetris()
 {
-	//ptr_field_grid_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Fields\\field_grid_2.png"));
-	//field_grid_block = std::move(Block(field_position, ptr_field_grid_textures[0]));
+	ptr_tetris_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Words\\Tetris1.png"));
+
+	const unsigned int LEFT		= BLOCK_W * 14u;
+	const unsigned int RIGHT	= SCREEN_W - BLOCK_W;
+	const unsigned int TOP		= BLOCK_H;
+	const unsigned int BOTTOM	= BLOCK_H * 3;
+
+	tetris_block = std::move(Block(RectUI(TOP, BOTTOM, LEFT, RIGHT), ptr_tetris_textures[0]));
 }
 void Tetris::InitialiseBox()
 {
@@ -664,16 +670,10 @@ void Tetris::InitialiseBox()
 	box_block = std::move(Block(field_position, ptr_box_textures[0]));
 }
 
-void Tetris::InitialiseTetris()
+void Tetris::InitialiseFieldGrid()
 {
-	ptr_tetris_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Words\\Tetris1.png"));
-
-	const unsigned int LEFT		= BLOCK_W * 14u;
-	const unsigned int RIGHT	= SCREEN_W - BLOCK_W;
-	const unsigned int TOP		= BLOCK_H;
-	const unsigned int BOTTOM	= BLOCK_H * 3;
-
-	tetris_block = std::move(Block(RectUI(TOP, BOTTOM, LEFT, RIGHT), ptr_tetris_textures[0]));
+	//ptr_field_grid_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Fields\\field_grid_2.png"));
+	//field_grid_block = std::move(Block(field_position, ptr_field_grid_textures[0]));
 }
 
 /*-------------------------------------------*/
@@ -882,6 +882,7 @@ void Tetris::CheckForLines()
 					const uint INDEX = (current_y + y) * FIELD_COLS + x;
 					fixed_buffer[INDEX] = 8u;
 				}
+				
 				lines.push_back(current_y + y);
 			}
 		}
@@ -891,9 +892,9 @@ void Tetris::DeleteLines()
 {
 	if (!lines.empty())
 	{
-		/*std::this_thread::sleep_for(std::chrono::milliseconds(800)); // delay
+		//std::this_thread::sleep_for(std::chrono::milliseconds(8000)); // delay
 
-		for (auto& v : lines)
+		/*for (auto& v : lines)
 		{
 			for (int x = 1; x < FIELD_COLS - 1; x++)
 			{
@@ -1372,7 +1373,7 @@ std::vector<Color> Tetris::Blur(const int& WIDTH,const int& HEIGHT,const std::ve
 
 	assert(output.size() == INPUT.size());
 
-	return std::move(output);
+	return output;
 }
 
 /* FUNCTIONS I COULDN'T GET TO WORK */
