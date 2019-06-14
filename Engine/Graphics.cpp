@@ -283,7 +283,7 @@ void Graphics::EndFrame()
 
 void Graphics::BeginFrame()
 {
-	sysBuffer.Clear( Color(255,255,55) );
+	sysBuffer.Clear( Color(0,0,0) );
 }
 
 
@@ -871,9 +871,9 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 
 	if (filled)
 	{
-		for (int y = 0; y < height; y++)
+		for (int y = 0; y <= height; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (int x = 0; x <= width; x++)
 			{
 				PutPixel(x1 + x, y1 + y, c);
 			}
@@ -881,13 +881,13 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 	}
 	else
 	{
-		for (int i = 0; i < width; i++)
+		for (int i = 0; i <= width; i++)
 		{
 			PutPixel(x1 + i, y1, c);
 			PutPixel(x1 + i, y2, c);
 		}
 
-		for (int i = 0; i < height; i++)
+		for (int i = 0; i <= height; i++)
 		{
 			PutPixel(x1, y1 + i, c);
 			PutPixel(x2, y1 + i, c);

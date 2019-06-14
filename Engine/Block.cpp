@@ -36,6 +36,14 @@ Block& Block::operator = (Block&& rhs) noexcept
 
 	return *this;
 }
+void Block::SetMouseOver(Mouse& mouse)
+{
+	mouse_over = pos.Contains(mouse.GetPos());	
+}
+bool Block::GetMouseOver() const
+{
+	return mouse_over;
+}
 RectUI Block::GetPosition() const
 {
 	return RectUI(pos);

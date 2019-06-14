@@ -21,16 +21,17 @@
 #include "MainWindow.h"
 #include "Game.h"
 
+#include "Block.h"
+
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
-	tetris(wnd.kbd, wnd.mouse, gfx)
+	ms(50,32,24)
 {}
 
 void Game::Go()
-{
-	
+{	
 	gfx.BeginFrame();
 	UpdateModel();
 	ComposeFrame();
@@ -39,10 +40,10 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	tetris.Update();
+	ms.Update(wnd.mouse);
 }
 
 void Game::ComposeFrame()
 {
-	tetris.Draw();
-}
+	ms.Draw(gfx);
+};

@@ -66,6 +66,7 @@ void Surface::PutPixelAlpha( unsigned int x,unsigned int y,Color c )
 	assert( y >= 0 );
 	assert( x < width );
 	assert( y < height );
+
 	// load source pixel
 	const Color d = GetPixel( x,y );
 

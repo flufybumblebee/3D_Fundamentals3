@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="BasePhongShader.h" />
+    <ClInclude Include="BatAndBlocks.h" />
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Bumble.h" />
@@ -174,6 +175,7 @@
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Mat.h" />
+    <ClInclude Include="Minesweeper.h" />
     <ClInclude Include="Miniball.h" />
     <ClInclude Include="Mouse.h" />
     <ClInclude Include="MouseTracker.h" />
@@ -196,7 +198,6 @@
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="TestTriangle.h" />
-    <ClInclude Include="Tetris.h" />
     <ClInclude Include="TextureEffect.h" />
     <ClInclude Include="TexVertex.h" />
     <ClInclude Include="tiny_obj_loader.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="ZBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BatAndBlocks.cpp" />
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="ComManager.h" />
@@ -224,10 +226,10 @@
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MainWindow.cpp" />
+    <ClCompile Include="Minesweeper.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Surface.cpp" />
-    <ClCompile Include="Tetris.cpp" />
     <ClCompile Include="tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>

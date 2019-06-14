@@ -21,7 +21,8 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Tetris.h"
+
+#include "Minesweeper.h"
 
 class Game
 {
@@ -29,7 +30,7 @@ private:
 	MainWindow& wnd;
 	Graphics gfx;
 private:
-	Tetris tetris;
+	Minesweeper ms;
 
 public:
 	Game( class MainWindow& wnd );
