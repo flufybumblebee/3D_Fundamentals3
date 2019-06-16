@@ -68,7 +68,7 @@ public:
 		Color color;
 	};
 	// vertex type solid effect
-	// only pos is interpolated
+	// only position is interpolated
 	class VSOutput
 	{
 	public:

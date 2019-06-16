@@ -208,7 +208,7 @@ public:
 	}
 	void AdjustToTrueCenter()
 	{
-		// used to enable miniball to access vertex pos info
+		// used to enable miniball to access vertex position info
 		struct VertexAccessor
 		{
 			// iterator type for iterating over vertices

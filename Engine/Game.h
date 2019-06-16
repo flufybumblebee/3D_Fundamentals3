@@ -29,6 +29,9 @@ class Game
 private:
 	MainWindow& wnd;
 	Graphics gfx;
+	static constexpr unsigned int MINES	= 25u;
+	static constexpr unsigned int COLS	= 16u;
+	static constexpr unsigned int ROWS	= 12u;
 private:
 	Minesweeper ms;
 

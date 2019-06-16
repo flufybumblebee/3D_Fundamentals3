@@ -15,7 +15,7 @@ public:
 		const int nVertices_x = divisions_x + 1;
 		const int nVertices_y = divisions_y + 1;
 		std::vector<V> vertices( nVertices_x * nVertices_y );
-		// give V a ctor for pos only %%%improvements
+		// give V a ctor for position only %%%improvements
 		{
 			const float side_x = width / 2.0f;
 			const float side_y = height / 2.0f;

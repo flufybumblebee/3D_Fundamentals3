@@ -336,7 +336,7 @@ private:
 					// recover interpolated z from interpolated 1/z
 					const float w = 1.0f / iLine.pos.w;
 					// recover interpolated attributes
-					// (wasted effort in multiplying pos (x,y,z) here, but
+					// (wasted effort in multiplying position (x,y,z) here, but
 					//  not a huge deal, not worth the code complication to fix)
 					const auto attr = iLine * w;
 					// invoke pixel shader with interpolated vertex attributes
