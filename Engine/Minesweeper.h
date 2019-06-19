@@ -10,27 +10,56 @@
 #include "Mouse.h"
 #include "Block.h"
 
-enum TEXTURE
+namespace GRID
 {
-	ZERO,
-	ONE,
-	TWO,
-	THREE,
-	FOUR,
-	FIVE,
-	SIX,
-	SEVEN,
-	EIGHT,
-	MINE,
-	TILE,
-	FLAG
+	static constexpr size_t EMPTY	= 0;
+	static constexpr size_t ONE		= 1;
+	static constexpr size_t TWO		= 2;
+	static constexpr size_t THREE	= 3;
+	static constexpr size_t FOUR	= 4;
+	static constexpr size_t FIVE	= 5;
+	static constexpr size_t SIX		= 6;
+	static constexpr size_t SEVEN	= 7;
+	static constexpr size_t EIGHT	= 8;
+	static constexpr size_t MINE	= 9;
+	static constexpr size_t TILE	= 10;
+	static constexpr size_t FLAG	= 11;
+};
+
+namespace DISPLAY
+{
+	static constexpr size_t EMPTY	= 0;
+	static constexpr size_t ONE		= 1;
+	static constexpr size_t TWO		= 2;
+	static constexpr size_t THREE	= 3;
+	static constexpr size_t FOUR	= 4;
+	static constexpr size_t FIVE	= 5;
+	static constexpr size_t SIX		= 6;
+	static constexpr size_t SEVEN	= 7;
+	static constexpr size_t EIGHT	= 8;
+	static constexpr size_t NINE	= 9;
+	static constexpr size_t TILE	= 10;
+};
+
+namespace BORDER
+{
+	static constexpr size_t HORIZONTAL			= 0;
+	static constexpr size_t VERTICLE			= 1;
+	static constexpr size_t CORNER_TOP_LEFT		= 2;
+	static constexpr size_t CORNER_TOP_RIGHT	= 3;
+	static constexpr size_t CORNER_BOTTOM_LEFT	= 4;
+	static constexpr size_t CORNER_BOTTOM_RIGHT = 5;
+	static constexpr size_t T_LEFT				= 6;
+	static constexpr size_t T_RIGHT				= 7;
 };
 
 class Minesweeper
 {
 private:
-	static constexpr unsigned int SCREEN_W = Graphics::ScreenWidth;
-	static constexpr unsigned int SCREEN_H = Graphics::ScreenHeight;
+	static constexpr unsigned int SCREEN_W		= Graphics::ScreenWidth;
+	static constexpr unsigned int SCREEN_H		= Graphics::ScreenHeight;
+	static constexpr unsigned int BLOCK_SIZE	= 33u;
+	static constexpr unsigned int OFFSET		= 10u;
 
 	const unsigned int MINES;
 
@@ -40,8 +69,18 @@ private:
 	
 	unsigned int GRID_W;
 	unsigned int GRID_H;
-	unsigned int BLOCK_W;	
-	unsigned int BLOCK_H;
+
+	std::vector<std::shared_ptr<Surface>>	border_textures;
+	std::vector<Block>						border_blocks;
+	RectUI									border_position;
+
+	std::array<std::array<Block, 3>, 10>	display_mines;
+	std::array<std::array<Block, 3>, 10>	display_timer;
+	std::vector<std::shared_ptr<Surface>>	display_textures;
+	RectUI									display_position;
+	std::vector<unsigned int>				mines_number;
+
+	RectUI									grid_position;
 
 	std::vector<unsigned int>				block_values;
 	std::vector<std::shared_ptr<Surface>>	block_textures;
@@ -49,11 +88,8 @@ private:
 	std::vector<bool>						block_revealed;
 	std::vector<bool>						block_flag;
 
-	RectUI									grid_position;
-	RectUI									display_position;
-
-	std::array<std::array<Block, 3>, 10>	display_mines;
-	std::array<std::array<Block, 5>, 10>	display_time;
+	unsigned int mines = 0u;
+	unsigned int flags = 0u;
 
 	bool mouse_pressed	= false;
 	bool gameover		= false;
@@ -66,8 +102,23 @@ public:
 	void Draw(Graphics& gfx);
 
 private:
-	inline void SetBlockValue(const int& X, const int& Y, const int& COLS, const int& ROWS);
+	void InitialiseTextures();
+	void InitialiseBorder();
+	void InitialiseBlockValues();
+	void InitialiseBlocks();
+	void InitialiseDisplayMines();
+	void InitialiseDisplayTimer();
+
+	void SetBlockValue(const int& X, const int& Y, const int& COLS, const int& ROWS);
 	void RevealBlocks(const int& X, const int& Y, const int& COLS, const int& ROWS);
-	inline void RevealBlock(const int& X, const int& Y, const int& COLS, const int& ROWS);
+	void RevealBlock(const int& X, const int& Y, const int& COLS, const int& ROWS);
+	void ExtractDigits(std::vector<unsigned int>& ints, const unsigned int& NUM);
+
+	void DrawDisplay(Graphics& gfx);
+	void DrawGrid(Graphics& gfx);
+	void DrawBlocks(Graphics& gfx);
+	void DrawBorder(Graphics& gfx);
+	void DrawMouseOverBlocks(Graphics& gfx);
+	void DrawDisplayMines(Graphics& gfx);
 };
 
