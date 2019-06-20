@@ -21,7 +21,11 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Tetris.h"
+#include "Ray.h"
+
+#include <array>
+#include <vector>
+
 
 class Game
 {
@@ -29,7 +33,10 @@ private:
 	MainWindow& wnd;
 	Graphics gfx;
 private:
-	Tetris tetris;
+	static constexpr unsigned int COLS = Graphics::ScreenWidth;
+	static constexpr unsigned int ROWS = Graphics::ScreenHeight;
+
+	std::vector<Color> colors;
 
 public:
 	Game( class MainWindow& wnd );

@@ -24,13 +24,39 @@
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
-	gfx(wnd),
-	tetris(wnd.kbd, wnd.mouse, gfx)
-{}
+	gfx(wnd)
+{
+	const float INCREMENT_X = 1.0f / (COLS-1.0f); 
+	const float INCREMENT_Y = 1.0f / (ROWS-1.0f) ;
+	
+	auto myLambda = [](const Ray& r)
+	{
+		Vec3 unit_direction = r.GetDirection().GetNormalized();
+		float t = 0.5f * (unit_direction.y + 1.0f);
+		return Vec3(1.0f, 1.0f, 1.0f) * (1.0f - t) + Vec3(0.5f, 0.7f, 1.0f) * t;
+	};
+
+	for(int y = 0; y < ROWS; y++)
+	{
+		for(int x = 0; x < COLS; x++)
+		{
+			const float X = x * INCREMENT_X;
+			const float Y = y * INCREMENT_Y;
+
+			const Vec3 color{
+				((1.0f - X) + (1.0f - Y)) / 2.0f,
+				((0.0f + X) + (0.0f + Y)) / 2.0f,
+				((0.0f + X) + (1.0f - Y)) / 2.0f, };
+			 
+			colors.emplace_back(static_cast<unsigned char>(color.x * 255),
+								static_cast<unsigned char>(color.y * 255),
+								static_cast<unsigned char>(color.z * 255));
+		}
+	}
+}
 
 void Game::Go()
-{
-	
+{	
 	gfx.BeginFrame();
 	UpdateModel();
 	ComposeFrame();
@@ -39,10 +65,18 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	tetris.Update();
+
 }
 
 void Game::ComposeFrame()
 {
-	tetris.Draw();
+	size_t i = 0;
+	for(int y = 0; y < ROWS; y++)
+	{
+		for(int x = 0; x < COLS; x++)
+		{
+			i = static_cast<size_t>(y) * COLS + x;
+			gfx.PutPixel(x, y, colors[i]);
+		}
+	}
 }
