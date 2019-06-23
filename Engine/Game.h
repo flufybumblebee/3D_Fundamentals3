@@ -21,7 +21,7 @@
 #pragma once
 
 #include "Graphics.h"
-
+  
 #include "Minesweeper.h"
 
 class Game
@@ -29,9 +29,9 @@ class Game
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-	static constexpr unsigned int MINES	= 25u;
-	static constexpr unsigned int COLS	= 16u;
-	static constexpr unsigned int ROWS	= 12u;
+	static constexpr unsigned int COLS	= 2u;
+	static constexpr unsigned int ROWS	= 14u;
+	static constexpr unsigned int MINES	= 31u;
 private:
 	Minesweeper ms;
 

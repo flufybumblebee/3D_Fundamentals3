@@ -27,7 +27,7 @@ Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
 	gfx(wnd),
-	ms(MINES,COLS,ROWS)
+	ms(COLS,ROWS,MINES)
 {}
 
 void Game::Go()

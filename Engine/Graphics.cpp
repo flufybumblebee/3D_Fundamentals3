@@ -283,7 +283,7 @@ void Graphics::EndFrame()
 
 void Graphics::BeginFrame()
 {
-	sysBuffer.Clear( Color(0,0,0) );
+	sysBuffer.Clear( Color(255,255,255) );
 }
 
 
