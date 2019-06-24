@@ -11,6 +11,7 @@
 #include "Rect.h"
 #include "Mouse.h"
 #include "Block.h"
+#include "Sound.h"
 
 namespace GRID
 {
@@ -135,6 +136,9 @@ private:
 	unsigned int index = 0;
 	unsigned int frames = 0;
 
+	std::vector<Sound> sounds;
+	bool sound_played = false;
+
 public:
 	Minesweeper(const unsigned int& columns, const unsigned int& rows, const unsigned int& mines );
 	
@@ -145,7 +149,7 @@ public:
 private:
 	void Setup();
 
-	void InitialiseDisplayTextures();
+	void InitialiseDigitTextures();
 	void InitialiseBorder();
 	void SetBlockValues();
 	void InitialiseGridBlocks();
@@ -154,6 +158,8 @@ private:
 	void InitialiseResetButton();
 	void InitialiseTimer();
 	void InitialiseGameOver();
+
+	void InitialiseSounds();
 
 	void SetMinesCounter();
 	void SetTimer();
