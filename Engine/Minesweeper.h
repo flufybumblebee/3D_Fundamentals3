@@ -59,28 +59,35 @@ namespace BORDER
 /*
 TO DO:
 
-1.	GAMEWIN & GAMELOSE			- DONE
-2.	FLAG WRONG IMAGE			- DONE
-3.	FIX GAMELOSE IMAGE			- DONE
-4.	RESET BUTTON IMAGES			- DONE
-5.	LIMIT MINE COUNTER TO ZERO
-6.	FIX TIMER GOING OVER 999
-7.	ADD SOUND EFFECTS
-8.	ADD GAMEWIN IMAGE
-9.	LIMIT GAME TO WINDOW SIZE
+GAMEWIN & GAMELOSE			- DONE
+FIX GAMELOSE IMAGE			- DONE
+RESET BUTTON IMAGES			- DONE
+LIMIT MINE COUNTER TO ZERO  - DONE
+FIX TIMER GOING OVER 999    - DONE (RESETS TO ZERO)
+ADD SOUND EFFECTS			- DONE (ADDED EXPLOSION & FANFARE SOUNDS)
+ADD MORE SOUND EFFECTS
+ADD GAMEWIN IMAGE			- DONE (ANIMATED FLAG)
+LIMIT GAME TO WINDOW SIZE
+SMALLER TILE NUMBERS		- STARTED
+RIGHT CLICK ON REVEALED TILES TO CHECK IF CORRECT KINDA THING
 
-10.	SCROLL/CAMERA (FOR LARGE LEVELS)
-11.	PRESET LEVELS
-12.	CUSTOM LEVELS
-13.	SCOREBOARD
-14.	SAVE/LOAD
-15.	KEYBOARD CONTROLS
+MAYBE DO:
+
+ANIMATED TILES
+SCROLL/CAMERA (FOR LARGE LEVELS)
+PRESET LEVELS
+CUSTOM LEVELS
+SCOREBOARD
+SAVE/LOAD
+KEYBOARD CONTROLS
 
 */
 
 class Minesweeper
 {
 private:
+	static constexpr unsigned int MIN_COLS		= 7u;
+	static constexpr unsigned int MIN_ROWS		= 7u;
 	static constexpr unsigned int SCREEN_W		= Graphics::ScreenWidth;
 	static constexpr unsigned int SCREEN_H		= Graphics::ScreenHeight;
 	static constexpr unsigned int BLOCK_SIZE	= 33u;
@@ -88,6 +95,7 @@ private:
 	static constexpr unsigned int DIGIT_COLS	= 3u;
 	static constexpr unsigned int DIGIT_ROWS	= 10u;
 	static constexpr unsigned int EXPLOSION_NUM = 26u;
+	static constexpr unsigned int FLAG_NUM		= 241u;
 	
 	const unsigned int GRID_COLS;
 	const unsigned int GRID_ROWS;
@@ -123,9 +131,13 @@ private:
 	std::vector<bool>											block_revealed;
 	std::vector<bool>											block_flag;
 
-	std::array<std::shared_ptr<Surface>, EXPLOSION_NUM>			gameover_textures;
 	RectUI														gameover_position;
-	std::array<Block, EXPLOSION_NUM>							gameover_blocks;
+
+	std::array<std::shared_ptr<Surface>, EXPLOSION_NUM>			explosion_textures;
+	std::array<Block, EXPLOSION_NUM>							explosion_blocks;
+
+	std::array<std::shared_ptr<Surface>, FLAG_NUM>				flag_textures;
+	std::array<Block, FLAG_NUM>									flag_blocks;
 
 	unsigned int flags = 0u;
 
@@ -133,7 +145,8 @@ private:
 	bool gameover		= false;
 	bool gamewon		= false;
 
-	unsigned int index = 0;
+	unsigned int index0 = 0;
+	unsigned int index1 = 0;
 	unsigned int frames = 0;
 
 	std::vector<Sound> sounds;
