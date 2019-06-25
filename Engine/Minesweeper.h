@@ -56,6 +56,15 @@ namespace BORDER
 	static constexpr size_t T_RIGHT				= 7;
 };
 
+namespace SOUNDS
+{
+	static constexpr size_t FANFARE = 0;
+	static constexpr size_t EXPLOSION = 1;
+	static constexpr size_t CLICK_0 = 2;
+	static constexpr size_t CLICK_1 = 3;
+	static constexpr size_t CLICK_2 = 4;
+}
+
 /*
 TO DO:
 

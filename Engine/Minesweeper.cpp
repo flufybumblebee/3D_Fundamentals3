@@ -37,6 +37,7 @@ void Minesweeper::Update(Mouse& mouse)
 		{
 			if (mouse.LeftIsPressed())
 			{
+				sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 				Setup();
 				reset_button_pressed = true;
 				mouse_pressed = true;
@@ -76,20 +77,25 @@ void Minesweeper::Update(Mouse& mouse)
 					{
 						if(mouse.LeftIsPressed())
 						{
-							blocks[i].SetTexture(block_textures[block_values[i]]);
-							block_revealed[i] = true;
-
-							if(block_values[i] == 9u)
+							if (!block_revealed[i])
 							{
-								gameover = true;
-								gamewon = false;
-							}
-							else if(block_values[i] == 0u)
-							{								
-								RevealBlocks(x, y, GRID_COLS, GRID_ROWS);
-							}
+								sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 
-							mouse_pressed = true;
+								blocks[i].SetTexture(block_textures[block_values[i]]);
+								block_revealed[i] = true;
+
+								if (block_values[i] == 9u)
+								{
+									gameover = true;
+									gamewon = false;
+								}
+								else if (block_values[i] == 0u)
+								{
+									RevealBlocks(x, y, GRID_COLS, GRID_ROWS);
+								}
+
+								mouse_pressed = true;
+							}
 						}
 						else if(mouse.RightIsPressed())
 						{
@@ -97,6 +103,7 @@ void Minesweeper::Update(Mouse& mouse)
 							{
 								if(block_flag[i])
 								{
+									sounds[SOUNDS::CLICK_2].Play(1.0f, 1.0f);
 									if (flags > 0) { flags--; }											
 									assert(flags >= 0u);
 
@@ -110,6 +117,7 @@ void Minesweeper::Update(Mouse& mouse)
 								}
 								else
 								{
+									sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
 									if (flags < MINES) { flags++; }
 									assert(flags <= MINES);
 
@@ -536,8 +544,11 @@ void Minesweeper::InitialiseGameOver()
 
 void Minesweeper::InitialiseSounds()
 {
-	sounds.emplace_back(Sound(L"Sounds\\explosion.wav"));
-	sounds.emplace_back(Sound(L"Sounds\\fanfare.wav"));
+	sounds.emplace_back(L"Sounds\\explosion.wav");
+	sounds.emplace_back(L"Sounds\\fanfare.wav");
+	sounds.emplace_back(L"Sounds\\click_0.wav");
+	sounds.emplace_back(L"Sounds\\click_1.wav");
+	sounds.emplace_back(L"Sounds\\click_2.wav");
 }
 
 /*--------------------------------------------*/
