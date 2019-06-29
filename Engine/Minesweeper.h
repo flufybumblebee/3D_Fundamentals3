@@ -65,6 +65,12 @@ namespace SOUNDS
 	static constexpr size_t CLICK_2 = 4;
 }
 
+namespace BUTTONS
+{
+	static constexpr size_t QUESTION_MARK = 0;
+	static constexpr size_t SETTINGS = 2;
+	static constexpr size_t RESET = 4;
+}
 /*
 TO DO:
 
@@ -95,14 +101,14 @@ private:
 	static constexpr unsigned int OFFSET		= 10u;
 	static constexpr unsigned int DIGIT_COLS	= 3u;
 	static constexpr unsigned int DIGIT_ROWS	= 10u;
-	static constexpr unsigned int EXPLOSION_NUM = 26u;
-	static constexpr unsigned int FLAG_NUM		= 241u;
+	static constexpr unsigned int EXPLOSION_NUM = 26u; // what is this number?
+	static constexpr unsigned int FLAG_NUM		= 241u; // what is this number?
+	static constexpr unsigned int BUTTONS_NUM	= 3u;
 	
 	const unsigned int GRID_COLS;
 	const unsigned int GRID_ROWS;
 	const unsigned int GRID_SIZE;
 	const unsigned int MINES;
-	
 
 	std::vector<std::shared_ptr<Surface>>						border_textures;
 	std::vector<Block>											border_blocks;
@@ -119,10 +125,10 @@ private:
 	unsigned int												time = 0;
 	std::chrono::high_resolution_clock::time_point				t1;
 
-	std::vector<std::shared_ptr<Surface>>						reset_button_textures;
-	RectUI														reset_button_position;
-	std::array<Block, 2u>										reset_button_blocks;
-	bool														reset_button_pressed = false;
+	std::vector<std::shared_ptr<Surface>>						button_textures;
+	std::array<RectUI, BUTTONS_NUM * 2u>						button_positions;
+	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
+	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
 
 	RectUI														grid_position;
 
@@ -169,10 +175,9 @@ private:
 	void InitialiseGridBlocks();
 
 	void InitialiseMinesCounter();
-	void InitialiseResetButton();
+	void InitialiseButtons();
 	void InitialiseTimer();
 	void InitialiseGameOver();
-
 	void InitialiseSounds();
 
 	void SetMinesCounter();
@@ -185,12 +190,10 @@ private:
 	void DrawGrid(Graphics& gfx);
 	void DrawGridBlocks(Graphics& gfx);
 	void DrawMouseOverBlocks(Graphics& gfx);
-
 	void DrawBorder(Graphics& gfx);
-
 	void DrawDisplayBackground(Graphics& gfx);
 	void DrawMinesCounter(Graphics& gfx);
-	void DrawResetButton(Graphics& gfx);
+	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);
 	void DrawGameOver(Graphics& gfx);
 };

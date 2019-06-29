@@ -18,10 +18,9 @@ Minesweeper::Minesweeper( const unsigned int& COLS, const unsigned int& ROWS, co
 	InitialiseGridBlocks();
 	InitialiseDigitTextures();
 	InitialiseMinesCounter();
-	InitialiseResetButton();
+	InitialiseButtons();
 	InitialiseTimer();
 	InitialiseGameOver();
-
 	InitialiseSounds();
 }
 
@@ -29,29 +28,48 @@ Minesweeper::Minesweeper( const unsigned int& COLS, const unsigned int& ROWS, co
 
 void Minesweeper::Update(Mouse& mouse)
 {
-	reset_button_blocks[0].SetMouseOver(mouse);
+	button_blocks[BUTTONS::QUESTION_MARK].SetMouseOver(mouse);
+	button_blocks[BUTTONS::SETTINGS].SetMouseOver(mouse);
+	button_blocks[BUTTONS::RESET].SetMouseOver(mouse);
 
-	if (reset_button_blocks[0].GetMouseOver())
+	for (unsigned int i = 0u; i < 3u; i++)
 	{
-		if (!mouse_pressed)
+		if (button_blocks[static_cast<size_t>(i)*2u].GetMouseOver())
 		{
-			if (mouse.LeftIsPressed())
+			if (!mouse_pressed)
 			{
-				sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-				Setup();
-				reset_button_pressed = true;
-				mouse_pressed = true;
+				if (mouse.LeftIsPressed())
+				{
+					sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
+
+					switch(i)
+					{
+					case 0:
+						// do something
+						break;
+					case 1:
+						// do something
+						break;
+					case 2:
+						Setup();
+						break;
+					default:
+						break;
+					}
+					button_pressed[i] = true;
+					mouse_pressed = true;
+				}
+				else
+				{
+					button_pressed[i] = false;
+				}
 			}
 			else
 			{
-				reset_button_pressed = false;
-			}
-		}
-		else
-		{
-			if (!mouse.LeftIsPressed())
-			{
-				mouse_pressed = false;
+				if (!mouse.LeftIsPressed())
+				{
+					mouse_pressed = false;
+				}
 			}
 		}
 	}
@@ -77,7 +95,7 @@ void Minesweeper::Update(Mouse& mouse)
 					{
 						if(mouse.LeftIsPressed())
 						{
-							if (!block_revealed[i])
+							if (!block_revealed[i] && !block_flag[i])
 							{
 								sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 
@@ -181,7 +199,6 @@ void Minesweeper::Update(Mouse& mouse)
 		}		
 	}
 
-
 	if(gameover)
 	{
 		if (gamewon)
@@ -191,8 +208,8 @@ void Minesweeper::Update(Mouse& mouse)
 				sounds[1].Play(1.0f, 1.0f);
 				sound_played = true;
 			}
-			reset_button_blocks[0].SetTexture(reset_button_textures[1]);
-			reset_button_blocks[1].SetTexture(reset_button_textures[1]);
+			button_blocks[4].SetTexture(button_textures[3]);
+			button_blocks[5].SetTexture(button_textures[3]);
 		}
 		else
 		{
@@ -201,8 +218,8 @@ void Minesweeper::Update(Mouse& mouse)
 				sounds[0].Play(1.0f, 1.0f);
 				sound_played = true;
 			}
-			reset_button_blocks[0].SetTexture(reset_button_textures[2]);
-			reset_button_blocks[1].SetTexture(reset_button_textures[2]);
+			button_blocks[4].SetTexture(button_textures[4]);
+			button_blocks[5].SetTexture(button_textures[4]);
 
 			for (unsigned int i = 0u; i < GRID_SIZE; i++)
 			{
@@ -223,7 +240,7 @@ void Minesweeper::Draw(Graphics& gfx)
 	DrawGridBlocks(gfx);
 	DrawMouseOverBlocks(gfx);
 	DrawMinesCounter(gfx);
-	DrawResetButton(gfx);
+	DrawButtons(gfx);
 	DrawTimer(gfx);
 	DrawGameOver(gfx);
 }
@@ -246,9 +263,9 @@ void Minesweeper::Setup()
 	block_revealed.assign(GRID_SIZE, false);
 	block_flag.assign(GRID_SIZE, false);
 	SetBlockValues();
-
-	reset_button_blocks[0].SetTexture(reset_button_textures[0]);
-	reset_button_blocks[1].SetTexture(reset_button_textures[0]);
+	
+	button_blocks[4].SetTexture(button_textures[2]);
+	button_blocks[5].SetTexture(button_textures[2]);
 
 	for (auto& b : blocks)
 	{
@@ -294,19 +311,19 @@ void Minesweeper::InitialiseBorder()
 	// Top Horizontal
 	RectUI corner_top_left{ 
 		border_position.top,
-		OFFSET,
+		border_position.top + OFFSET,
 		border_position.left,
 		border_position.left + OFFSET };
 
 	RectUI top{
 		border_position.top,
-		OFFSET,
+		border_position.top + OFFSET,
 		border_position.left + OFFSET,
 		border_position.right - OFFSET };
 
 	RectUI corner_top_right{
 		border_position.top,
-		OFFSET,
+		border_position.top + OFFSET,
 		border_position.right - OFFSET,
 		border_position.right};
 
@@ -411,8 +428,8 @@ void Minesweeper::InitialiseGridBlocks()
 	{
 		for(unsigned int x = 0u; x < GRID_COLS; x++)
 		{
-			const unsigned int TOP		= OFFSET * 6u + BLOCK_SIZE * y;
-			const unsigned int BOTTOM	= OFFSET * 6u + BLOCK_SIZE * y + BLOCK_SIZE - 1u;
+			const unsigned int TOP		= border_position.top + OFFSET * 6u + BLOCK_SIZE * y;
+			const unsigned int BOTTOM	= border_position.top + OFFSET * 6u + BLOCK_SIZE * y + BLOCK_SIZE - 1u;
 			const unsigned int LEFT		= OFFSET * 1u + BLOCK_SIZE * x;
 			const unsigned int RIGHT	= OFFSET * 1u + BLOCK_SIZE * x + BLOCK_SIZE - 1u;
 
@@ -420,8 +437,8 @@ void Minesweeper::InitialiseGridBlocks()
 		}
 	}
 
-	const unsigned int TOP		= OFFSET * 6u;
-	const unsigned int BOTTOM	= OFFSET * 6u + BLOCK_SIZE * GRID_ROWS - 1u;
+	const unsigned int TOP		= border_position.top + OFFSET * 6u;
+	const unsigned int BOTTOM	= border_position.top + OFFSET * 6u + BLOCK_SIZE * GRID_ROWS - 1u;
 	const unsigned int LEFT		= OFFSET * 1u;
 	const unsigned int RIGHT	= OFFSET * 1u + BLOCK_SIZE * GRID_COLS - 1u;
 
@@ -429,7 +446,7 @@ void Minesweeper::InitialiseGridBlocks()
 }
 void Minesweeper::InitialiseMinesCounter()
 {	
-	const unsigned int TOP = OFFSET * 3u - BLOCK_SIZE / 2u;
+	const unsigned int TOP = border_position.top + OFFSET * 1u + OFFSET * 2u - BLOCK_SIZE / 2u;
 	const unsigned int RIGHT = OFFSET + BLOCK_SIZE * 3u;
 
 	for (unsigned int y = 0u; y < DIGIT_ROWS; y++)
@@ -446,26 +463,58 @@ void Minesweeper::InitialiseMinesCounter()
 		}
 	}
 }
-void Minesweeper::InitialiseResetButton()
+void Minesweeper::InitialiseButtons()
 {
-	reset_button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_0.png"));
-	reset_button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_1.png"));
-	reset_button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_2.png"));
+	{
+		button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\question_mark.png"));
+		
+		const unsigned int TOP		= border_position.top + OFFSET * 1u + OFFSET * 2u - BLOCK_SIZE / 2u;
+		const unsigned int BOTTOM	= TOP + BLOCK_SIZE - 1u;
+		const unsigned int LEFT		= OFFSET + (BLOCK_SIZE * GRID_COLS) / 2u - BLOCK_SIZE / 2u - BLOCK_SIZE;
+		const unsigned int RIGHT	= LEFT + BLOCK_SIZE - 1u;
 
-	const unsigned int TOP = OFFSET * 3u - BLOCK_SIZE / 2u;
-	const unsigned int BOTTOM = TOP + BLOCK_SIZE - 1u;
-	const unsigned int LEFT = OFFSET + (BLOCK_SIZE * GRID_COLS) / 2u - BLOCK_SIZE / 2u;
-	const unsigned int RIGHT = LEFT + BLOCK_SIZE - 1u;
+		button_positions[0] = { TOP,BOTTOM,LEFT,RIGHT };
+		button_positions[1] = { TOP + 5u, BOTTOM - 5u, LEFT + 5u, RIGHT - 5u };
 
-	reset_button_position				= { TOP,BOTTOM,LEFT,RIGHT };
-	const RectUI RESET_BUTTON_OFFSET	= { TOP + 5u, BOTTOM - 5u, LEFT + 5u, RIGHT - 5u };
+		button_blocks[0] = { button_positions[0], button_textures[0] };
+		button_blocks[1] = { button_positions[1], button_textures[0] };
+	}
 
-	reset_button_blocks[0] = { reset_button_position, reset_button_textures[0] };
-	reset_button_blocks[1] = { RESET_BUTTON_OFFSET, reset_button_textures[0] };
+	{
+		button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\cog_white.png"));
+		
+		const unsigned int TOP		= border_position.top + OFFSET * 1u + OFFSET * 2u - BLOCK_SIZE / 2u;
+		const unsigned int BOTTOM	= TOP + BLOCK_SIZE - 1u;
+		const unsigned int LEFT		= OFFSET + (BLOCK_SIZE * GRID_COLS) / 2u + BLOCK_SIZE / 2u;
+		const unsigned int RIGHT	= LEFT + BLOCK_SIZE - 1u;
+
+		button_positions[2] = { TOP,BOTTOM,LEFT,RIGHT };
+		button_positions[3] = { TOP + 5u, BOTTOM - 5u, LEFT + 5u, RIGHT - 5u };
+
+		button_blocks[2] = { button_positions[2], button_textures[1] };
+		button_blocks[3] = { button_positions[3], button_textures[1] };
+	}
+
+	{
+		button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_0.png"));
+		button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_1.png"));
+		button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_smiley_2.png"));
+
+		const unsigned int TOP		= border_position.top + OFFSET * 1u + OFFSET * 2u - BLOCK_SIZE / 2u;
+		const unsigned int BOTTOM	= TOP + BLOCK_SIZE - 1u;
+		const unsigned int LEFT		= OFFSET + (BLOCK_SIZE * GRID_COLS) / 2u - BLOCK_SIZE / 2u;
+		const unsigned int RIGHT	= LEFT + BLOCK_SIZE - 1u;
+
+		button_positions[4] = { TOP,BOTTOM,LEFT,RIGHT };
+		button_positions[5] = { TOP + 5u, BOTTOM - 5u, LEFT + 5u, RIGHT - 5u };
+
+		button_blocks[4] = { button_positions[4], button_textures[2] };
+		button_blocks[5] = { button_positions[5], button_textures[2] };
+	}
 }
 void Minesweeper::InitialiseTimer()
 {
-	const unsigned int TOP = OFFSET * 3u - BLOCK_SIZE / 2u;
+	const unsigned int TOP = border_position.top + OFFSET * 1u + OFFSET * 2u - BLOCK_SIZE / 2u;
 	const unsigned int RIGHT = OFFSET + BLOCK_SIZE * GRID_COLS;
 
 	for (unsigned int y = 0u; y < DIGIT_ROWS; y++)
@@ -486,20 +535,22 @@ void Minesweeper::InitialiseGameOver()
 {
 	if (GRID_ROWS <= GRID_COLS)
 	{
-		const unsigned int SIZE = (BLOCK_SIZE * GRID_ROWS) / 2u;
-		const unsigned int TOP = OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u - SIZE;
-		const unsigned int BOTTOM = OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u + SIZE;
-		const unsigned int LEFT = (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT = (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u + SIZE;
+		const unsigned int SIZE		= (BLOCK_SIZE * GRID_ROWS) / 2u;
+		const unsigned int TOP		= border_position.top + OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u - SIZE;
+		const unsigned int BOTTOM	= border_position.top + OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u + SIZE;
+		const unsigned int LEFT		= (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u - SIZE;
+		const unsigned int RIGHT	= (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u + SIZE;
+
 		gameover_position = { TOP,BOTTOM,LEFT,RIGHT };
 	}
 	else
 	{
-		const unsigned int SIZE = (BLOCK_SIZE * GRID_COLS) / 2u;
-		const unsigned int TOP = OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u - SIZE;
-		const unsigned int BOTTOM = OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u + SIZE;
-		const unsigned int LEFT = (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT = (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u + SIZE;
+		const unsigned int SIZE		= (BLOCK_SIZE * GRID_COLS) / 2u;
+		const unsigned int TOP		= border_position.top + OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u - SIZE;
+		const unsigned int BOTTOM	= border_position.top + OFFSET * 6u + (BLOCK_SIZE * GRID_ROWS) / 2u + SIZE;
+		const unsigned int LEFT		= (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u - SIZE;
+		const unsigned int RIGHT	= (OFFSET + BLOCK_SIZE * GRID_COLS + OFFSET) / 2u + SIZE;
+
 		gameover_position = { TOP,BOTTOM,LEFT,RIGHT };
 	}
 
@@ -541,7 +592,6 @@ void Minesweeper::InitialiseGameOver()
 		}
 	}
 }
-
 void Minesweeper::InitialiseSounds()
 {
 	sounds.emplace_back(L"Sounds\\explosion.wav");
@@ -623,7 +673,7 @@ void Minesweeper::RevealBlock(const int& X, const int& Y, const int& COLS, const
 	{
 		const int INDEX = Y * COLS + X;
 		
-		if(!block_revealed[INDEX])
+		if(!block_revealed[INDEX] && !block_flag[INDEX])
 		{
 			blocks[INDEX].SetTexture(block_textures[block_values[INDEX]]);
 			block_revealed[INDEX] = true;
@@ -635,7 +685,6 @@ void Minesweeper::RevealBlock(const int& X, const int& Y, const int& COLS, const
 		}
 	}
 }
-
 void Minesweeper::SetMinesCounter()
 {
 	ExtractDigits(mines_number, mines);
@@ -728,7 +777,6 @@ void Minesweeper::DrawMouseOverBlocks(Graphics& gfx)
 		}
 	}
 }
-
 void Minesweeper::DrawBorder(Graphics& gfx)
 {
 	for(auto b : border_blocks)
@@ -736,13 +784,12 @@ void Minesweeper::DrawBorder(Graphics& gfx)
 		b.Draw(gfx);
 	}
 }
-
 void Minesweeper::DrawDisplayBackground(Graphics& gfx)
 {
-	const unsigned int TOP = OFFSET;
-	const unsigned int BOTTOM = OFFSET * 5u - 1u;
-	const unsigned int LEFT = OFFSET;
-	const unsigned int RIGHT = OFFSET + BLOCK_SIZE * GRID_COLS - 1u;
+	const unsigned int TOP		= border_position.top + OFFSET;
+	const unsigned int BOTTOM	= border_position.top + OFFSET * 5u - 1u;
+	const unsigned int LEFT		= OFFSET;
+	const unsigned int RIGHT	= OFFSET + BLOCK_SIZE * GRID_COLS - 1u;
 
 	background_position = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 
@@ -755,15 +802,18 @@ void Minesweeper::DrawMinesCounter(Graphics& gfx)
 		mines_counter[mines_number[i]][i].Draw(gfx);
 	}	
 }
-void Minesweeper::DrawResetButton(Graphics& gfx)
+void Minesweeper::DrawButtons(Graphics& gfx)
 {
-	if (reset_button_pressed)
+	for (unsigned int i = 0u; i < 3u; i++)
 	{
-		reset_button_blocks[1].Draw(gfx);
-	}
-	else
-	{
-		reset_button_blocks[0].Draw(gfx);
+		if (button_pressed[i])
+		{
+			button_blocks[static_cast<size_t>(i) * 2u + 1u].Draw(gfx);
+		}
+		else
+		{
+			button_blocks[static_cast<size_t>(i) * 2u].Draw(gfx);
+		}
 	}
 }
 void Minesweeper::DrawTimer(Graphics& gfx)
