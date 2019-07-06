@@ -7,9 +7,9 @@
 
 /*  NOTES:
 
-position		= position (& size) of texture (when drawn)
-pTex	= pointer to a texture
-rhs		= right hand side (of the assignment operator)  */
+position	= position (& size) of texture (when drawn)
+pTex		= pointer to a texture
+rhs			= right hand side (of the assignment operator)  */
 
 class Block
 {

@@ -12,22 +12,7 @@
 #include "Mouse.h"
 #include "Block.h"
 #include "Sound.h"
-
-namespace GRID
-{
-	static constexpr size_t EMPTY	= 0;
-	static constexpr size_t ONE		= 1;
-	static constexpr size_t TWO		= 2;
-	static constexpr size_t THREE	= 3;
-	static constexpr size_t FOUR	= 4;
-	static constexpr size_t FIVE	= 5;
-	static constexpr size_t SIX		= 6;
-	static constexpr size_t SEVEN	= 7;
-	static constexpr size_t EIGHT	= 8;
-	static constexpr size_t MINE	= 9;
-	static constexpr size_t TILE	= 10;
-	static constexpr size_t FLAG	= 11;
-};
+#include "Grid.h"
 
 namespace DISPLAY
 {
@@ -43,7 +28,6 @@ namespace DISPLAY
 	static constexpr size_t NINE	= 9;
 	static constexpr size_t TILE	= 10;
 };
-
 namespace BORDER
 {
 	static constexpr size_t HORIZONTAL			= 0;
@@ -55,7 +39,6 @@ namespace BORDER
 	static constexpr size_t T_LEFT				= 6;
 	static constexpr size_t T_RIGHT				= 7;
 };
-
 namespace SOUNDS
 {
 	static constexpr size_t FANFARE = 0;
@@ -64,26 +47,26 @@ namespace SOUNDS
 	static constexpr size_t CLICK_1 = 3;
 	static constexpr size_t CLICK_2 = 4;
 }
-
 namespace BUTTONS
 {
-	static constexpr size_t QUESTION_MARK = 0;
+	static constexpr size_t HELP = 0;
 	static constexpr size_t SETTINGS = 2;
 	static constexpr size_t RESET = 4;
 }
+
 /*
+
 TO DO:
 
-ADD MORE SOUND EFFECTS
-LIMIT GAME TO WINDOW SIZE
-RIGHT CLICK ON REVEALED TILES TO CHECK IF CORRECT KINDA THING
 PRESET LEVELS
 CUSTOM LEVELS
+RIGHT CLICK ON REVEALED TILES TO CHECK IF CORRECT KINDA THING
+LIMIT GAME TO WINDOW SIZE OR ADD CAMERA SCROLL
+FIND AND FIX BUGS
 
 MAYBE DO:
 
 ANIMATED TILES
-SCROLL/CAMERA (FOR LARGE LEVELS)
 SCOREBOARD
 SAVE/LOAD
 KEYBOARD CONTROLS
@@ -93,32 +76,39 @@ KEYBOARD CONTROLS
 class Minesweeper
 {
 private:
-	static constexpr unsigned int MIN_COLS		= 7u;
-	static constexpr unsigned int MIN_ROWS		= 7u;
-	static constexpr unsigned int SCREEN_W		= Graphics::ScreenWidth;
-	static constexpr unsigned int SCREEN_H		= Graphics::ScreenHeight;
-	static constexpr unsigned int BLOCK_SIZE	= 33u;
-	static constexpr unsigned int OFFSET		= 10u;
-	static constexpr unsigned int DIGIT_COLS	= 3u;
-	static constexpr unsigned int DIGIT_ROWS	= 10u;
-	static constexpr unsigned int EXPLOSION_NUM = 26u; // what is this number?
-	static constexpr unsigned int FLAG_NUM		= 241u; // what is this number?
-	static constexpr unsigned int BUTTONS_NUM	= 3u;
-	
-	const unsigned int GRID_COLS;
-	const unsigned int GRID_ROWS;
-	const unsigned int GRID_SIZE;
-	const unsigned int MINES;
+	static constexpr unsigned int SCREEN_W			= Graphics::ScreenWidth;
+	static constexpr unsigned int SCREEN_H			= Graphics::ScreenHeight;
+	static constexpr unsigned int OFFSET			= 10u;
+	static constexpr unsigned int DIGIT_COLS		= 3u;
+	static constexpr unsigned int DIGIT_ROWS		= 10u;
+	static constexpr unsigned int EXPLOSION_FRAMES	= 26u;
+	static constexpr unsigned int FLAG_FRAMES		= 241u;
+	static constexpr unsigned int BUTTONS_NUM		= 3u;
 
+	static constexpr unsigned int COLS_BEGINNER = 9u;
+	static constexpr unsigned int ROWS_BEGINNER = 9u;
+	static constexpr unsigned int MINES_BEGINNER = 10u;
+
+	static constexpr unsigned int COLS_INTERMEDIATE = 9u;
+	static constexpr unsigned int ROWS_INTERMEDIATE = 9u;
+	static constexpr unsigned int MINES_INTERMEDIATE = 11u;
+
+	static constexpr unsigned int COLS_ADVANCED = 9u;
+	static constexpr unsigned int ROWS_ADVANCED = 9u;
+	static constexpr unsigned int MINES_ADVANCED = 12u;
+
+	std::unique_ptr<Grid> grid;
+		
 	std::vector<std::shared_ptr<Surface>>						border_textures;
 	std::vector<Block>											border_blocks;
 	RectUI														border_position;
-
-	RectUI														background_position;
+	
 	std::vector<std::shared_ptr<Surface>>						digit_textures;
+
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		mines_counter;
 	std::vector<unsigned int>									mines_number;
 	unsigned int												mines = 0u;
+
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		timer;
 	std::vector<unsigned int>									timer_number;
 	bool														timer_started = false;
@@ -130,23 +120,29 @@ private:
 	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
 	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
 
-	RectUI														grid_position;
+	std::vector<std::shared_ptr<Surface>>						help_textures;
+	Block														help_block;
+	bool														is_help = false;
 
-	std::vector<unsigned int>									block_values;
-	std::vector<std::shared_ptr<Surface>>						block_textures;
-	std::vector<Block>											blocks;
-	std::vector<bool>											block_revealed;
-	std::vector<bool>											block_flag;
+	std::vector<std::shared_ptr<Surface>>						settings_textures;
+	std::vector<Block>											settings_blocks;
+	bool														is_settings = false;
+	bool														is_beginner = false;
+	bool														is_intermediate = false;
+	bool														is_advanced = false;
+	bool														is_custom = false;
+	Block settings_confirmation;
 
 	RectUI														gameover_position;
 
-	std::array<std::shared_ptr<Surface>, EXPLOSION_NUM>			explosion_textures;
-	std::array<Block, EXPLOSION_NUM>							explosion_blocks;
+	std::array<std::shared_ptr<Surface>, EXPLOSION_FRAMES>		explosion_textures;
+	std::array<Block, EXPLOSION_FRAMES>							explosion_blocks;
 
-	std::array<std::shared_ptr<Surface>, FLAG_NUM>				flag_textures;
-	std::array<Block, FLAG_NUM>									flag_blocks;
-
-	unsigned int flags = 0u;
+	std::array<std::shared_ptr<Surface>, FLAG_FRAMES>			flag_textures;
+	std::array<Block, FLAG_FRAMES>								flag_blocks;
+	unsigned int												flags = 0u;
+	
+	const RectUI SCREEN_RECT{ 0u,SCREEN_H - 1u,0u,SCREEN_W - 1u };
 
 	bool mouse_pressed	= false;
 	bool gameover		= false;
@@ -160,41 +156,51 @@ private:
 	bool sound_played = false;
 
 public:
-	Minesweeper(const unsigned int& columns, const unsigned int& rows, const unsigned int& mines );
+	Minesweeper();
 	
 public:
 	void Update(Mouse& mouse);
 	void Draw(Graphics& gfx);
 
 private:
+	void Initialise();
 	void Setup();
+	void Reset();
 
+	void InitialiseTextures();
+
+	void InitialiseSettingsTextures();
+	void InitialiseBorderTextures();
 	void InitialiseDigitTextures();
-	void InitialiseBorder();
-	void SetBlockValues();
-	void InitialiseGridBlocks();
+	void InitialiseButtonTextures();
+	void InitialiseGameOverTextures();
 
+	void InitialiseBorder();
 	void InitialiseMinesCounter();
 	void InitialiseButtons();
 	void InitialiseTimer();
 	void InitialiseGameOver();
 	void InitialiseSounds();
+	void InitialiseHelp();
+	void InitialiseSettings();
 
+	void SetSettings(Mouse& mouse);
+	void SetButtons(Mouse& mouse);
+	void SetBlocks(Mouse& mouse);
+	void SetGameOver();
 	void SetMinesCounter();
 	void SetTimer();
-	void SetBlockValue(const int& X, const int& Y, const int& COLS, const int& ROWS);
-	void RevealBlocks(const int& X, const int& Y, const int& COLS, const int& ROWS);
-	void RevealBlock(const int& X, const int& Y, const int& COLS, const int& ROWS);
+	
 	void ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM);
-
-	void DrawGrid(Graphics& gfx);
-	void DrawGridBlocks(Graphics& gfx);
-	void DrawMouseOverBlocks(Graphics& gfx);
+		
 	void DrawBorder(Graphics& gfx);
 	void DrawDisplayBackground(Graphics& gfx);
 	void DrawMinesCounter(Graphics& gfx);
 	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);
 	void DrawGameOver(Graphics& gfx);
+
+	void DrawHelp(Graphics& gfx);
+	void DrawSettings(Graphics& gfx);
 };
 
