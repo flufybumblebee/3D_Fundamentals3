@@ -1,6 +1,7 @@
 #include "Grid.h"
 
 #include "Random.h"
+#include "BumbleFunctions.h"
 
 Grid::Grid(
 	const unsigned int& COLS,
@@ -12,23 +13,32 @@ Grid::Grid(
 	ROWS(std::max<unsigned int>(MIN_ROWS, ROWS)),
 	SIZE(COLS * ROWS),
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(SIZE - 1u, MINES))),
-	OFFSET(OFFSET)
+	OFFSET(OFFSET),
+	TILE_SIZE(BumbleFunctions::SetSize(COLS,ROWS,OFFSET))
 {
-	if (SCREEN_H <= SCREEN_W)
+	/*if (SCREEN_H <= SCREEN_W)
 	{
+		const unsigned int WIDTH = SCREEN_W - OFFSET * 2u;
 		const unsigned int HEIGHT = SCREEN_H - OFFSET * 7u;
 		TILE_SIZE = HEIGHT / ROWS;
 
-		/*
-		calculate the maximum block size 
-		this based on the width and height of the screen
-		and the number of rows and columns 
-		blocks must be square
-
-		this is currently wrong - FIX IT
-		*/
-
+		while (TILE_SIZE * COLS > WIDTH)
+		{
+			TILE_SIZE--;
+		}
 	}
+	else
+	{
+		const unsigned int WIDTH = SCREEN_W - OFFSET * 2u;
+		const unsigned int HEIGHT = SCREEN_H - OFFSET * 7u;
+		TILE_SIZE = WIDTH / COLS;
+
+		while (TILE_SIZE * ROWS > HEIGHT)
+		{
+			TILE_SIZE--;
+		}
+	}*/
+
 	const unsigned int TOP		= OFFSET * 6u;
 	const unsigned int BOTTOM	= TOP + TILE_SIZE * ROWS - 1u;
 	const unsigned int LEFT		= OFFSET;

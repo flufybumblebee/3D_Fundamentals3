@@ -58,10 +58,11 @@ namespace BUTTONS
 
 TO DO:
 
-PRESET LEVELS
+PRESET LEVELS - DONE
 CUSTOM LEVELS
 RIGHT CLICK ON REVEALED TILES TO CHECK IF CORRECT KINDA THING
-LIMIT GAME TO WINDOW SIZE OR ADD CAMERA SCROLL
+LIMIT GAME TO WINDOW SIZE - DONE
+ADD CAMERA SCROLL
 FIND AND FIX BUGS
 
 MAYBE DO:
@@ -85,19 +86,19 @@ private:
 	static constexpr unsigned int FLAG_FRAMES		= 241u;
 	static constexpr unsigned int BUTTONS_NUM		= 3u;
 
-	static constexpr unsigned int COLS_BEGINNER = 9u;
-	static constexpr unsigned int ROWS_BEGINNER = 9u;
-	static constexpr unsigned int MINES_BEGINNER = 10u;
+	static constexpr unsigned int COLS_BEGINNER			= 9u;
+	static constexpr unsigned int ROWS_BEGINNER			= 9u;
+	static constexpr unsigned int MINES_BEGINNER		= 10u;
 
-	static constexpr unsigned int COLS_INTERMEDIATE = 9u;
-	static constexpr unsigned int ROWS_INTERMEDIATE = 9u;
-	static constexpr unsigned int MINES_INTERMEDIATE = 11u;
+	static constexpr unsigned int COLS_INTERMEDIATE		= 16u;
+	static constexpr unsigned int ROWS_INTERMEDIATE		= 16u;
+	static constexpr unsigned int MINES_INTERMEDIATE	= 40u;
 
-	static constexpr unsigned int COLS_ADVANCED = 9u;
-	static constexpr unsigned int ROWS_ADVANCED = 9u;
-	static constexpr unsigned int MINES_ADVANCED = 12u;
+	static constexpr unsigned int COLS_ADVANCED			= 30u;
+	static constexpr unsigned int ROWS_ADVANCED			= 16u;
+	static constexpr unsigned int MINES_ADVANCED		= 99u;
 
-	std::unique_ptr<Grid> grid;
+	std::unique_ptr<Grid>										grid;
 		
 	std::vector<std::shared_ptr<Surface>>						border_textures;
 	std::vector<Block>											border_blocks;
@@ -126,6 +127,7 @@ private:
 
 	std::vector<std::shared_ptr<Surface>>						settings_textures;
 	std::vector<Block>											settings_blocks;
+	std::vector<Block>											settings_text_blocks;
 	bool														is_settings = false;
 	bool														is_beginner = false;
 	bool														is_intermediate = false;
@@ -186,7 +188,7 @@ private:
 
 	void SetSettings(Mouse& mouse);
 	void SetButtons(Mouse& mouse);
-	void SetBlocks(Mouse& mouse);
+	void SetGrid(Mouse& mouse);
 	void SetGameOver();
 	void SetMinesCounter();
 	void SetTimer();

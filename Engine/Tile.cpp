@@ -50,6 +50,7 @@ bool Tile::GetMouseOver() const
 {
 	return block.GetMouseOver();
 }
+
 void Tile::Reset()
 {
 	value = 0;

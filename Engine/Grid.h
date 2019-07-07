@@ -35,8 +35,7 @@ private:
 	const unsigned int SIZE;
 	const unsigned int MINES;
 	const unsigned int OFFSET;
-
-	unsigned int TILE_SIZE = 0u;
+	const unsigned int TILE_SIZE;
 
 	std::vector<std::shared_ptr<Surface>>						tile_textures;
 	
