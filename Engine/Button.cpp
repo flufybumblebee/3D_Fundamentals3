@@ -7,7 +7,7 @@ Button::Button(const Block& a, const Block& b, const Block& c, const Block& d)
 	block_c(c),
 	block_d(d)
 {
-	position = block_a.GetPosition();
+	position = block_a.Position();
 }
 Button::Button(const Button& copy)
 	:
@@ -63,7 +63,7 @@ void Button::Set(const unsigned int& MOUSE_X, const unsigned int& MOUSE_Y, const
 		mouseover = false;
 	}	
 }
-bool Button::GetMouseOver() const
+bool Button::IsMouseOver() const
 {
 	return mouseover;
 }
@@ -71,7 +71,7 @@ bool Button::GetMousePress() const
 {
 	return mousepress;
 }
-RectUI Button::GetPosition() const
+RectUI Button::Position() const
 {
 	return position;
 }

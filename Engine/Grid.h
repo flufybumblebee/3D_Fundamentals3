@@ -62,11 +62,12 @@ public:
 	unsigned int GetGridSize() const;
 	unsigned int GetMines() const;
 	unsigned int GetTileSize() const;
+	RectUI GetGridRect() const;
 	
-	unsigned int GetValue(const unsigned int& index) const;
-	bool GetIsFlag(const unsigned int& index) const;
-	bool GetIsRevealed(const unsigned int& index) const;
-	bool GetMouseOver(const unsigned int& index) const;
+	unsigned int Value(const unsigned int& index) const;
+	bool IsFlag(const unsigned int& index) const;
+	bool IsRevealed(const unsigned int& index) const;
+	bool IsMouseOver(const unsigned int& index) const;
 
 	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);

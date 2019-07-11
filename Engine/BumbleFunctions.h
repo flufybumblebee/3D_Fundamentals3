@@ -27,23 +27,13 @@ inline T BumbleFunctions::SetSize(const T& COLS, const T& ROWS, const T& OFFSET 
 	const T WIDTH		= SCREEN_W - OFFSET * 2u;
 	const T HEIGHT		= SCREEN_H - OFFSET * 7u;
 
-	if (SCREEN_H <= SCREEN_W)
+	if (HEIGHT / ROWS <= WIDTH / COLS)
 	{
 		size = HEIGHT / ROWS;
-
-		while (size * COLS > WIDTH)
-		{
-			size--;
-		}
 	}
 	else
 	{
 		size = WIDTH / COLS;
-
-		while (size * ROWS > HEIGHT)
-		{
-			size--;
-		}
 	}
 
 	return size;

@@ -16,29 +16,6 @@ Grid::Grid(
 	OFFSET(OFFSET),
 	TILE_SIZE(BumbleFunctions::SetSize(COLS,ROWS,OFFSET))
 {
-	/*if (SCREEN_H <= SCREEN_W)
-	{
-		const unsigned int WIDTH = SCREEN_W - OFFSET * 2u;
-		const unsigned int HEIGHT = SCREEN_H - OFFSET * 7u;
-		TILE_SIZE = HEIGHT / ROWS;
-
-		while (TILE_SIZE * COLS > WIDTH)
-		{
-			TILE_SIZE--;
-		}
-	}
-	else
-	{
-		const unsigned int WIDTH = SCREEN_W - OFFSET * 2u;
-		const unsigned int HEIGHT = SCREEN_H - OFFSET * 7u;
-		TILE_SIZE = WIDTH / COLS;
-
-		while (TILE_SIZE * ROWS > HEIGHT)
-		{
-			TILE_SIZE--;
-		}
-	}*/
-
 	const unsigned int TOP		= OFFSET * 6u;
 	const unsigned int BOTTOM	= TOP + TILE_SIZE * ROWS - 1u;
 	const unsigned int LEFT		= OFFSET;
@@ -54,9 +31,9 @@ void Grid::Update()
 {
 	for (auto& t : tiles)
 	{
-		if (!t.GetIsRevealed())
+		if (!t.IsRevealed())
 		{
-			if (!t.GetIsFlag())
+			if (!t.IsFlag())
 			{
 				t.SetTexture(tile_textures[TILE::BLANK_TILE]);
 			}
@@ -67,13 +44,13 @@ void Grid::Update()
 		}
 		else
 		{
-			t.SetTexture(tile_textures[t.GetValue()]);
+			t.SetTexture(tile_textures[t.Value()]);
 		}
 	}
 }
 void Grid::Draw(Graphics& gfx)
 {
-	DrawGrid(gfx);
+	//DrawGrid(gfx);
 	DrawTiles(gfx);
 	DrawMouseOverTiles(gfx);
 }
@@ -90,7 +67,7 @@ void Grid::InitialiseTiles()
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\mine.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_blank.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_light_blue_transparent.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_flag.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
@@ -141,7 +118,7 @@ void Grid::SetTileValues()
 		{
 			i = static_cast<size_t>(y) * COLS + x;
 
-			if (tiles[i].GetValue() == 9u)
+			if (tiles[i].Value() == 9u)
 			{
 				SetTileValue(x - 1, y - 1);
 				SetTileValue(x + 0, y - 1);
@@ -163,9 +140,9 @@ void Grid::SetTileValue(const int& X, const int& Y)
 	
 	if (X >= 0 && X < static_cast<int>(COLS) &&
 		Y >= 0 && Y < static_cast<int>(ROWS) &&
-		tiles[INDEX].GetValue() != 9u)
+		tiles[INDEX].Value() != 9u)
 	{
-		tiles[INDEX].SetValue(tiles[INDEX].GetValue() + 1u);
+		tiles[INDEX].SetValue(tiles[INDEX].Value() + 1u);
 	}
 }
 void Grid::RevealTiles(const int& X, const int& Y)
@@ -188,11 +165,11 @@ void Grid::RevealTile(const int& X, const int& Y)
 	{
 		const int INDEX = Y * COLS + X;
 
-		if (!tiles[INDEX].GetIsRevealed() && !tiles[INDEX].GetIsFlag())
+		if (!tiles[INDEX].IsRevealed() && !tiles[INDEX].IsFlag())
 		{
 			tiles[INDEX].SetIsRevealed(true);
 
-			if (tiles[INDEX].GetValue() == 0u)
+			if (tiles[INDEX].Value() == 0u)
 			{
 				RevealTiles(X, Y);
 			}
@@ -221,21 +198,26 @@ unsigned int Grid::GetTileSize() const
 	return TILE_SIZE;
 }
 
-unsigned int Grid::GetValue(const unsigned int& INDEX) const
+RectUI Grid::GetGridRect() const
 {
-	return tiles[INDEX].GetValue();
+	return grid_position;
 }
-bool Grid::GetIsFlag(const unsigned int& INDEX) const
+
+unsigned int Grid::Value(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].GetIsFlag();
+	return tiles[INDEX].Value();
 }
-bool Grid::GetIsRevealed(const unsigned int& INDEX) const
+bool Grid::IsFlag(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].GetIsRevealed();
+	return tiles[INDEX].IsFlag();
 }
-bool Grid::GetMouseOver(const unsigned int& INDEX) const
+bool Grid::IsRevealed(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].GetMouseOver();
+	return tiles[INDEX].IsRevealed();
+}
+bool Grid::IsMouseOver(const unsigned int& INDEX) const
+{
+	return tiles[INDEX].IsMouseOver();
 }
 
 void Grid::SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG)
@@ -281,11 +263,11 @@ void Grid::DrawTiles(Graphics& gfx)
 {
 	for (auto t : tiles)
 	{
-		if(!t.GetIsRevealed())
+		if(!t.IsRevealed())
 		{
 			t.Draw(gfx);
 		}
-		else if( t.GetValue() != 0u )
+		else if( t.Value() != 0u )
 		{
 			t.Draw(gfx);
 		}
@@ -295,17 +277,17 @@ void Grid::DrawMouseOverTiles(Graphics& gfx)
 {
 	/*for (auto& b : blocks)
 	{
-		if (b.GetMouseOver())
+		if (b.IsMouseOver())
 		{
-			gfx.DrawRect(false, b.GetPosition(), Colors::Red);
+			gfx.DrawRect(false, b.Position(), Colors::Red);
 		}
 	}*/
 
 	for (auto& t : tiles)
 	{
-		if (t.GetMouseOver())
+		if (t.IsMouseOver())
 		{
-			gfx.DrawRect(false, t.GetPosition(), Colors::Red);
+			gfx.DrawRect(false, t.Position(), Colors::Red);
 		}
 	}
 }

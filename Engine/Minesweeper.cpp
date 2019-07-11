@@ -44,9 +44,9 @@ void Minesweeper::Draw(Graphics& gfx)
 		DrawMinesCounter(gfx);
 		DrawButtons(gfx);
 		DrawTimer(gfx);
-
+		Block background = Block(grid->GetGridRect(), std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
+		background.Draw(gfx);
 		grid->Draw(gfx);
-
 		DrawGameOver(gfx);
 	}
 	else
@@ -552,7 +552,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 	{
 		if (!mouse_pressed)
 		{
-			if (settings_blocks[0].GetMouseOver())
+			if (settings_blocks[0].IsMouseOver())
 			{
 				if (mouse.LeftIsPressed())
 				{
@@ -568,7 +568,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 					mouse_pressed = true;
 				}
 			}
-			else if (settings_blocks[1].GetMouseOver())
+			else if (settings_blocks[1].IsMouseOver())
 			{
 				if (mouse.LeftIsPressed())
 				{
@@ -584,7 +584,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 					mouse_pressed = true;
 				}
 			}
-			else if (settings_blocks[2].GetMouseOver())
+			else if (settings_blocks[2].IsMouseOver())
 			{
 				if (mouse.LeftIsPressed())
 				{
@@ -602,7 +602,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 			}
 			else
 			{
-				if (settings_confirmation.GetMouseOver())
+				if (settings_confirmation.IsMouseOver())
 				{
 					if (mouse.LeftIsPressed())
 					{
@@ -653,7 +653,7 @@ void Minesweeper::SetButtons(Mouse& mouse)
 	{
 		if (!mouse_pressed)
 		{
-			const bool MOUSEOVER = button_blocks[static_cast<size_t>(i) * 2u].GetMouseOver();
+			const bool MOUSEOVER = button_blocks[static_cast<size_t>(i) * 2u].IsMouseOver();
 
 			if (MOUSEOVER && mouse.LeftIsPressed())
 			{
@@ -715,24 +715,24 @@ void Minesweeper::SetGrid(Mouse& mouse)
 			{
 				i = y * grid->GetCols() + x;
 
-				if (grid->GetMouseOver(i))
+				if (grid->IsMouseOver(i))
 				{
 					if (!mouse_pressed)
 					{
 						if (mouse.LeftIsPressed())
 						{
-							if (!grid->GetIsRevealed(i) && !grid->GetIsFlag(i))
+							if (!grid->IsRevealed(i) && !grid->IsFlag(i))
 							{
 								sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 
 								grid->SetIsRevealed(i,true);
 
-								if (grid->GetValue(i) == 9u)
+								if (grid->Value(i) == 9u)
 								{
 									gameover = true;
 									gamewon = false;
 								}
-								else if (grid->GetValue(i) == 0u)
+								else if (grid->Value(i) == 0u)
 								{
 									grid->RevealTiles(x, y);
 								}
@@ -742,9 +742,9 @@ void Minesweeper::SetGrid(Mouse& mouse)
 						}
 						else if (mouse.RightIsPressed())
 						{
-							if (!grid->GetIsRevealed(i))
+							if (!grid->IsRevealed(i))
 							{
-								if (grid->GetIsFlag(i))
+								if (grid->IsFlag(i))
 								{
 									sounds[SOUNDS::CLICK_2].Play(1.0f, 1.0f);
 									if (flags > 0) { flags--; }
@@ -801,12 +801,12 @@ void Minesweeper::SetGameOver()
 
 		for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
 		{
-			if (grid->GetValue(i) == 9u && grid->GetIsFlag(i))
+			if (grid->Value(i) == 9u && grid->IsFlag(i))
 			{
 				count_mines_and_flags++;
 			}
 
-			if (grid->GetIsRevealed(i))
+			if (grid->IsRevealed(i))
 			{
 				count_revealed_blocks++;
 			}
@@ -843,7 +843,7 @@ void Minesweeper::SetGameOver()
 
 			for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
 			{
-				if (!grid->GetIsRevealed(i) && grid->GetValue(i) == 9u)
+				if (!grid->IsRevealed(i) && grid->Value(i) == 9u)
 				{
 					grid->SetIsRevealed(i, true);
 				}

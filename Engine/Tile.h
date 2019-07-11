@@ -23,11 +23,11 @@ public:
 	void SetTexture(std::shared_ptr<Surface> texture);
 	void SetMouseOver(Mouse& mouse);
 
-	unsigned int GetValue() const;
-	bool GetIsRevealed() const;
-	bool GetIsFlag() const;
-	bool GetMouseOver() const;
-	RectUI GetPosition() const;
+	unsigned int Value() const;
+	bool IsRevealed() const;
+	bool IsFlag() const;
+	bool IsMouseOver() const;
+	RectUI Position() const;
 public:
 	void Reset();
 	void Draw(Graphics& gfx);

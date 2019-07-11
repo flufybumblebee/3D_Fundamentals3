@@ -30,25 +30,25 @@ void Tile::SetMouseOver(Mouse& mouse)
 	block.SetMouseOver(mouse);
 }
 
-unsigned int Tile::GetValue() const
+unsigned int	Tile::Value() const
 {
 	return value;
 }
-bool Tile::GetIsRevealed() const
+bool			Tile::IsRevealed() const
 {
 	return is_revealed;
 }
-bool Tile::GetIsFlag() const
+bool			Tile::IsFlag() const
 {
 	return is_flag;
 }
-RectUI Tile::GetPosition() const
+RectUI			Tile::Position() const
 {
-	return block.GetPosition();
+	return block.Position();
 }
-bool Tile::GetMouseOver() const
+bool			Tile::IsMouseOver() const
 {
-	return block.GetMouseOver();
+	return block.IsMouseOver();
 }
 
 void Tile::Reset()

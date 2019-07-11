@@ -65,6 +65,7 @@ Graphics::Graphics( HWNDKey& key )
 	D3D_FEATURE_LEVEL	featureLevelsSupported;
 	HRESULT				hr;
 	UINT				createFlags = 0u;
+
 #ifdef _DEBUG
 #ifdef USE_DIRECT3D_DEBUG_RUNTIME
 	createFlags |= D3D11_CREATE_DEVICE_DEBUG;
@@ -725,7 +726,8 @@ void Graphics::DrawFlatTriangleTex(
 		{
 			PutPixelAlpha(x, y, tex.GetPixel(
 				int(std::min(itcLine.x * tex_width, tex_clamp_x)),
-				int(std::min(itcLine.y * tex_height, tex_clamp_y))),alpha);
+				int(std::min(itcLine.y * tex_height, tex_clamp_y))),
+				alpha);
 			// need std::min b/c tc.x/y == 1.0, we'll read off edge of tex
 			// and with fp err, tc.x/y can be > 1.0 (by a tiny amount)
 		}
@@ -734,12 +736,13 @@ void Graphics::DrawFlatTriangleTex(
 
 void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
 {
-	assert(x >= 0);
-	assert(y >= 0);
+	assert(x >= 0u);
+	assert(y >= 0u);
 	assert(x < ScreenWidth);
 	assert(y < ScreenHeight);
 
 	const Color src = sysBuffer.GetPixel(x, y);
+
 	// blend channels
 	const unsigned char rsltRed = (dst.GetR() * dst.GetA() + src.GetR() * (255u - dst.GetA())) / 256u;
 	const unsigned char rsltGreen = (dst.GetG() * dst.GetA() + src.GetG() * (255u - dst.GetA())) / 256u;
@@ -751,12 +754,15 @@ void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
 
 void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst, const unsigned int alpha)
 {
-	assert(x >= 0);
-	assert(y >= 0);
+	assert(x >= 0u);
+	assert(y >= 0u);
 	assert(x < ScreenWidth);
 	assert(y < ScreenHeight);
+	assert(alpha >= 0u); 
+	assert(alpha < 255u);
 
 	const Color src = sysBuffer.GetPixel(x, y);
+
 	// blend channels
 	const unsigned char rsltRed = (dst.GetR() * alpha + src.GetR() * (255u - alpha)) / 256u;
 	const unsigned char rsltGreen = (dst.GetG() * alpha + src.GetG() * (255u - alpha)) / 256u;
@@ -871,9 +877,9 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 
 	if (filled)
 	{
-		for (int y = 0; y <= height; y++)
+		for (int y = 0; y < height; y++)
 		{
-			for (int x = 0; x <= width; x++)
+			for (int x = 0; x < width; x++)
 			{
 				PutPixel(x1 + x, y1 + y, c);
 			}
@@ -881,13 +887,13 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 	}
 	else
 	{
-		for (int i = 0; i <= width; i++)
+		for (int i = 0; i < width; i++)
 		{
 			PutPixel(x1 + i, y1, c);
 			PutPixel(x1 + i, y2, c);
 		}
 
-		for (int i = 0; i <= height; i++)
+		for (int i = 0; i < height; i++)
 		{
 			PutPixel(x1, y1 + i, c);
 			PutPixel(x2, y1 + i, c);

@@ -1,14 +1,14 @@
 #include "Block.h"
 
-Block::Block(const RectUI& position, std::shared_ptr<Surface> pTex)
+Block::Block(const RectUI& POSITION, std::shared_ptr<Surface> texture)
 	:
-	position(static_cast<RectF>(position)),
-	pTex(pTex)
+	position(static_cast<RectF>(POSITION)),
+	pTex(texture)
 {}
-Block::Block(const Block& copy)
+Block::Block(const Block& COPY)
 	:
-	position(copy.position),
-	pTex(copy.pTex)
+	position(COPY.position),
+	pTex(COPY.pTex)
 {}
 Block::Block(Block&& block) noexcept
 	:
@@ -38,23 +38,23 @@ Block& Block::operator = (Block&& rhs) noexcept
 }
 void Block::SetMouseOver(Mouse& mouse)
 {
-	mouse_over = position.Contains(mouse.GetPos());	
+	is_mouse_over = position.Contains(mouse.GetPos());	
 }
-bool Block::GetMouseOver() const
+bool Block::IsMouseOver() const
 {
-	return mouse_over;
+	return is_mouse_over;
 }
-RectUI Block::GetPosition() const
+RectUI Block::Position() const
 {
-	return RectUI(position);
+	return static_cast<RectUI>(position);
 }
-void Block::SetPosition(const RectUI& new_position)
+void Block::SetPosition(const RectUI& POSITION)
 {
-	position = static_cast<RectF>(new_position);
+	position = static_cast<RectF>(POSITION);
 }
-void Block::SetTexture(std::shared_ptr<Surface> new_texture)
+void Block::SetTexture(std::shared_ptr<Surface> texture)
 {
-	pTex = new_texture;
+	pTex = texture;
 }
 void Block::Draw(Graphics& gfx)
 {
