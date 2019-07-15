@@ -50,6 +50,7 @@ void Grid::Update()
 }
 void Grid::Draw(Graphics& gfx)
 {
+	DrawBackground(gfx);
 	//DrawGrid(gfx);
 	DrawTiles(gfx);
 	DrawMouseOverTiles(gfx);
@@ -67,7 +68,7 @@ void Grid::InitialiseTiles()
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\mine.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_light_blue_transparent.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_greyscale_transparent.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_flag.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
@@ -233,6 +234,12 @@ void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 	tiles[INDEX].SetMouseOver(mouse);
 }
 
+void Grid::DrawBackground(Graphics& gfx)
+{
+	//Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
+	Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
+	background.Draw(gfx);
+}
 void Grid::DrawGrid(Graphics& gfx)
 {
 	gfx.DrawRect(true, grid_position, Color(155, 155, 155));

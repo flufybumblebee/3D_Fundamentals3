@@ -129,9 +129,9 @@ private:
 	std::vector<Block>											settings_blocks;
 	std::vector<Block>											settings_text_blocks;
 	bool														is_settings = false;
-	bool														is_beginner = false;
-	bool														is_intermediate = false;
-	bool														is_advanced = false;
+	bool														is_easy = false;
+	bool														is_medium = false;
+	bool														is_hard = false;
 	bool														is_custom = false;
 	Block settings_confirmation;
 

@@ -284,7 +284,7 @@ void Graphics::EndFrame()
 
 void Graphics::BeginFrame()
 {
-	sysBuffer.Clear( Color(255,255,255) );
+	sysBuffer.Clear( Color(0,0,0) );
 }
 
 
@@ -751,7 +751,6 @@ void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst)
 	// pack channels back into pixel and fire pixel onto surface
 	PutPixel(x, y, { rsltRed,rsltGreen,rsltBlue });
 }
-
 void Graphics::PutPixelAlpha(unsigned int x, unsigned int y, const Color dst, const unsigned int alpha)
 {
 	assert(x >= 0u);
@@ -779,7 +778,10 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
 
 	if (dy == 0 && dx == 0)
 	{
-		PutPixel(x1, y1, c);
+		if (x1 >= 0 && x1 < ScreenWidth && y1 >= 0 && y1 < ScreenHeight)
+		{
+			PutPixel(x1, y1, c);
+		}
 	}
 	else if (abs(dy) > abs(dx))
 	{
@@ -797,7 +799,11 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
 		for (int y = y1; y <= y2; y = y + 1)
 		{
 			int x = (int)(m * y + b + 0.5f);
-			PutPixel(x, y, c);
+
+			if (x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
+			{
+				PutPixel(x, y, c);
+			}
 		}
 	}
 	else
@@ -816,11 +822,14 @@ void Graphics::DrawLine(int x1, int y1, int x2, int y2, Color c)
 		for (int x = x1; x <= x2; x = x + 1)
 		{
 			int y = (int)(m * x + b + 0.5f);
-			PutPixel(x, y, c);
+
+			if (x >= 0 && x < ScreenWidth && y >= 0 && y < ScreenHeight)
+			{
+				PutPixel(x, y, c);
+			}
 		}
 	}
 }
-
 void Graphics::DrawLineAlpha(int x1, int y1, int x2, int y2, Color c)
 {
 	const int dx = x2 - x1;
@@ -881,7 +890,13 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				PutPixel(x1 + x, y1 + y, c);
+				const int X = x1 + x;
+				const int Y = y1 + y;
+
+				if (X >= 0 && X < ScreenWidth && Y >= 0 && Y < ScreenHeight)
+				{
+					PutPixel(X, Y, c);
+				}
 			}
 		}
 	}
@@ -889,18 +904,36 @@ void Graphics::DrawRect(bool filled,int x1, int y1, int x2, int y2, Color c)
 	{
 		for (int i = 0; i < width; i++)
 		{
-			PutPixel(x1 + i, y1, c);
-			PutPixel(x1 + i, y2, c);
+			const int X1 = x1 + i;
+			const int Y1 = y1;
+			const int Y2 = y2;
+			if (X1 >= 0 && X1 < ScreenWidth && Y1 >= 0 && Y1 < ScreenHeight)
+			{
+				PutPixel(X1, Y1, c);
+			}
+			if (X1 >= 0 && X1 < ScreenWidth && Y2 >= 0 && Y2 < ScreenHeight)
+			{
+				PutPixel(X1, Y2, c);
+			}
 		}
 
 		for (int i = 0; i < height; i++)
 		{
-			PutPixel(x1, y1 + i, c);
-			PutPixel(x2, y1 + i, c);
+			const int X1 = x1;
+			const int X2 = x2;
+			const int Y1 = y1 + i;
+		
+			if (X1 >= 0 && X1 < ScreenWidth && Y1 >= 0 && Y1 < ScreenHeight)
+			{
+				PutPixel(X1, Y1, c);
+			}
+			if (X2 >= 0 && X2 < ScreenWidth && Y1 >= 0 && Y1 < ScreenHeight)
+			{
+				PutPixel(X2, Y1, c);
+			}
 		}
 	}
 }
-
 void Graphics::DrawRectAlpha(bool filled, int x1, int y1, int x2, int y2, Color c)
 {
 	int width = std::abs(x2 - x1);
@@ -928,6 +961,37 @@ void Graphics::DrawRectAlpha(bool filled, int x1, int y1, int x2, int y2, Color 
 		{
 			PutPixelAlpha(x1, y1 + i, c);
 			PutPixelAlpha(x2, y1 + i, c);
+		}
+	}
+}
+
+void Graphics::DrawPolygon2D(const bool& filled, const std::vector<Vec2>& points, const Color& c)
+{
+	if (points.size() <= 0)
+	{
+		return;
+	}
+	else if (points.size() == 1)
+	{
+		PutPixel(points[0], c);
+	}
+	else if (points.size() < 3)
+	{
+		DrawLine(points.front(), points.back(), c);
+	}
+	else
+	{
+		if (filled)
+		{
+
+		}
+		else
+		{
+			for (size_t i = 0; i < points.size() - 1; i++)
+			{
+				DrawLine(points[i], points[i + 1u], c);
+			}
+			DrawLine(points.front(), points.back(), c);
 		}
 	}
 }

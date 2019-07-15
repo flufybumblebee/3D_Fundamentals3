@@ -73,6 +73,7 @@ public:
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
 	void SetMouseOver(const unsigned int& index, Mouse& mouse);
 
+	void DrawBackground(Graphics& gfx);
 	void DrawGrid(Graphics& gfx);
 	void DrawTiles(Graphics& gfx);
 	void DrawMouseOverTiles(Graphics& gfx);

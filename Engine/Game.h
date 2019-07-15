@@ -20,7 +20,9 @@
 ******************************************************************************************/
 #pragma once
 
+#include "MainWindow.h"
 #include "Graphics.h"
+#include "Rect.h"
   
 #include "Minesweeper.h"
 
@@ -29,11 +31,38 @@ class Game
 private:
 	MainWindow& wnd;
 	Graphics gfx;
-	static constexpr unsigned int COLS	= 9u;
-	static constexpr unsigned int ROWS	= 9u;
-	static constexpr unsigned int MINES	= 10u;
 private:
 	Minesweeper ms;
+
+	static constexpr bool IS_COLOR_BLEND = false;
+		
+	const RectUI RECTANGLE = { 0u,600u,0u,800u };
+
+	const unsigned int SIZE_X = RECTANGLE.GetWidth();
+	const unsigned int SIZE_Y = RECTANGLE.GetHeight();
+
+	const Vec2	LINE	= { static_cast<float>(RECTANGLE.bottom),static_cast<float>(RECTANGLE.right) };
+	const float LENGTH	= LINE.Len();
+	const Vec2	NORMAL	= LINE.GetNormalized();
+
+	Color colorA;
+	Color colorB;
+
+	unsigned char start_red = 0u;
+	unsigned char start_green = 0u;
+	unsigned char start_blue = 0u;
+
+	unsigned char end_red = 0u;
+	unsigned char end_green = 0u;
+	unsigned char end_blue = 0u;
+
+	float increment_red = 0.0f;
+	float increment_green = 0.0f;
+	float increment_blue = 0.0f;
+
+	bool key_pressed = false;
+
+	float angle = 0.0f;	
 
 public:
 	Game( class MainWindow& wnd );

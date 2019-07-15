@@ -44,8 +44,6 @@ void Minesweeper::Draw(Graphics& gfx)
 		DrawMinesCounter(gfx);
 		DrawButtons(gfx);
 		DrawTimer(gfx);
-		Block background = Block(grid->GetGridRect(), std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
-		background.Draw(gfx);
 		grid->Draw(gfx);
 		DrawGameOver(gfx);
 	}
@@ -552,86 +550,79 @@ void Minesweeper::SetSettings(Mouse& mouse)
 	{
 		if (!mouse_pressed)
 		{
-			if (settings_blocks[0].IsMouseOver())
+			if (mouse.LeftIsPressed())
 			{
-				if (mouse.LeftIsPressed())
+				mouse_pressed = true;
+				bool play_sound = false;
+
+				if (settings_blocks[0].IsMouseOver())
 				{
-					is_beginner = true;
-					is_intermediate = false;
-					is_advanced = false;
-
-					settings_blocks[0].SetTexture(settings_textures[1]);
-					settings_blocks[1].SetTexture(settings_textures[0]);
-					settings_blocks[2].SetTexture(settings_textures[0]);
-
-					sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-					mouse_pressed = true;
-				}
-			}
-			else if (settings_blocks[1].IsMouseOver())
-			{
-				if (mouse.LeftIsPressed())
-				{
-					is_beginner = false;
-					is_intermediate = true;
-					is_advanced = false;
-					
-					settings_blocks[0].SetTexture(settings_textures[0]);
-					settings_blocks[1].SetTexture(settings_textures[1]);
-					settings_blocks[2].SetTexture(settings_textures[0]);
-
-					sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-					mouse_pressed = true;
-				}
-			}
-			else if (settings_blocks[2].IsMouseOver())
-			{
-				if (mouse.LeftIsPressed())
-				{
-					is_beginner = false;
-					is_intermediate = false;
-					is_advanced = true;
-
-					settings_blocks[0].SetTexture(settings_textures[0]);
-					settings_blocks[1].SetTexture(settings_textures[0]);
-					settings_blocks[2].SetTexture(settings_textures[1]);
-
-					sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-					mouse_pressed = true;
-				}
-			}
-			else
-			{
-				if (settings_confirmation.IsMouseOver())
-				{
-					if (mouse.LeftIsPressed())
+					if (!is_easy)
 					{
-						if (is_beginner)
-						{
-							grid = std::make_unique<Grid>(COLS_BEGINNER, ROWS_BEGINNER, MINES_BEGINNER, OFFSET);
-							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-							Setup();
-						}
-						else if (is_intermediate)
-						{
-							grid = std::make_unique<Grid>(COLS_INTERMEDIATE, ROWS_INTERMEDIATE, MINES_INTERMEDIATE, OFFSET);
-							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-							Setup();
-						}
-						else if (is_advanced)
-						{
-							grid = std::make_unique<Grid>(COLS_ADVANCED, ROWS_ADVANCED, MINES_ADVANCED, OFFSET);
-							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-							Setup();
-						}
-						else
-						{
+						play_sound = true;
+						is_easy = true;
+						is_medium = false;
+						is_hard = false;
 
-						}
+						settings_blocks[0].SetTexture(settings_textures[1]);
+						settings_blocks[1].SetTexture(settings_textures[0]);
+						settings_blocks[2].SetTexture(settings_textures[0]);
+					}
 
-						mouse_pressed = true;
+				}
+				else if (settings_blocks[1].IsMouseOver())
+				{
+					if (!is_medium)
+					{
+						play_sound = true;
+						is_easy = false;
+						is_medium = true;
+						is_hard = false;
+
+						settings_blocks[0].SetTexture(settings_textures[0]);
+						settings_blocks[1].SetTexture(settings_textures[1]);
+						settings_blocks[2].SetTexture(settings_textures[0]);
+					}					
+				}
+				else if (settings_blocks[2].IsMouseOver())
+				{
+					if (!is_hard)
+					{
+						play_sound = true;
+						is_easy = false;
+						is_medium = false;
+						is_hard = true;
+
+						settings_blocks[0].SetTexture(settings_textures[0]);
+						settings_blocks[1].SetTexture(settings_textures[0]);
+						settings_blocks[2].SetTexture(settings_textures[1]);
 					}
 				}
+				else if (settings_confirmation.IsMouseOver())
+				{
+					play_sound = true;
+
+					if (is_easy)
+					{
+						grid = std::make_unique<Grid>(COLS_BEGINNER, ROWS_BEGINNER, MINES_BEGINNER, OFFSET);
+						Setup();
+					}
+					else if (is_medium)
+					{
+						grid = std::make_unique<Grid>(COLS_INTERMEDIATE, ROWS_INTERMEDIATE, MINES_INTERMEDIATE, OFFSET);
+						Setup();
+					}
+					else if (is_hard)
+					{
+						grid = std::make_unique<Grid>(COLS_ADVANCED, ROWS_ADVANCED, MINES_ADVANCED, OFFSET);
+						Setup();
+					}
+					else
+					{
+
+					}					
+				}
+				if (play_sound) { sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f); }
 			}
 		}
 		else
@@ -668,9 +659,9 @@ void Minesweeper::SetButtons(Mouse& mouse)
 				case 1:
 					// settings
 					is_settings = true;
-					is_beginner = false;
-					is_intermediate = false;
-					is_advanced = false;
+					is_easy = false;
+					is_medium = false;
+					is_hard = false;
 					grid.reset(nullptr);
 					break;
 				case 2:
@@ -977,7 +968,10 @@ void Minesweeper::DrawSettings(Graphics& gfx)
 {
 	if (is_settings)
 	{
-		gfx.DrawRect(true, SCREEN_RECT, Colors::Cyan);
+		Block background = { SCREEN_RECT, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")) };
+		background.Draw(gfx);
+		
+		//gfx.DrawRect(true, SCREEN_RECT, Colors::Cyan);
 
 		for (auto s : settings_text_blocks)
 		{

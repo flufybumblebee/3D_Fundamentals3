@@ -37,11 +37,13 @@ public:
 		:
 		_Vec3(vect.x, vect.y, vect.z)
 	{}
+
 	template <typename T2>
 	explicit operator _Vec3<T2>() const
 	{
 		return{ (T2)x,(T2)y,(T2)z };
 	}
+
 	T		LenSq() const
 	{
 		return sq(*this);
@@ -64,6 +66,7 @@ public:
 		norm.Normalize();
 		return norm;
 	}
+
 	_Vec3	operator-() const
 	{
 		return _Vec3(-x, -y, -z);
@@ -89,10 +92,6 @@ public:
 		z -= rhs.z;
 		return *this;
 	}
-	T		operator*(const _Vec3 &rhs) const
-	{
-		return x * rhs.x + y * rhs.y + z * rhs.z;
-	}
 	_Vec3	operator+(const _Vec3 &rhs) const
 	{
 		return _Vec3(*this) += rhs;
@@ -112,13 +111,6 @@ public:
 	{
 		return _Vec3(*this) *= rhs;
 	}
-	_Vec3	operator%(const _Vec3& rhs) const
-	{
-		return _Vec3(
-			y * rhs.z - z * rhs.y,
-			z * rhs.x - x * rhs.z,
-			x * rhs.y - y * rhs.x);
-	}
 	_Vec3&	operator/=(const T &rhs)
 	{
 		x /= rhs;
@@ -130,6 +122,7 @@ public:
 	{
 		return _Vec3(*this) /= rhs;
 	}
+
 	bool	operator==(const _Vec3 &rhs) const
 	{
 		return x == rhs.x && y == rhs.y && rhs.z = z;
@@ -138,6 +131,31 @@ public:
 	{
 		return !(*this == rhs);
 	}
+
+	T		operator*(const _Vec3 &rhs) const
+	{
+		return x * rhs.x + y * rhs.y + z * rhs.z;
+	}
+	T		DotProduct(const _Vec3& rhs) const
+	{
+		return x * rhs.x + y * rhs.y + z * rhs.z;
+	}
+
+	_Vec3	operator%(const _Vec3& rhs) const
+	{
+		return _Vec3(
+			y * rhs.z - z * rhs.y,
+			z * rhs.x - x * rhs.z,
+			x * rhs.y - y * rhs.x);
+	}
+	_Vec3	CrossProduct(const _Vec3& rhs) const
+	{
+		return _Vec3(
+			y * rhs.z - z * rhs.y,
+			z * rhs.x - x * rhs.z,
+			x * rhs.y - y * rhs.x);
+	}
+
 	_Vec3	InterpolateTo(const _Vec3& dest, T alpha) const
 	{
 		return *this + (dest - *this) * alpha;

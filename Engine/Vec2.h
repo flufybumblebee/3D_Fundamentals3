@@ -36,11 +36,13 @@ public:
 		:
 		_Vec2(vect.x, vect.y)
 	{}
+
 	template <typename T2>
 	explicit operator _Vec2<T2>() const
 	{
 		return{ (T2)x,(T2)y };
 	}
+
 	T		LenSq() const
 	{
 		return sq(*this);
@@ -62,6 +64,7 @@ public:
 		norm.Normalize();
 		return norm;
 	}
+
 	_Vec2	operator-() const
 	{
 		return _Vec2(-x, -y);
@@ -116,6 +119,7 @@ public:
 	{
 		return _Vec2(*this) /= rhs;
 	}
+
 	bool	operator==(const _Vec2 &rhs) const
 	{
 		return x == rhs.x && y == rhs.y;
@@ -123,6 +127,11 @@ public:
 	bool	operator!=(const _Vec2 &rhs) const
 	{
 		return !(*this == rhs);
+	}
+
+	T		DotProduct(const _Vec2& rhs) const
+	{
+		return x * rhs.x + y * rhs.y;
 	}
 	_Vec2	InterpolateTo(const _Vec2& dest, T alpha) const
 	{

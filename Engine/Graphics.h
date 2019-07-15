@@ -28,6 +28,7 @@
 #include "Vec2.h"
 #include "ZBuffer.h"
 #include "TexVertex.h"
+#include <vector>
 
 #define CHILI_GFX_EXCEPTION( hr,note ) Graphics::Exception( hr,note,_CRT_WIDE(__FILE__),__LINE__ )
 
@@ -71,6 +72,11 @@ public:
 	{
 		sysBuffer.PutPixel( x,y,c );
 	}
+	template< typename T>
+	void PutPixel(_Vec2<T> vec, Color c)
+	{
+		sysBuffer.PutPixel(static_cast<unsigned int>(vec.x), static_cast<unsigned int>(vec.y), c);
+	}
 	Surface CopySysBuffer() const
 	{
 		Surface copy(ScreenWidth, ScreenHeight);
@@ -98,6 +104,10 @@ public:
 	void PutPixelAlpha(unsigned int x, unsigned int y, const Color dst, const unsigned int alpha);
 	
 	void DrawLine(int x1, int y1, int x2, int y2, Color c);
+	void DrawLine(const Vec2& v0, const Vec2& v1, const Color& c)
+	{
+		DrawLine((int)v0.x, (int)v0.y, (int)v1.x, (int)v1.y, c);
+	}
 	void DrawLineAlpha(int x1, int y1, int x2, int y2, Color c);
 
 	void DrawRect(bool filled, int x1, int y1, int x2, int y2, Color c);
@@ -119,6 +129,8 @@ public:
 	{
 		DrawRectAlpha(filled, rect.left, rect.top, rect.right, rect.bottom, c);
 	}
+
+	void DrawPolygon2D(const bool& filled, const std::vector<Vec2>& points, const Color& c);
 
 private:
 	GDIPlusManager										gdipMan;
