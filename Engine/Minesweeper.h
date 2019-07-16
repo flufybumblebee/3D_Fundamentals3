@@ -46,6 +46,7 @@ namespace SOUNDS
 	static constexpr size_t CLICK_0 = 2;
 	static constexpr size_t CLICK_1 = 3;
 	static constexpr size_t CLICK_2 = 4;
+	static constexpr size_t CLICK_3 = 5;
 }
 namespace BUTTONS
 {
@@ -97,43 +98,57 @@ private:
 	static constexpr unsigned int COLS_ADVANCED			= 30u;
 	static constexpr unsigned int ROWS_ADVANCED			= 16u;
 	static constexpr unsigned int MINES_ADVANCED		= 99u;
+		
+	/*------------------------------------------------------------------------------------*/
 
 	std::unique_ptr<Grid>										grid;
-		
+	
+	/*------------------------------------------------------------------------------------*/
+
 	std::vector<std::shared_ptr<Surface>>						border_textures;
 	std::vector<Block>											border_blocks;
 	RectUI														border_position;
 	
+	/*------------------------------------------------------------------------------------*/
+
 	std::vector<std::shared_ptr<Surface>>						digit_textures;
+
+	/*------------------------------------------------------------------------------------*/
 
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		mines_counter;
 	std::vector<unsigned int>									mines_number;
 	unsigned int												mines = 0u;
+	
+	/*------------------------------------------------------------------------------------*/
 
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		timer;
 	std::vector<unsigned int>									timer_number;
 	bool														timer_started = false;
 	unsigned int												time = 0;
 	std::chrono::high_resolution_clock::time_point				t1;
+	
+	/*------------------------------------------------------------------------------------*/
 
 	std::vector<std::shared_ptr<Surface>>						button_textures;
 	std::array<RectUI, BUTTONS_NUM * 2u>						button_positions;
 	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
 	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
+	
+	/*------------------------------------------------------------------------------------*/
 
 	std::vector<std::shared_ptr<Surface>>						help_textures;
 	Block														help_block;
 	bool														is_help = false;
 
+	/*------------------------------------------------------------------------------------*/
+
 	std::vector<std::shared_ptr<Surface>>						settings_textures;
-	std::vector<Block>											settings_blocks;
-	std::vector<Block>											settings_text_blocks;
+	std::array<Block, 6>										settings_text_blocks;
+	std::array<Block, 5>										settings_blocks;
+	std::array<bool,5>											is_selected{ false };
 	bool														is_settings = false;
-	bool														is_easy = false;
-	bool														is_medium = false;
-	bool														is_hard = false;
-	bool														is_custom = false;
-	Block settings_confirmation;
+	
+	/*------------------------------------------------------------------------------------*/
 
 	RectUI														gameover_position;
 
@@ -143,6 +158,8 @@ private:
 	std::array<std::shared_ptr<Surface>, FLAG_FRAMES>			flag_textures;
 	std::array<Block, FLAG_FRAMES>								flag_blocks;
 	unsigned int												flags = 0u;
+
+	/*------------------------------------------------------------------------------------*/
 	
 	const RectUI SCREEN_RECT{ 0u,SCREEN_H - 1u,0u,SCREEN_W - 1u };
 

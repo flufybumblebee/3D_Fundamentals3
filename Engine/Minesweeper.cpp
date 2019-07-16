@@ -57,17 +57,14 @@ void Minesweeper::Draw(Graphics& gfx)
 
 void Minesweeper::Initialise()
 {	
-	InitialiseTextures();
 	InitialiseSounds();
+	InitialiseTextures();
 	InitialiseSettings();
 }
 
 void Minesweeper::Setup()
 {
-	// buttons: small, medium, large - DONE
 	// custom: columns, rows, mines
-	// alternate block size dependent on screen width and height
-	// if camera, block size
 
 	if (grid != nullptr)
 	{
@@ -96,16 +93,26 @@ void Minesweeper::Reset()
 	frames			= 0u;
 	index0			= 0u;
 	index1			= 0u;
-
-	settings_blocks[0].SetTexture(settings_textures[0]);
-	settings_blocks[1].SetTexture(settings_textures[0]);
-	settings_blocks[2].SetTexture(settings_textures[0]);
-	
+		
 	grid->SetTileValues();
 	
 	button_blocks[4].SetTexture(button_textures[2]);
 	button_blocks[5].SetTexture(button_textures[2]);
 }
+
+/*--------------------------------------------*/
+
+void Minesweeper::InitialiseSounds()
+{
+	sounds.emplace_back(L"Sounds\\explosion.wav");
+	sounds.emplace_back(L"Sounds\\fanfare.wav");
+	sounds.emplace_back(L"Sounds\\click_0.wav");
+	sounds.emplace_back(L"Sounds\\click_1.wav");
+	sounds.emplace_back(L"Sounds\\click_2.wav");
+	sounds.emplace_back(L"Sounds\\click_3.wav");
+}
+
+/*--------------------------------------------*/
 
 void Minesweeper::InitialiseTextures()
 {
@@ -115,133 +122,16 @@ void Minesweeper::InitialiseTextures()
 	InitialiseButtonTextures();
 	InitialiseGameOverTextures();
 }
-void Minesweeper::InitialiseSounds()
-{
-	sounds.emplace_back(L"Sounds\\explosion.wav");
-	sounds.emplace_back(L"Sounds\\fanfare.wav");
-	sounds.emplace_back(L"Sounds\\click_0.wav");
-	sounds.emplace_back(L"Sounds\\click_1.wav");
-	sounds.emplace_back(L"Sounds\\click_2.wav");
-}
-void Minesweeper::InitialiseHelp()
-{
-
-}
-void Minesweeper::InitialiseSettings()
-{
-	{
-		// SETTINGS TEXT
-
-		const unsigned int TOP		= OFFSET; 
-		const unsigned int BOTTOM	= OFFSET * 5u;
-		const unsigned int LEFT = SCREEN_W / 2u - OFFSET * 4u * 4u;
-		const unsigned int RIGHT = SCREEN_W / 2u + OFFSET * 4u * 4u;;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-		settings_text_blocks.emplace_back(POSITION, settings_textures[3]);
-	}
-
-	{
-		// EASY TEXT 
-
-		const unsigned int TOP = 200u + 40u * 0u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = OFFSET;
-		const unsigned int RIGHT = LEFT + 40u * 4u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		settings_text_blocks.emplace_back(POSITION, settings_textures[4]);
-	}
-
-	{
-		// MEDIUM TEXT 
-
-		const unsigned int TOP = 200u + 40u * 1u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = OFFSET;
-		const unsigned int RIGHT = LEFT + 40u * 6u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		settings_text_blocks.emplace_back(POSITION, settings_textures[5]);
-	}
-
-	{
-		// HARD TEXT 
-
-		const unsigned int TOP = 200u + 40u * 2u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = OFFSET;
-		const unsigned int RIGHT = LEFT + 40u * 4u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		settings_text_blocks.emplace_back(POSITION, settings_textures[6]);
-	}
-
-	{
-		// CUSTOM TEXT 
-
-		const unsigned int TOP = 200u + 40u * 3u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = OFFSET;
-		const unsigned int RIGHT = LEFT + 40u * 6u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		settings_text_blocks.emplace_back(POSITION, settings_textures[7]);
-	}
-
-	{
-		// RADIO BUTTONS
-
-		const unsigned int TOP = 200u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = OFFSET + 40u * 6u;
-		const unsigned int RIGHT = LEFT + 40u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		for (int i = 0; i < 3; i++)
-		{
-			settings_blocks.emplace_back(RectUI(
-				POSITION.top + i * 40u,
-				POSITION.bottom + i * 40u,
-				POSITION.left,
-				POSITION.right),
-				settings_textures[0]);
-		}
-	}
-
-	{
-		// CONFIRMATION BUTTON
-
-		const unsigned int TOP = 500u;
-		const unsigned int BOTTOM = TOP + 40u - 1u;
-		const unsigned int LEFT = 50u;
-		const unsigned int RIGHT = LEFT + 40u - 1u;
-
-		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
-
-		settings_confirmation = { POSITION,settings_textures[2] };
-	}
-
-	is_settings = true;
-}
-
-/*--------------------------------------------*/
 
 void Minesweeper::InitialiseSettingsTextures()
 {
-	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\radio_button_off.png"));
-	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\radio_button_on.png"));
-	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_blank.png"));
-	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Settings2.png"));
+	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Settings.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Easy.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Medium.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Hard.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Custom.png"));
+	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Play.png"));
+	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Button.png"));
 }
 void Minesweeper::InitialiseBorderTextures()
 {
@@ -302,6 +192,64 @@ void Minesweeper::InitialiseGameOverTextures()
 			flag_textures[i] = std::make_shared<Surface>(filename);
 		}
 	}
+}
+
+/*--------------------------------------------*/
+
+void Minesweeper::InitialiseHelp()
+{
+
+}
+void Minesweeper::InitialiseSettings()
+{
+	constexpr unsigned int TEXT_SIZE = 50u;
+
+	{
+		// SETTINGS TEXT
+
+		const unsigned int TOP		= OFFSET; 
+		const unsigned int BOTTOM	= TOP + TEXT_SIZE;
+		const unsigned int LEFT		= SCREEN_W / 2u - TEXT_SIZE * 4u;
+		const unsigned int RIGHT	= LEFT + TEXT_SIZE * 8u;
+
+		const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
+		settings_text_blocks[0] = { POSITION, settings_textures[0] };
+	}
+
+	{
+		for (int i = 1; i < settings_text_blocks.size(); i++)
+		{
+			const unsigned int TOP = 100 + (TEXT_SIZE + TEXT_SIZE / 2u) * (i-1) + TEXT_SIZE / 4u;
+			const unsigned int BOTTOM = TOP + TEXT_SIZE - 1u;
+			const unsigned int LEFT = TEXT_SIZE / 2u + TEXT_SIZE / 4u;
+			const unsigned int RIGHT = LEFT + TEXT_SIZE * 6 - 1u;
+
+			const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
+
+			settings_text_blocks[i] = Block(POSITION, settings_textures[i]);
+		}
+	}
+
+	{
+		for (int i = 0; i < settings_blocks.size(); i++)
+		{
+			const unsigned int TOP = 100 + (TEXT_SIZE + TEXT_SIZE / 2u) * i;
+			const unsigned int BOTTOM = TOP + TEXT_SIZE + TEXT_SIZE / 2u - 1u;
+			const unsigned int LEFT = TEXT_SIZE / 2u;
+			const unsigned int RIGHT = LEFT + TEXT_SIZE * 6u + TEXT_SIZE / 2u - 1u;
+
+			const RectUI POSITION = { TOP,BOTTOM,LEFT,RIGHT };
+
+			settings_blocks[i] = Block(POSITION, settings_textures[6]);
+		}
+	}
+
+	for (size_t i = 0; i < is_selected.size(); i++)
+	{
+		is_selected[i] = false;
+	}
+
+	is_settings = true;
 }
 
 /*--------------------------------------------*/
@@ -543,9 +491,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 	{
 		s.SetMouseOver(mouse);
 	}
-
-	settings_confirmation.SetMouseOver(mouse);
-
+	
 	if (mouse.IsInWindow())
 	{
 		if (!mouse_pressed)
@@ -555,74 +501,80 @@ void Minesweeper::SetSettings(Mouse& mouse)
 				mouse_pressed = true;
 				bool play_sound = false;
 
-				if (settings_blocks[0].IsMouseOver())
-				{
-					if (!is_easy)
-					{
-						play_sound = true;
-						is_easy = true;
-						is_medium = false;
-						is_hard = false;
+				if (settings_blocks[0].IsMouseOver() && !is_selected[0])
+				{					
+					is_selected[0] = true;
+					is_selected[1] = false;
+					is_selected[2] = false;
+					is_selected[3] = false;
 
-						settings_blocks[0].SetTexture(settings_textures[1]);
-						settings_blocks[1].SetTexture(settings_textures[0]);
-						settings_blocks[2].SetTexture(settings_textures[0]);
-					}
-
-				}
-				else if (settings_blocks[1].IsMouseOver())
-				{
-					if (!is_medium)
-					{
-						play_sound = true;
-						is_easy = false;
-						is_medium = true;
-						is_hard = false;
-
-						settings_blocks[0].SetTexture(settings_textures[0]);
-						settings_blocks[1].SetTexture(settings_textures[1]);
-						settings_blocks[2].SetTexture(settings_textures[0]);
-					}					
-				}
-				else if (settings_blocks[2].IsMouseOver())
-				{
-					if (!is_hard)
-					{
-						play_sound = true;
-						is_easy = false;
-						is_medium = false;
-						is_hard = true;
-
-						settings_blocks[0].SetTexture(settings_textures[0]);
-						settings_blocks[1].SetTexture(settings_textures[0]);
-						settings_blocks[2].SetTexture(settings_textures[1]);
-					}
-				}
-				else if (settings_confirmation.IsMouseOver())
-				{
 					play_sound = true;
+				}
+				else if (settings_blocks[1].IsMouseOver() && !is_selected[1])
+				{
+					is_selected[0] = false;
+					is_selected[1] = true;
+					is_selected[2] = false;
+					is_selected[3] = false;
 
-					if (is_easy)
+					play_sound = true;
+				}
+				else if (settings_blocks[2].IsMouseOver() && !is_selected[2])
+				{
+					is_selected[0] = false;
+					is_selected[1] = false;
+					is_selected[2] = true;
+					is_selected[3] = false;
+
+					play_sound = true;
+				}
+				else if (settings_blocks[3].IsMouseOver() && !is_selected[3])
+				{
+					is_selected[0] = false;
+					is_selected[1] = false;
+					is_selected[2] = false;
+					is_selected[3] = true;
+
+					play_sound = true;
+				}
+				else if (settings_blocks[4].IsMouseOver())
+				{
+					if (is_selected[0])
 					{
 						grid = std::make_unique<Grid>(COLS_BEGINNER, ROWS_BEGINNER, MINES_BEGINNER, OFFSET);
 						Setup();
+
+						play_sound = true;
 					}
-					else if (is_medium)
+					else if (is_selected[1])
 					{
 						grid = std::make_unique<Grid>(COLS_INTERMEDIATE, ROWS_INTERMEDIATE, MINES_INTERMEDIATE, OFFSET);
 						Setup();
+
+						play_sound = true;
 					}
-					else if (is_hard)
+					else if (is_selected[2])
 					{
 						grid = std::make_unique<Grid>(COLS_ADVANCED, ROWS_ADVANCED, MINES_ADVANCED, OFFSET);
 						Setup();
+
+						play_sound = true;
+					}
+					else if (is_selected[3])
+					{
+						
 					}
 					else
 					{
-
-					}					
+						play_sound = false;
+						sounds[SOUNDS::CLICK_3].Play(1.0f, 1.0f);
+					}
 				}
-				if (play_sound) { sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f); }
+
+				if (play_sound)
+				{ 
+					sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
+				}
 			}
 		}
 		else
@@ -659,9 +611,12 @@ void Minesweeper::SetButtons(Mouse& mouse)
 				case 1:
 					// settings
 					is_settings = true;
-					is_easy = false;
-					is_medium = false;
-					is_hard = false;
+
+					for (size_t i = 0; i < is_selected.size(); i++)
+					{
+						is_selected[i] = false;
+					}
+
 					grid.reset(nullptr);
 					break;
 				case 2:
@@ -970,20 +925,23 @@ void Minesweeper::DrawSettings(Graphics& gfx)
 	{
 		Block background = { SCREEN_RECT, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")) };
 		background.Draw(gfx);
-		
-		//gfx.DrawRect(true, SCREEN_RECT, Colors::Cyan);
 
-		for (auto s : settings_text_blocks)
+		for (auto& s : settings_blocks)
 		{
+			s.Draw(gfx);
+
+			if (s.IsMouseOver())
+			{
+				gfx.DrawRect(false, s.Position(), Colors::Red);
+			}
+		}
+
+		for (auto& s : settings_text_blocks)
+		{			
 			s.Draw(gfx);
 		}
 
-		for (auto s : settings_blocks)
-		{
-			s.Draw(gfx);
-		}
-		
-		settings_confirmation.Draw(gfx);
+
 	}
 }
 

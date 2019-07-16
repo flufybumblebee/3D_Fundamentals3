@@ -42,6 +42,10 @@ Game::Game(MainWindow& wnd)
 		end_green = colorB.GetG();
 		end_blue = colorB.GetB();
 
+		/*delta_red = (end_red - start_red);
+		delta_green = (end_green - start_green);
+		delta_blue = (end_blue - start_blue);*/
+
 		increment_red = (end_red - start_red) / (LENGTH - 1.0f);
 		increment_green = (end_green - start_green) / (LENGTH - 1.0f);
 		increment_blue = (end_blue - start_blue) / (LENGTH - 1.0f);
@@ -77,9 +81,9 @@ void Game::UpdateModel()
 				end_green = colorB.GetG();
 				end_blue = colorB.GetB();
 
-				increment_red = (end_red - start_red) / (LENGTH - 1.0f);
+				increment_red	= (end_red - start_red) / (LENGTH - 1.0f);
 				increment_green = (end_green - start_green) / (LENGTH - 1.0f);
-				increment_blue = (end_blue - start_blue) / (LENGTH - 1.0f);
+				increment_blue	= (end_blue - start_blue) / (LENGTH - 1.0f);
 
 				key_pressed = true;
 			}
@@ -229,13 +233,23 @@ void Game::ComposeFrame()
 		{
 			for (unsigned int x = 0; x < SIZE_X; x++)
 			{
-				const Vec2 PIXEL = { x + 0.5f,y + 0.5f };
-				const float DISTANCE = PIXEL.DotProduct(NORMAL);
+				const Vec2 PIXEL = { (float)x,(float)y };
+				const float DISTANCE = NORMAL.DotProduct(PIXEL);
 
 				const Color c = Color(
 					colorA.GetR() + static_cast<unsigned char>(increment_red * DISTANCE),
 					colorA.GetG() + static_cast<unsigned char>(increment_green * DISTANCE),
 					colorA.GetB() + static_cast<unsigned char>(increment_blue * DISTANCE));
+
+				/*delta_red = (end_red - start_red);
+				delta_green = (end_green - start_green);
+				delta_blue = (end_blue - start_blue);
+
+				const Color c = Color(
+					start_red + static_cast<unsigned char>(delta_red * DISTANCE / LENGTH),
+					start_green + static_cast<unsigned char>(delta_green * DISTANCE / LENGTH),
+					start_blue + static_cast<unsigned char>(delta_blue * DISTANCE / LENGTH) );*/
+				
 				gfx.PutPixel(x, y, c);
 			}
 		}

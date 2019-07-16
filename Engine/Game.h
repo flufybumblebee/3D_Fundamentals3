@@ -56,6 +56,10 @@ private:
 	unsigned char end_green = 0u;
 	unsigned char end_blue = 0u;
 
+	unsigned char delta_red = 0u;
+	unsigned char delta_green = 0u;
+	unsigned char delta_blue = 0u;
+
 	float increment_red = 0.0f;
 	float increment_green = 0.0f;
 	float increment_blue = 0.0f;
