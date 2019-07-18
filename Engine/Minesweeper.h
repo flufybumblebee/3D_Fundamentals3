@@ -55,19 +55,43 @@ namespace BUTTONS
 	static constexpr size_t RESET = 4;
 }
 
+namespace EASY
+{
+	static constexpr unsigned int COLS	= 9u;
+	static constexpr unsigned int ROWS	= 9u;
+	static constexpr unsigned int MINES = 10u;
+}
+
+namespace MEDIUM
+{
+	static constexpr unsigned int COLS	= 16u;
+	static constexpr unsigned int ROWS	= 16u;
+	static constexpr unsigned int MINES = 40u;
+}
+
+namespace HARD
+{
+	static constexpr unsigned int COLS	= 30u;
+	static constexpr unsigned int ROWS	= 16u;
+	static constexpr unsigned int MINES	= 99u;
+}
+
 /*
 
 TO DO:
 
-PRESET LEVELS - DONE
-CUSTOM LEVELS
-RIGHT CLICK ON REVEALED TILES TO CHECK IF CORRECT KINDA THING
-LIMIT GAME TO WINDOW SIZE - DONE
-ADD CAMERA SCROLL
-FIND AND FIX BUGS
+FINISH TILE TEXTURES
+FINISH BUTTON TEXTURE
+CLICK ON TILES TO CHECK
 
 MAYBE DO:
 
+CUSTOM LEVELS
+VOLUME ADJUST
+VOLUME MUTE
+TEXT SIZE ADJUST
+ADD MUSIC
+ADD CAMERA SCROLL
 ANIMATED TILES
 SCOREBOARD
 SAVE/LOAD
@@ -86,18 +110,6 @@ private:
 	static constexpr unsigned int EXPLOSION_FRAMES	= 26u;
 	static constexpr unsigned int FLAG_FRAMES		= 241u;
 	static constexpr unsigned int BUTTONS_NUM		= 3u;
-
-	static constexpr unsigned int COLS_BEGINNER			= 9u;
-	static constexpr unsigned int ROWS_BEGINNER			= 9u;
-	static constexpr unsigned int MINES_BEGINNER		= 10u;
-
-	static constexpr unsigned int COLS_INTERMEDIATE		= 16u;
-	static constexpr unsigned int ROWS_INTERMEDIATE		= 16u;
-	static constexpr unsigned int MINES_INTERMEDIATE	= 40u;
-
-	static constexpr unsigned int COLS_ADVANCED			= 30u;
-	static constexpr unsigned int ROWS_ADVANCED			= 16u;
-	static constexpr unsigned int MINES_ADVANCED		= 99u;
 		
 	/*------------------------------------------------------------------------------------*/
 

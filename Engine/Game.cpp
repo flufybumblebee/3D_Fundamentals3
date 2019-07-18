@@ -23,6 +23,7 @@
 
 #include "Block.h"
 #include "Mat.h"
+#include "Bumble.h"
 
 Game::Game(MainWindow& wnd)
 	:
@@ -54,7 +55,7 @@ void Game::UpdateModel()
 			Color color_start = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
 			Color color_end = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
 
-			texture = CreateColorBlendTexture(RECTANGLE, color_start, color_end);
+			texture = Bumble::CreateColorBlendTexture(RECTANGLE, color_start, color_end);
 
 			key_pressed = true;
 		}
@@ -236,39 +237,4 @@ void Game::ComposeFrame()
 	{
 		angle += 0.01f;
 	}*/
-}
-
-Surface Game::CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end)
-{
-	Surface temp(RECTANGLE.GetWidth(), RECTANGLE.GetHeight());
-
-	const Vec2	LINE = { static_cast<float>(RECTANGLE.GetWidth()),static_cast<float>(RECTANGLE.GetHeight()) };
-	const float	LENGTH = LINE.Len();
-	const Vec2	NORMAL = LINE.GetNormalized();
-
-	float delta_red = static_cast<float>(color_end.GetR() - color_start.GetR());
-	float delta_green = static_cast<float>(color_end.GetG() - color_start.GetG());
-	float delta_blue = static_cast<float>(color_end.GetB() - color_start.GetB());
-
-	Vec2 pixel;
-	float length = 0.0f;
-	Color c;
-
-	for (unsigned int y = 0u; y < RECTANGLE.GetHeight(); y++)
-	{
-		for (unsigned int x = 0u; x < RECTANGLE.GetWidth(); x++)
-		{
-			pixel = { static_cast<float>(x),static_cast<float>(y) };
-			length = NORMAL.DotProduct(pixel);
-
-			c = Color(255,
-				static_cast<unsigned char>(color_start.GetR() + delta_red * length / LENGTH),
-				static_cast<unsigned char>(color_start.GetG() + delta_green * length / LENGTH),
-				static_cast<unsigned char>(color_start.GetB() + delta_blue * length / LENGTH));
-
-			temp.PutPixel(x, y, c);
-		}
-	}
-
-	return temp;
 }

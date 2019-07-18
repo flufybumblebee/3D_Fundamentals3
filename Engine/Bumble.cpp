@@ -1,7 +1,7 @@
 
-#include "BumbleFunctions.h"
+#include "Bumble.h"
 
-std::vector<Color> BumbleFunctions::Blur(const int& WIDTH, const int& HEIGHT, const std::vector<Color>& INPUT)
+std::vector<Color> Bumble::Blur(const int& WIDTH, const int& HEIGHT, const std::vector<Color>& INPUT)
 {
 	assert(INPUT.size() == size_t(WIDTH) * HEIGHT);
 
@@ -63,7 +63,7 @@ std::vector<Color> BumbleFunctions::Blur(const int& WIDTH, const int& HEIGHT, co
 	return output;
 }
 
-std::vector<Color> BumbleFunctions::ConvertSurfaceToColorVector(const Surface& surface)
+std::vector<Color> Bumble::ConvertSurfaceToColorVector(const Surface& surface)
 {
 	std::vector<Color> output;
 
@@ -78,7 +78,7 @@ std::vector<Color> BumbleFunctions::ConvertSurfaceToColorVector(const Surface& s
 	return output;
 }
 
-Surface CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end)
+Surface Bumble::CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end)
 {
 	Surface temp(RECTANGLE.GetWidth(), RECTANGLE.GetHeight());
 

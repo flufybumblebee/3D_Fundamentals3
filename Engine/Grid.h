@@ -37,11 +37,14 @@ private:
 	const unsigned int OFFSET;
 	const unsigned int TILE_SIZE;
 
-	std::vector<std::shared_ptr<Surface>>						tile_textures;
-	
-	RectUI grid_position;
-	
-	std::vector<Tile> tiles;
+
+	const RectUI							GRID_POSITION;
+	const Color								COLOR_START;
+	const Color								COLOR_END;
+	std::vector<std::shared_ptr<Surface>>	tile_textures;
+	std::vector<std::shared_ptr<Surface>>	background_textures;
+	std::vector<Tile>						tiles;
+	Block									background;
 
 public:
 	Grid(const unsigned int& COLS,
@@ -51,6 +54,7 @@ public:
 
 public:
 	void InitialiseTiles();
+	void InitialiseBackground();
 
 	void SetTileValues();
 	void SetTileValue(const int& X, const int& Y);
@@ -72,9 +76,9 @@ public:
 	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
 	void SetMouseOver(const unsigned int& index, Mouse& mouse);
+	void SetBackground();
 
 	void DrawBackground(Graphics& gfx);
-	void DrawGrid(Graphics& gfx);
 	void DrawTiles(Graphics& gfx);
 	void DrawMouseOverTiles(Graphics& gfx);
 

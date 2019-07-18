@@ -1,7 +1,9 @@
 #include "Grid.h"
 
 #include "Random.h"
-#include "BumbleFunctions.h"
+#include "Bumble.h"
+
+#include <algorithm>
 
 Grid::Grid(
 	const unsigned int& COLS,
@@ -11,19 +13,16 @@ Grid::Grid(
 	:
 	COLS(std::max<unsigned int>(MIN_COLS, COLS)),
 	ROWS(std::max<unsigned int>(MIN_ROWS, ROWS)),
-	SIZE(COLS * ROWS),
+	SIZE(this->COLS * this->ROWS),
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(SIZE - 1u, MINES))),
 	OFFSET(OFFSET),
-	TILE_SIZE(BumbleFunctions::SetSize(COLS,ROWS,OFFSET))
+	TILE_SIZE(Bumble::SetSize(this->COLS,this->ROWS,OFFSET)),
+	GRID_POSITION(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u),
+	COLOR_START(Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u))),
+	COLOR_END(Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u)))
 {
-	const unsigned int TOP		= OFFSET * 6u;
-	const unsigned int BOTTOM	= TOP + TILE_SIZE * ROWS - 1u;
-	const unsigned int LEFT		= OFFSET;
-	const unsigned int RIGHT	= LEFT + TILE_SIZE * COLS - 1u;
-
-	grid_position = RectUI(TOP, BOTTOM, LEFT, RIGHT);
-
 	InitialiseTiles();
+	InitialiseBackground();
 	SetTileValues();
 }
 
@@ -51,9 +50,8 @@ void Grid::Update()
 void Grid::Draw(Graphics& gfx)
 {
 	DrawBackground(gfx);
-	//DrawGrid(gfx);
-	DrawTiles(gfx);
 	DrawMouseOverTiles(gfx);
+	DrawTiles(gfx);
 }
 
 void Grid::InitialiseTiles()
@@ -68,24 +66,33 @@ void Grid::InitialiseTiles()
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\mine.png"));
-	//tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_greyscale_transparent.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\Tile_blank.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_blank.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_flag_2.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
 		for (unsigned int x = 0u; x < COLS; x++)
 		{
-			const unsigned int TOP		= grid_position.top + TILE_SIZE * y;
-			const unsigned int BOTTOM	= grid_position.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
-			const unsigned int LEFT		= grid_position.left + TILE_SIZE * x;
-			const unsigned int RIGHT	= grid_position.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
+			const unsigned int TOP		= GRID_POSITION.top + TILE_SIZE * y;
+			const unsigned int BOTTOM	= GRID_POSITION.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
+			const unsigned int LEFT		= GRID_POSITION.left + TILE_SIZE * x;
+			const unsigned int RIGHT	= GRID_POSITION.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
 
 			const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 			
 			tiles.emplace_back(POSITION, tile_textures[TILE::BLANK_TILE]);
 		}
 	}
+}
+void Grid::InitialiseBackground()
+{
+	//background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_POSITION, COLOR_START, COLOR_END)));
+
+	const size_t MIN = 0;
+	const size_t MAX = background_textures.size() - 1;
+
+	background = Block(GRID_POSITION, background_textures[rnd::RandomInt(MIN,MAX)]);
 }
 
 void Grid::SetTileValues()
@@ -106,12 +113,25 @@ void Grid::SetTileValues()
 			while (index == index_array[j])
 			{
 				index = rnd::RandomInt(0u, SIZE - 1u);
+				j = 0u;
 			}
 		}
 		index_array.emplace_back(index);
 
 		tiles[index].SetValue(9u);
 	}
+
+	unsigned int count = 0u;
+
+	for (int i = 0; i < tiles.size(); i++)
+	{		
+		if (tiles[i].Value() == 9u)
+		{
+			count++;
+		}
+	}
+
+	assert(count == MINES);
 
 	int i = 0;
 	for (int y = 0; y < static_cast<int>(ROWS); y++)
@@ -202,7 +222,7 @@ unsigned int Grid::GetTileSize() const
 
 RectUI Grid::GetGridRect() const
 {
-	return grid_position;
+	return GRID_POSITION;
 }
 
 unsigned int Grid::Value(const unsigned int& INDEX) const
@@ -234,70 +254,38 @@ void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 {
 	tiles[INDEX].SetMouseOver(mouse);
 }
+void Grid::SetBackground()
+{
+	const size_t MIN = 0;
+	const size_t MAX = background_textures.size() - 1;
+
+	background = Block(GRID_POSITION, background_textures[rnd::RandomInt(MIN, MAX)]);
+}
 
 void Grid::DrawBackground(Graphics& gfx)
 {
-	Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
-	//Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
 	background.Draw(gfx);
-}
-void Grid::DrawGrid(Graphics& gfx)
-{
-	//gfx.DrawRect(true, grid_position, Color(155, 155, 155));
-	//
-	//for (unsigned int y = 0; y <= ROWS; y++)
-	//{
-	//	for (unsigned int x = 0; x <= COLS; x++)
-	//	{
-	//		// horizontal lines
-	//		gfx.DrawLine(
-	//			grid_position.left,
-	//			grid_position.top + TILE_SIZE * y,
-	//			grid_position.right,
-	//			grid_position.top + TILE_SIZE * y,
-	//			Colors::LightGray);
-	//
-	//		// verticle lines
-	//		gfx.DrawLine(
-	//			grid_position.left + TILE_SIZE * x,
-	//			grid_position.top,
-	//			grid_position.left + TILE_SIZE * x,
-	//			grid_position.bottom,
-	//			Colors::LightGray);
-	//	}
-	//}
 }
 void Grid::DrawTiles(Graphics& gfx)
 {
 	for (auto& t : tiles)
 	{
-		/*if (!t.Revealed())
-		{
-			t.Draw(gfx);
-		}
-		else
-		{
-			t.Draw(gfx);
-		}*/
-
 		t.Draw(gfx);
 	}
 }
 void Grid::DrawMouseOverTiles(Graphics& gfx)
 {
-	/*for (auto& b : blocks)
-	{
-		if (b.MouseOver())
-		{
-			gfx.DrawRect(false, b.Position(), Colors::Red);
-		}
-	}*/
-
 	for (auto& t : tiles)
 	{
 		if (t.MouseOver())
 		{
-			gfx.DrawRect(false, t.Position(), Colors::Red);
+			const unsigned int OFFSET = t.Position().GetWidth() / 10;
+			const unsigned int TOP = t.Position().top + OFFSET;
+			const unsigned int BOTTOM = t.Position().bottom - OFFSET;
+			const unsigned int LEFT = t.Position().left + OFFSET;
+			const unsigned int RIGHT = t.Position().right - OFFSET;
+
+			gfx.DrawRectAlpha(true, RectUI(TOP, BOTTOM, LEFT, RIGHT), Color(155, 255, 255, 255));
 		}
 	}
 }

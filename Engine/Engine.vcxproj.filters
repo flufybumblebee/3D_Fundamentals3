@@ -261,9 +261,6 @@
     <ClInclude Include="Tile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BumbleFunctions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TexVertex.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -326,7 +323,7 @@
     <ClCompile Include="Tile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BumbleFunctions.cpp">
+    <ClCompile Include="Bumble.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -541,21 +541,21 @@ void Minesweeper::SetSettings(Mouse& mouse)
 				{
 					if (is_selected[0])
 					{
-						grid = std::make_unique<Grid>(COLS_BEGINNER, ROWS_BEGINNER, MINES_BEGINNER, OFFSET);
+						grid = std::make_unique<Grid>(EASY::COLS, EASY::ROWS, EASY::MINES, OFFSET);
 						Setup();
 
 						play_sound = true;
 					}
 					else if (is_selected[1])
 					{
-						grid = std::make_unique<Grid>(COLS_INTERMEDIATE, ROWS_INTERMEDIATE, MINES_INTERMEDIATE, OFFSET);
+						grid = std::make_unique<Grid>(MEDIUM::COLS, MEDIUM::ROWS, MEDIUM::MINES, OFFSET);
 						Setup();
 
 						play_sound = true;
 					}
 					else if (is_selected[2])
 					{
-						grid = std::make_unique<Grid>(COLS_ADVANCED, ROWS_ADVANCED, MINES_ADVANCED, OFFSET);
+						grid = std::make_unique<Grid>(HARD::COLS, HARD::ROWS, HARD::MINES, OFFSET);
 						Setup();
 
 						play_sound = true;
@@ -944,7 +944,3 @@ void Minesweeper::DrawSettings(Graphics& gfx)
 
 	}
 }
-
-/*--------------------------------------------*/
-
-

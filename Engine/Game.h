@@ -34,13 +34,10 @@ private:
 private:
 	Minesweeper ms;
 
-	//const RectUI RECTANGLE = {0,Graphics::ScreenHeight - 1,0,Graphics::ScreenWidth - 1 };
-
-	//Surface texture;
-	
-	//bool key_pressed = false;
-
-	//float angle = 0.0f;	
+	/*const RectUI RECTANGLE = {0,Graphics::ScreenHeight - 1,0,Graphics::ScreenWidth - 1 };
+	Surface texture;
+	bool key_pressed = false;
+	float angle = 0.0f;	*/
 
 public:
 	Game( class MainWindow& wnd );
@@ -51,6 +48,4 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
-
-	Surface CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end);
 };

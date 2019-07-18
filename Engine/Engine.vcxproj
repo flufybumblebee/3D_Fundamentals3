@@ -145,7 +145,6 @@
     <ClInclude Include="Benchmark.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="Bumble.h" />
-    <ClInclude Include="BumbleFunctions.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="ChiliException.h" />
     <ClInclude Include="ChiliMath.h" />
@@ -219,7 +218,7 @@
   <ItemGroup>
     <ClCompile Include="BatAndBlocks.cpp" />
     <ClCompile Include="Block.cpp" />
-    <ClCompile Include="BumbleFunctions.cpp" />
+    <ClCompile Include="Bumble.cpp" />
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="ComManager.h" />
     <ClCompile Include="DXErr.cpp" />
