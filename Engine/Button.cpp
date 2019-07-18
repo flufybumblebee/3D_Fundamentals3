@@ -63,7 +63,7 @@ void Button::Set(const unsigned int& MOUSE_X, const unsigned int& MOUSE_Y, const
 		mouseover = false;
 	}	
 }
-bool Button::IsMouseOver() const
+bool Button::MouseOver() const
 {
 	return mouseover;
 }

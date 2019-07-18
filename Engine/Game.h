@@ -34,39 +34,13 @@ private:
 private:
 	Minesweeper ms;
 
-	static constexpr bool IS_COLOR_BLEND = false;
-		
-	const RectUI RECTANGLE = { 0u,600u,0u,800u };
+	//const RectUI RECTANGLE = {0,Graphics::ScreenHeight - 1,0,Graphics::ScreenWidth - 1 };
 
-	const unsigned int SIZE_X = RECTANGLE.GetWidth();
-	const unsigned int SIZE_Y = RECTANGLE.GetHeight();
+	//Surface texture;
+	
+	//bool key_pressed = false;
 
-	const Vec2	LINE	= { static_cast<float>(RECTANGLE.bottom),static_cast<float>(RECTANGLE.right) };
-	const float LENGTH	= LINE.Len();
-	const Vec2	NORMAL	= LINE.GetNormalized();
-
-	Color colorA;
-	Color colorB;
-
-	unsigned char start_red = 0u;
-	unsigned char start_green = 0u;
-	unsigned char start_blue = 0u;
-
-	unsigned char end_red = 0u;
-	unsigned char end_green = 0u;
-	unsigned char end_blue = 0u;
-
-	unsigned char delta_red = 0u;
-	unsigned char delta_green = 0u;
-	unsigned char delta_blue = 0u;
-
-	float increment_red = 0.0f;
-	float increment_green = 0.0f;
-	float increment_blue = 0.0f;
-
-	bool key_pressed = false;
-
-	float angle = 0.0f;	
+	//float angle = 0.0f;	
 
 public:
 	Game( class MainWindow& wnd );
@@ -77,4 +51,6 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
+
+	Surface CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end);
 };

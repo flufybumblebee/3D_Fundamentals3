@@ -31,9 +31,9 @@ void Grid::Update()
 {
 	for (auto& t : tiles)
 	{
-		if (!t.IsRevealed())
+		if (!t.Revealed())
 		{
-			if (!t.IsFlag())
+			if (!t.Flag())
 			{
 				t.SetTexture(tile_textures[TILE::BLANK_TILE]);
 			}
@@ -58,27 +58,28 @@ void Grid::Draw(Graphics& gfx)
 
 void Grid::InitialiseTiles()
 {
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_0_white.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_1_blue.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_2_green.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_3_red.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_0.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_1.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_2.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_3.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_4_cyan.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_5_magenta.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_yellow.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\mine.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_greyscale_transparent.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_flag.png"));
+	//tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_greyscale_transparent.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\Tile_blank.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tile\\tile_flag_2.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
 		for (unsigned int x = 0u; x < COLS; x++)
 		{
 			const unsigned int TOP		= grid_position.top + TILE_SIZE * y;
-			const unsigned int BOTTOM	= grid_position.top + TILE_SIZE * y + TILE_SIZE - 1u;
+			const unsigned int BOTTOM	= grid_position.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
 			const unsigned int LEFT		= grid_position.left + TILE_SIZE * x;
-			const unsigned int RIGHT	= grid_position.left + TILE_SIZE * x + TILE_SIZE - 1u;
+			const unsigned int RIGHT	= grid_position.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
 
 			const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 			
@@ -166,7 +167,7 @@ void Grid::RevealTile(const int& X, const int& Y)
 	{
 		const int INDEX = Y * COLS + X;
 
-		if (!tiles[INDEX].IsRevealed() && !tiles[INDEX].IsFlag())
+		if (!tiles[INDEX].Revealed() && !tiles[INDEX].Flag())
 		{
 			tiles[INDEX].SetIsRevealed(true);
 
@@ -208,17 +209,17 @@ unsigned int Grid::Value(const unsigned int& INDEX) const
 {
 	return tiles[INDEX].Value();
 }
-bool Grid::IsFlag(const unsigned int& INDEX) const
+bool Grid::Flag(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].IsFlag();
+	return tiles[INDEX].Flag();
 }
-bool Grid::IsRevealed(const unsigned int& INDEX) const
+bool Grid::Revealed(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].IsRevealed();
+	return tiles[INDEX].Revealed();
 }
-bool Grid::IsMouseOver(const unsigned int& INDEX) const
+bool Grid::MouseOver(const unsigned int& INDEX) const
 {
-	return tiles[INDEX].IsMouseOver();
+	return tiles[INDEX].MouseOver();
 }
 
 void Grid::SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG)
@@ -236,55 +237,57 @@ void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 
 void Grid::DrawBackground(Graphics& gfx)
 {
-	//Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
-	Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
+	Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
+	//Block background = Block(grid_position, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\gradient_blue.png")));
 	background.Draw(gfx);
 }
 void Grid::DrawGrid(Graphics& gfx)
 {
-	gfx.DrawRect(true, grid_position, Color(155, 155, 155));
-
-	for (unsigned int y = 0; y <= ROWS; y++)
-	{
-		for (unsigned int x = 0; x <= COLS; x++)
-		{
-			// horizontal lines
-			gfx.DrawLine(
-				grid_position.left,
-				grid_position.top + TILE_SIZE * y,
-				grid_position.right,
-				grid_position.top + TILE_SIZE * y,
-				Colors::LightGray);
-
-			// verticle lines
-			gfx.DrawLine(
-				grid_position.left + TILE_SIZE * x,
-				grid_position.top,
-				grid_position.left + TILE_SIZE * x,
-				grid_position.bottom,
-				Colors::LightGray);
-		}
-	}
+	//gfx.DrawRect(true, grid_position, Color(155, 155, 155));
+	//
+	//for (unsigned int y = 0; y <= ROWS; y++)
+	//{
+	//	for (unsigned int x = 0; x <= COLS; x++)
+	//	{
+	//		// horizontal lines
+	//		gfx.DrawLine(
+	//			grid_position.left,
+	//			grid_position.top + TILE_SIZE * y,
+	//			grid_position.right,
+	//			grid_position.top + TILE_SIZE * y,
+	//			Colors::LightGray);
+	//
+	//		// verticle lines
+	//		gfx.DrawLine(
+	//			grid_position.left + TILE_SIZE * x,
+	//			grid_position.top,
+	//			grid_position.left + TILE_SIZE * x,
+	//			grid_position.bottom,
+	//			Colors::LightGray);
+	//	}
+	//}
 }
 void Grid::DrawTiles(Graphics& gfx)
 {
-	for (auto t : tiles)
+	for (auto& t : tiles)
 	{
-		if(!t.IsRevealed())
+		/*if (!t.Revealed())
 		{
 			t.Draw(gfx);
 		}
-		else if( t.Value() != 0u )
+		else
 		{
 			t.Draw(gfx);
-		}
+		}*/
+
+		t.Draw(gfx);
 	}
 }
 void Grid::DrawMouseOverTiles(Graphics& gfx)
 {
 	/*for (auto& b : blocks)
 	{
-		if (b.IsMouseOver())
+		if (b.MouseOver())
 		{
 			gfx.DrawRect(false, b.Position(), Colors::Red);
 		}
@@ -292,7 +295,7 @@ void Grid::DrawMouseOverTiles(Graphics& gfx)
 
 	for (auto& t : tiles)
 	{
-		if (t.IsMouseOver())
+		if (t.MouseOver())
 		{
 			gfx.DrawRect(false, t.Position(), Colors::Red);
 		}

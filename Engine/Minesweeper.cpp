@@ -131,7 +131,7 @@ void Minesweeper::InitialiseSettingsTextures()
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Hard.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Custom.png"));
 	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Text\\Play.png"));
-	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Button.png"));
+	settings_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\button_4.png"));
 }
 void Minesweeper::InitialiseBorderTextures()
 {
@@ -501,7 +501,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 				mouse_pressed = true;
 				bool play_sound = false;
 
-				if (settings_blocks[0].IsMouseOver() && !is_selected[0])
+				if (settings_blocks[0].MouseOver() && !is_selected[0])
 				{					
 					is_selected[0] = true;
 					is_selected[1] = false;
@@ -510,7 +510,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 
 					play_sound = true;
 				}
-				else if (settings_blocks[1].IsMouseOver() && !is_selected[1])
+				else if (settings_blocks[1].MouseOver() && !is_selected[1])
 				{
 					is_selected[0] = false;
 					is_selected[1] = true;
@@ -519,7 +519,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 
 					play_sound = true;
 				}
-				else if (settings_blocks[2].IsMouseOver() && !is_selected[2])
+				else if (settings_blocks[2].MouseOver() && !is_selected[2])
 				{
 					is_selected[0] = false;
 					is_selected[1] = false;
@@ -528,7 +528,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 
 					play_sound = true;
 				}
-				else if (settings_blocks[3].IsMouseOver() && !is_selected[3])
+				else if (settings_blocks[3].MouseOver() && !is_selected[3])
 				{
 					is_selected[0] = false;
 					is_selected[1] = false;
@@ -537,7 +537,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 
 					play_sound = true;
 				}
-				else if (settings_blocks[4].IsMouseOver())
+				else if (settings_blocks[4].MouseOver())
 				{
 					if (is_selected[0])
 					{
@@ -596,7 +596,7 @@ void Minesweeper::SetButtons(Mouse& mouse)
 	{
 		if (!mouse_pressed)
 		{
-			const bool MOUSEOVER = button_blocks[static_cast<size_t>(i) * 2u].IsMouseOver();
+			const bool MOUSEOVER = button_blocks[static_cast<size_t>(i) * 2u].MouseOver();
 
 			if (MOUSEOVER && mouse.LeftIsPressed())
 			{
@@ -661,13 +661,13 @@ void Minesweeper::SetGrid(Mouse& mouse)
 			{
 				i = y * grid->GetCols() + x;
 
-				if (grid->IsMouseOver(i))
+				if (grid->MouseOver(i))
 				{
 					if (!mouse_pressed)
 					{
 						if (mouse.LeftIsPressed())
 						{
-							if (!grid->IsRevealed(i) && !grid->IsFlag(i))
+							if (!grid->Revealed(i) && !grid->Flag(i))
 							{
 								sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 
@@ -688,9 +688,9 @@ void Minesweeper::SetGrid(Mouse& mouse)
 						}
 						else if (mouse.RightIsPressed())
 						{
-							if (!grid->IsRevealed(i))
+							if (!grid->Revealed(i))
 							{
-								if (grid->IsFlag(i))
+								if (grid->Flag(i))
 								{
 									sounds[SOUNDS::CLICK_2].Play(1.0f, 1.0f);
 									if (flags > 0) { flags--; }
@@ -747,12 +747,12 @@ void Minesweeper::SetGameOver()
 
 		for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
 		{
-			if (grid->Value(i) == 9u && grid->IsFlag(i))
+			if (grid->Value(i) == 9u && grid->Flag(i))
 			{
 				count_mines_and_flags++;
 			}
 
-			if (grid->IsRevealed(i))
+			if (grid->Revealed(i))
 			{
 				count_revealed_blocks++;
 			}
@@ -789,7 +789,7 @@ void Minesweeper::SetGameOver()
 
 			for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
 			{
-				if (!grid->IsRevealed(i) && grid->Value(i) == 9u)
+				if (!grid->Revealed(i) && grid->Value(i) == 9u)
 				{
 					grid->SetIsRevealed(i, true);
 				}
@@ -930,7 +930,7 @@ void Minesweeper::DrawSettings(Graphics& gfx)
 		{
 			s.Draw(gfx);
 
-			if (s.IsMouseOver())
+			if (s.MouseOver())
 			{
 				gfx.DrawRect(false, s.Position(), Colors::Red);
 			}

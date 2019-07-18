@@ -4,6 +4,7 @@
 #include "Graphics.h"
 #include "Surface.h"
 #include "Rect.h"
+#include <assert.h>
 
 class Tile
 {
@@ -24,12 +25,11 @@ public:
 	void SetMouseOver(Mouse& mouse);
 
 	unsigned int Value() const;
-	bool IsRevealed() const;
-	bool IsFlag() const;
-	bool IsMouseOver() const;
+	bool Revealed() const;
+	bool Flag() const;
+	bool MouseOver() const;
 	RectUI Position() const;
 public:
 	void Reset();
 	void Draw(Graphics& gfx);
 };
-

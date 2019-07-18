@@ -27,7 +27,7 @@ public:
 	~Button() = default;
 public:
 	void Set(const unsigned int& MOUSE_X, const unsigned int& MOUSE_Y, const bool& LEFT_IS_PRESSED);
-	bool IsMouseOver() const;
+	bool MouseOver() const;
 	bool GetMousePress() const;
 	RectUI Position() const;
 	void Draw(Graphics& gfx);

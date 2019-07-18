@@ -1,7 +1,12 @@
 #pragma once
 
 #include "Graphics.h"
+#include "Rect.h"
+#include "Surface.h"
+#include "Colors.h"
+#include "Vec4.h"
 #include <vector>
+#include <array>
 
 
 class BumbleFunctions
@@ -15,6 +20,10 @@ public:
 
 	template<typename T>
 	T Index(T x, T y, T w);
+
+	static std::vector<Color> Blur(const int& WIDTH, const int& HEIGHT, const std::vector<Color>& INPUT);
+	static std::vector<Color> ConvertSurfaceToColorVector(const Surface& surface);
+	static Surface CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end);
 };
 
 template<typename T>

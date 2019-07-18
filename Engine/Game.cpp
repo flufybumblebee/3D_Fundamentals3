@@ -27,29 +27,12 @@
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
-	gfx(wnd)
+	gfx(wnd)/*,
+	texture(RECTANGLE.GetWidth(),RECTANGLE.GetHeight())*/
 {
-	if (IS_COLOR_BLEND)
-	{
-		colorA = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-		colorB = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-
-		start_red = colorA.GetR();
-		start_green = colorA.GetG();
-		start_blue = colorA.GetB();
-
-		end_red = colorB.GetR();
-		end_green = colorB.GetG();
-		end_blue = colorB.GetB();
-
-		/*delta_red = (end_red - start_red);
-		delta_green = (end_green - start_green);
-		delta_blue = (end_blue - start_blue);*/
-
-		increment_red = (end_red - start_red) / (LENGTH - 1.0f);
-		increment_green = (end_green - start_green) / (LENGTH - 1.0f);
-		increment_blue = (end_blue - start_blue) / (LENGTH - 1.0f);
-	}
+	/*Color color_start = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
+	Color color_end = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
+	texture = CreateColorBlendTexture(RECTANGLE,color_start, color_end);*/
 }
 
 void Game::Go()
@@ -64,38 +47,25 @@ void Game::UpdateModel()
 {
 	ms.Update(wnd.mouse);
 
-	if (IS_COLOR_BLEND)
+	/*if (!key_pressed)
 	{
-		if (!key_pressed)
+		if (wnd.kbd.KeyIsPressed(VK_SPACE))
 		{
-			if (wnd.kbd.KeyIsPressed(VK_SPACE))
-			{
-				colorA = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-				colorB = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
+			Color color_start = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
+			Color color_end = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
 
-				start_red = colorA.GetR();
-				start_green = colorA.GetG();
-				start_blue = colorA.GetB();
+			texture = CreateColorBlendTexture(RECTANGLE, color_start, color_end);
 
-				end_red = colorB.GetR();
-				end_green = colorB.GetG();
-				end_blue = colorB.GetB();
-
-				increment_red	= (end_red - start_red) / (LENGTH - 1.0f);
-				increment_green = (end_green - start_green) / (LENGTH - 1.0f);
-				increment_blue	= (end_blue - start_blue) / (LENGTH - 1.0f);
-
-				key_pressed = true;
-			}
-		}
-		else
-		{
-			if (!wnd.kbd.KeyIsPressed(VK_SPACE))
-			{
-				key_pressed = false;
-			}
+			key_pressed = true;
 		}
 	}
+	else
+	{
+		if (!wnd.kbd.KeyIsPressed(VK_SPACE))
+		{
+			key_pressed = false;
+		}
+	}	*/
 }
 
 void Game::ComposeFrame()
@@ -111,17 +81,6 @@ void Game::ComposeFrame()
 	colors.emplace_back(Colors::Yellow);
 	colors.emplace_back(Colors::Magenta);
 	
-	const float X0 = 75.0f;
-	const float X1 = 200.0f;
-	const float Y0 = 150.0f;
-	const float Y1 = 100.0f;
-
-	const std::vector<Vec4> RECTANGLE{
-		{ -X0,-Y0, 0.0f, 1.0f },
-		{ -X0, Y1, 0.0f, 1.0f },
-		{  X1, Y1, 0.0f, 1.0f },
-		{  X1,-Y0, 0.0f, 1.0f } };
-	
 	const float TRANS_X = Graphics::ScreenWidth / 2.0f;
 	const float TRANS_Y = Graphics::ScreenHeight / 2.0f;
 
@@ -129,6 +88,19 @@ void Game::ComposeFrame()
 
 	const Mat4 TRANSLATE = Mat4::Translation(TRANS);
 	const Mat4 ROTATE = Mat4::RotationZ(angle);
+	
+	// RECTANGLE
+
+	const float X0 = 75.0f;
+	const float X1 = 200.0f;
+	const float Y0 = 150.0f;
+	const float Y1 = 100.0f;
+
+	const std::vector<Vec4> RECTANGLE{
+		{ -X0,-Y0, 0.0f, 1.0f },
+		{  X1,-Y0, 0.0f, 1.0f },
+		{  X1, Y1, 0.0f, 1.0f },
+		{ -X0, Y1, 0.0f, 1.0f } };
 
 	std::vector<Vec2> rectangle;
 
@@ -137,29 +109,66 @@ void Game::ComposeFrame()
 		rectangle.emplace_back(RECTANGLE[i] * ROTATE * TRANSLATE);
 	}
 
-	gfx.DrawPolygon2D(false, rectangle, Colors::Green);
-
-	if( false )
 	{
-		const Vec4 ORIGIN = { 0.0f,0.0f,0.0f,1.0f };
-
-		for (int i = 0; i < rectangle.size(); i++)
+		if (true)
 		{
-			gfx.DrawLine({ ORIGIN * TRANSLATE }, { rectangle[i].x,rectangle[i].y }, colors[i]);
+			gfx.DrawPolygon2D(false, rectangle, Colors::Green);
 		}
-	}
 
-	if (false)
-	{
-		for (int i = 0; i < rectangle.size(); i++)
+		if (false)
 		{
-			const RectF rect = {
-				rectangle[i].y - 3,
-				rectangle[i].y + 3,
-				rectangle[i].x - 3,
-				rectangle[i].x + 3 };
-			gfx.DrawRect(true, rect, colors[i]);
+			const Vec4 ORIGIN = { 0.0f,0.0f,0.0f,1.0f };
+
+			for (int i = 0; i < rectangle.size(); i++)
+			{
+				gfx.DrawLine({ ORIGIN * TRANSLATE }, { rectangle[i].x,rectangle[i].y }, colors[i]);
+			}
 		}
+
+		if (false)
+		{
+			for (int i = 0; i < rectangle.size(); i++)
+			{
+				const RectF rect = {
+					rectangle[i].y - 3,
+					rectangle[i].y + 3,
+					rectangle[i].x - 3,
+					rectangle[i].x + 3 };
+				gfx.DrawRect(true, rect, colors[i]);
+			}
+		}
+
+		if (false)
+		{
+			int height = texture.GetHeight();
+			int width = texture.GetWidth();
+
+			for (int y = 0; y < height; y++)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					gfx.PutPixel(x, y, texture.GetPixel(x, y));
+				}
+			}
+		}
+
+		Vec2 tc0 = { 0.0f,0.0f };
+		Vec2 tc1 = { 0.0f,1.0f };
+		Vec2 tc2 = { 1.0f,1.0f }; 
+		Vec2 tc3 = { 1.0f,0.0f };
+
+		Vec3 pos0 = Vec3(rectangle[0].x, rectangle[0].y, 0.0f);
+		Vec3 pos1 = Vec3(rectangle[1].x, rectangle[1].y, 0.0f);
+		Vec3 pos2 = Vec3(rectangle[2].x, rectangle[2].y, 0.0f);
+		Vec3 pos3 = Vec3(rectangle[3].x, rectangle[3].y, 0.0f);
+
+		TexVertex tv0 = { pos0, tc0 };
+		TexVertex tv1 = { pos1, tc1 };
+		TexVertex tv2 = { pos2, tc2 };
+		TexVertex tv3 = { pos3, tc3 };
+
+		gfx.DrawTriangleTex(tv0, tv1, tv2, texture);
+		gfx.DrawTriangleTex(tv0, tv2, tv3, texture);
 	}
 
 	// arrow
@@ -197,6 +206,8 @@ void Game::ComposeFrame()
 
 	if(true)
 	{
+		// CROSSHAIR
+
 		const float OFFSET = 25.0f;
 
 		const std::vector<Vec4> ORIGIN = {
@@ -223,35 +234,41 @@ void Game::ComposeFrame()
 	}	
 	else
 	{
-		angle += 0.001f;
-	}
-	*/
+		angle += 0.01f;
+	}*/
+}
 
-	if (IS_COLOR_BLEND)
+Surface Game::CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end)
+{
+	Surface temp(RECTANGLE.GetWidth(), RECTANGLE.GetHeight());
+
+	const Vec2	LINE = { static_cast<float>(RECTANGLE.GetWidth()),static_cast<float>(RECTANGLE.GetHeight()) };
+	const float	LENGTH = LINE.Len();
+	const Vec2	NORMAL = LINE.GetNormalized();
+
+	float delta_red = static_cast<float>(color_end.GetR() - color_start.GetR());
+	float delta_green = static_cast<float>(color_end.GetG() - color_start.GetG());
+	float delta_blue = static_cast<float>(color_end.GetB() - color_start.GetB());
+
+	Vec2 pixel;
+	float length = 0.0f;
+	Color c;
+
+	for (unsigned int y = 0u; y < RECTANGLE.GetHeight(); y++)
 	{
-		for (unsigned int y = 0u; y < SIZE_Y; y++)
+		for (unsigned int x = 0u; x < RECTANGLE.GetWidth(); x++)
 		{
-			for (unsigned int x = 0; x < SIZE_X; x++)
-			{
-				const Vec2 PIXEL = { (float)x,(float)y };
-				const float DISTANCE = NORMAL.DotProduct(PIXEL);
+			pixel = { static_cast<float>(x),static_cast<float>(y) };
+			length = NORMAL.DotProduct(pixel);
 
-				const Color c = Color(
-					colorA.GetR() + static_cast<unsigned char>(increment_red * DISTANCE),
-					colorA.GetG() + static_cast<unsigned char>(increment_green * DISTANCE),
-					colorA.GetB() + static_cast<unsigned char>(increment_blue * DISTANCE));
+			c = Color(255,
+				static_cast<unsigned char>(color_start.GetR() + delta_red * length / LENGTH),
+				static_cast<unsigned char>(color_start.GetG() + delta_green * length / LENGTH),
+				static_cast<unsigned char>(color_start.GetB() + delta_blue * length / LENGTH));
 
-				/*delta_red = (end_red - start_red);
-				delta_green = (end_green - start_green);
-				delta_blue = (end_blue - start_blue);
-
-				const Color c = Color(
-					start_red + static_cast<unsigned char>(delta_red * DISTANCE / LENGTH),
-					start_green + static_cast<unsigned char>(delta_green * DISTANCE / LENGTH),
-					start_blue + static_cast<unsigned char>(delta_blue * DISTANCE / LENGTH) );*/
-				
-				gfx.PutPixel(x, y, c);
-			}
+			temp.PutPixel(x, y, c);
 		}
 	}
-};
+
+	return temp;
+}

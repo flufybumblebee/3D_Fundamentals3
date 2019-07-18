@@ -34,11 +34,11 @@ unsigned int	Tile::Value() const
 {
 	return value;
 }
-bool			Tile::IsRevealed() const
+bool			Tile::Revealed() const
 {
 	return is_revealed;
 }
-bool			Tile::IsFlag() const
+bool			Tile::Flag() const
 {
 	return is_flag;
 }
@@ -46,9 +46,9 @@ RectUI			Tile::Position() const
 {
 	return block.Position();
 }
-bool			Tile::IsMouseOver() const
+bool			Tile::MouseOver() const
 {
-	return block.IsMouseOver();
+	return block.MouseOver();
 }
 
 void Tile::Reset()

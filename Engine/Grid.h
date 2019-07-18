@@ -65,9 +65,9 @@ public:
 	RectUI GetGridRect() const;
 	
 	unsigned int Value(const unsigned int& index) const;
-	bool IsFlag(const unsigned int& index) const;
-	bool IsRevealed(const unsigned int& index) const;
-	bool IsMouseOver(const unsigned int& index) const;
+	bool Flag(const unsigned int& index) const;
+	bool Revealed(const unsigned int& index) const;
+	bool MouseOver(const unsigned int& index) const;
 
 	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
