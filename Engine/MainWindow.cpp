@@ -166,7 +166,7 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 		}
 		else
 		{
-			if( wParam & (MK_LBUTTON | MK_RBUTTON) )
+			if( wParam & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON) )
 			{
 				pt.x = std::max( short( 0 ),pt.x );
 				pt.x = std::min( short( Graphics::ScreenWidth - 1 ),pt.x );
@@ -180,6 +180,7 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 				mouse.OnMouseLeave();
 				mouse.OnLeftReleased( pt.x,pt.y );
 				mouse.OnRightReleased( pt.x,pt.y );
+				mouse.OnMiddleReleased(pt.x, pt.y);
 			}
 		}
 		break;
@@ -196,6 +197,12 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 		mouse.OnRightPressed( pt.x,pt.y );
 		break;
 	}
+	case WM_MBUTTONDOWN:
+	{
+		const POINTS pt = MAKEPOINTS(lParam);
+		mouse.OnMiddlePressed(pt.x, pt.y);
+		break;
+	}
 	case WM_LBUTTONUP:
 	{
 		const POINTS pt = MAKEPOINTS( lParam );
@@ -206,6 +213,12 @@ LRESULT MainWindow::HandleMsg( HWND hWnd,UINT msg,WPARAM wParam,LPARAM lParam )
 	{
 		const POINTS pt = MAKEPOINTS( lParam );
 		mouse.OnRightReleased( pt.x,pt.y );
+		break;
+	}
+	case WM_MBUTTONUP:
+	{
+		const POINTS pt = MAKEPOINTS(lParam);
+		mouse.OnMiddleReleased(pt.x, pt.y);
 		break;
 	}
 	case WM_MOUSEWHEEL:

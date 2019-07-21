@@ -8,6 +8,7 @@ Tile::Tile(const RectUI& position, std::shared_ptr<Surface> texture)
 void Tile::SetValue(const unsigned int& new_value)
 {
 	value = new_value;
+	if (value == 9u) { is_mine = true; }
 }
 void Tile::SetIsRevealed(const bool& IS_REVEALED)
 {
@@ -42,6 +43,10 @@ bool			Tile::Flag() const
 {
 	return is_flag;
 }
+bool			Tile::Mine() const
+{
+	return is_mine;
+}
 RectUI			Tile::Position() const
 {
 	return block.Position();
@@ -56,6 +61,7 @@ void Tile::Reset()
 	value = 0;
 	is_flag = false;
 	is_revealed = false;
+	is_mine = false;
 }
 void Tile::Draw(Graphics& gfx)
 {

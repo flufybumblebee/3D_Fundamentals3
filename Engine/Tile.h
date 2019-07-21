@@ -12,6 +12,7 @@ private:
 	unsigned int value	= 0u;
 	bool is_revealed	= false;
 	bool is_flag		= false;
+	bool is_mine		= false;
 	Block block;
 public:
 	Tile() = default;
@@ -27,8 +28,9 @@ public:
 	unsigned int Value() const;
 	bool Revealed() const;
 	bool Flag() const;
-	bool MouseOver() const;
+	bool Mine() const;
 	RectUI Position() const;
+	bool MouseOver() const;
 public:
 	void Reset();
 	void Draw(Graphics& gfx);

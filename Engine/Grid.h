@@ -45,6 +45,7 @@ private:
 	std::vector<std::shared_ptr<Surface>>	background_textures;
 	std::vector<Tile>						tiles;
 	Block									background;
+	Block									mouseover;
 
 public:
 	Grid(const unsigned int& COLS,
@@ -60,6 +61,8 @@ public:
 	void SetTileValue(const int& X, const int& Y);
 	void RevealTiles(const int& X, const int& Y);
 	void RevealTile(const int& X, const int& Y);
+	void CheckTiles(const int& X, const int& Y);
+	void CheckTile(const int& X, const int& Y);
 
 	unsigned int GetCols() const;
 	unsigned int GetRows() const;
@@ -68,14 +71,15 @@ public:
 	unsigned int GetTileSize() const;
 	RectUI GetGridRect() const;
 	
-	unsigned int Value(const unsigned int& index) const;
-	bool Flag(const unsigned int& index) const;
-	bool Revealed(const unsigned int& index) const;
-	bool MouseOver(const unsigned int& index) const;
+	unsigned int Value(const unsigned int& INDEX) const;
+	bool Flag(const unsigned int& INDEX) const;
+	bool Revealed(const unsigned int& INDEX) const;
+	bool Mine(const unsigned int& INDEX) const;
+	bool MouseOver(const unsigned int& INDEX) const;
 
 	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
-	void SetMouseOver(const unsigned int& index, Mouse& mouse);
+	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
 	void SetBackground();
 
 	void DrawBackground(Graphics& gfx);

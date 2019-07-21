@@ -119,7 +119,7 @@ private:
 
 	std::vector<std::shared_ptr<Surface>>						border_textures;
 	std::vector<Block>											border_blocks;
-	RectUI														border_position;
+	RectUI														border_rect;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -142,7 +142,7 @@ private:
 	/*------------------------------------------------------------------------------------*/
 
 	std::vector<std::shared_ptr<Surface>>						button_textures;
-	std::array<RectUI, BUTTONS_NUM * 2u>						button_positions;
+	std::array<RectUI, BUTTONS_NUM * 2u>						button_rects;
 	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
 	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
 	
@@ -158,11 +158,11 @@ private:
 	std::array<Block, 6>										settings_text_blocks;
 	std::array<Block, 5>										settings_blocks;
 	std::array<bool,5>											is_selected{ false };
-	bool														is_settings = false;
+	bool														is_settings = true;
 	
 	/*------------------------------------------------------------------------------------*/
 
-	RectUI														gameover_position;
+	RectUI														gameover_rect;
 
 	std::array<std::shared_ptr<Surface>, EXPLOSION_FRAMES>		explosion_textures;
 	std::array<Block, EXPLOSION_FRAMES>							explosion_blocks;
@@ -194,7 +194,6 @@ public:
 	void Draw(Graphics& gfx);
 
 private:
-	void Initialise();
 	void Setup();
 	void Reset();
 
