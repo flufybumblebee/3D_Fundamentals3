@@ -107,6 +107,8 @@ void Minesweeper::InitialiseSounds()
 	sounds.emplace_back(L"Sounds\\click_1.wav");
 	sounds.emplace_back(L"Sounds\\click_2.wav");
 	sounds.emplace_back(L"Sounds\\click_3.wav");
+	win_sounds.emplace_back(L"Sounds\\cheer.wav");
+	win_sounds.emplace_back(L"Sounds\\fanfare.wav");
 }
 void Minesweeper::InitialiseTextures()
 {
@@ -584,7 +586,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 		}
 		else
 		{
-			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed())
+			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
 			{
 				mouse_pressed = false;
 			}
@@ -641,7 +643,7 @@ void Minesweeper::SetButtons(Mouse& mouse)
 		}
 		else
 		{
-			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed())
+			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
 			{
 				mouse_pressed = false;
 			}
@@ -666,93 +668,98 @@ void Minesweeper::SetGrid(Mouse& mouse)
 			{
 				i = y * grid->GetCols() + x;
 
-				if (grid->MouseOver(i))
+				if (grid->MouseOver(i) && !mouse_pressed)
 				{
-					if (!mouse_pressed)
+					if (mouse.LeftIsPressed())
 					{
-						if (mouse.LeftIsPressed())
+						if (!grid->Revealed(i) && !grid->Flag(i))
 						{
-							if (!grid->Revealed(i) && !grid->Flag(i))
+							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
+
+							grid->SetIsRevealed(i,true);
+
+							if (grid->Value(i) == 9u)
 							{
-								sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-
-								grid->SetIsRevealed(i,true);
-
-								if (grid->Value(i) == 9u)
-								{
-									gameover = true;
-									gamewon = false;
-								}
-								else if (grid->Value(i) == 0u)
-								{
-									grid->RevealTiles(x, y);
-								}
-
-								mouse_pressed = true;
+								gameover = true;
+								gamewon = false;
+							}
+							else if (grid->Value(i) == 0u)
+							{
+								grid->RevealTiles(x, y);
 							}
 						}
-						else if (mouse.RightIsPressed())
+
+						mouse_pressed = true;
+					}
+					else if (mouse.RightIsPressed())
+					{
+						if (!grid->Revealed(i))
 						{
-							if (!grid->Revealed(i))
+							if (grid->Flag(i))
 							{
-								if (grid->Flag(i))
-								{
-									sounds[SOUNDS::CLICK_2].Play(1.0f, 1.0f);
-									if (flags > 0) { flags--; }
-									assert(flags >= 0u);
+								sounds[SOUNDS::CLICK_2].Play(1.0f, 1.0f);
+								if (flags > 0) { flags--; }
+								assert(flags >= 0u);
 
-									if (mines < grid->GetMines())
-									{
-										mines++;
-										grid->SetIsFlag( i,false );
-									}
-									assert(mines <= grid->GetMines());
-								}
-								else
+								if (mines < grid->GetMines())
 								{
-									sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
-									if (flags < grid->GetMines()) { flags++; }
-									assert(flags <= grid->GetMines());
-
-									if (mines > 0u)
-									{
-										mines--;
-										grid->SetIsFlag( i,true );
-									}
-									assert(mines >= 0u);
+									mines++;
+									grid->SetIsFlag( i,false );
 								}
+								assert(mines <= grid->GetMines());
 							}
-							//sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
-							mouse_pressed = true;
-						}
-						else if (mouse.MiddleIsPressed())
-						{
-							if (grid->Revealed(i))
-							{
-								// test the 8 tiles around it for mines and flags
-								const unsigned int value = grid->Value(i);
-								
-							} 
 							else
 							{
+								sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
+								if (flags < grid->GetMines()) { flags++; }
+								assert(flags <= grid->GetMines());
 
+								if (mines > 0u)
+								{
+									mines--;
+									grid->SetIsFlag( i,true );
+								}
+								assert(mines >= 0u);
 							}
-							sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
-							mouse_pressed = true;
 						}
 
-						if (mouse_pressed && !timer_started)
-						{
-							timer_started = true;
-							t1 = std::chrono::high_resolution_clock::now();
-						}
+						mouse_pressed = true;
 					}
-					else
+					else if (mouse.MiddleIsPressed())
 					{
-						if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
-						{
-							mouse_pressed = false;
-						}
+						// check tiles
+						
+						/*
+						when a tile is right clicked:
+						if the tile is unrevealed it wont trigger checking
+						but it will trigger changing the tile temporarily
+						to a blank tile to show that it is potentially
+						going to check those tiles. this means the tile
+						texture needs to also change temporarily.
+
+						checking is only initiated on release of middle click
+						
+						*/
+
+						grid->SetIsChecked(i, true);
+
+						//grid->CheckTiles(x, y);
+
+						sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
+						mouse_pressed = true;
+					}
+
+					if (mouse_pressed && !timer_started)
+					{
+						timer_started = true;
+						t1 = std::chrono::high_resolution_clock::now();
+					}
+				}
+				else
+				{
+					if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
+					{
+						mouse_pressed = false;
 					}
 				}
 			}
@@ -792,7 +799,11 @@ void Minesweeper::SetGameOver()
 		{
 			if (!sound_played)
 			{
-				sounds[1].Play(1.0f, 1.0f);
+				//sounds[1].Play(1.0f, 1.0f);
+				const size_t MIN = 0;
+				const size_t MAX = win_sounds.size() - 1;
+				const size_t INDEX = rnd::RandomInt(MIN, MAX);
+				win_sounds[INDEX].Play(1.0f, 1.0f);
 				sound_played = true;
 			}
 			button_blocks[4].SetTexture(button_textures[3]);

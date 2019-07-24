@@ -13,6 +13,7 @@ private:
 	bool is_revealed	= false;
 	bool is_flag		= false;
 	bool is_mine		= false;
+	bool is_checked		= false;
 	Block block;
 public:
 	Tile() = default;
@@ -21,6 +22,7 @@ public:
 	void SetValue(const unsigned int& VALUE);
 	void SetIsRevealed(const bool& IS_REVEALED);
 	void SetIsFlag(const bool& IS_FLAG);
+	void SetIsChecked(const bool& IS_CHECKED);
 	void SetPosition(const RectUI& POSITION);
 	void SetTexture(std::shared_ptr<Surface> texture);
 	void SetMouseOver(Mouse& mouse);
@@ -28,6 +30,7 @@ public:
 	unsigned int Value() const;
 	bool Revealed() const;
 	bool Flag() const;
+	bool Checked() const;
 	bool Mine() const;
 	RectUI Position() const;
 	bool MouseOver() const;

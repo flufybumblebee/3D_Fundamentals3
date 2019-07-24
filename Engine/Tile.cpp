@@ -18,6 +18,10 @@ void Tile::SetIsFlag(const bool& IS_FLAG)
 {
 	is_flag = IS_FLAG;
 }
+void Tile::SetIsChecked(const bool& IS_CHECKED)
+{
+	is_checked = IS_CHECKED;
+}
 void Tile::SetPosition(const RectUI& POSITION)
 {
 	block.SetPosition(POSITION);
@@ -43,6 +47,10 @@ bool			Tile::Flag() const
 {
 	return is_flag;
 }
+bool Tile::Checked() const
+{
+	return is_checked;
+}
 bool			Tile::Mine() const
 {
 	return is_mine;
@@ -61,6 +69,7 @@ void Tile::Reset()
 	value = 0;
 	is_flag = false;
 	is_revealed = false;
+	is_checked = false;
 	is_mine = false;
 }
 void Tile::Draw(Graphics& gfx)

@@ -58,7 +58,7 @@ public:
 	void InitialiseBackground();
 
 	void SetTileValues();
-	void SetTileValue(const int& X, const int& Y);
+	void SetTileValue(const size_t& INDEX);
 	void RevealTiles(const int& X, const int& Y);
 	void RevealTile(const int& X, const int& Y);
 	void CheckTiles(const int& X, const int& Y);
@@ -74,11 +74,13 @@ public:
 	unsigned int Value(const unsigned int& INDEX) const;
 	bool Flag(const unsigned int& INDEX) const;
 	bool Revealed(const unsigned int& INDEX) const;
+	bool Checked(const unsigned int& INDEX) const;
 	bool Mine(const unsigned int& INDEX) const;
 	bool MouseOver(const unsigned int& INDEX) const;
 
 	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
+	void SetIsChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
 	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
 	void SetBackground();
 

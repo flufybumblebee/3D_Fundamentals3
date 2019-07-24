@@ -183,7 +183,10 @@ private:
 	unsigned int index1 = 0;
 	unsigned int frames = 0;
 
+	/*------------------------------------------------------------------------------------*/
+
 	std::vector<Sound> sounds;
+	std::vector<Sound> win_sounds;
 	bool sound_played = false;
 
 public:

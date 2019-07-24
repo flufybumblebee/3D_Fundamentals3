@@ -132,7 +132,7 @@ private:
 	void OnWheelDown( int x,int y );
 	void TrimBuffer();
 private:
-	static constexpr unsigned int bufferSize = 4u;
+	static constexpr unsigned int bufferSize = 10u;
 	int x = 0;
 	int y = 0;
 	bool leftIsPressed = false;
