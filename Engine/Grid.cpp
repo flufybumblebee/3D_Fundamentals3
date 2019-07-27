@@ -206,10 +206,9 @@ void Grid::RevealTile(const int& X, const int& Y)
 
 bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 {
-	//const unsigned int INDEX = Y * COLS + X;
+	const size_t INDEX = static_cast<size_t>(Y) * COLS + X;
 	bool gameover = false;
 	size_t i = 0;
-	size_t j = 0;
 	unsigned int mines = 0;
 	for (int y = -1; y < 2; y++)
 	{
@@ -219,11 +218,10 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 				Y + y >= 0 && Y + y < static_cast<int>(ROWS))
 			{
 				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
-				j = Y * COLS + X;
+			
 				tiles[i].SetChecked(IS_CHECKED);
-
-				// ----------------------------------
-				if (tiles[j].Revealed() && (tiles[j].Value() >= 1u && tiles[j].Value() < 9))
+				
+				if (tiles[INDEX].Revealed() && (tiles[INDEX].Value() >= 1u && tiles[INDEX].Value() < 9))
 				{
 					if (tiles[i].Flag() && tiles[i].Mine())
 					{
@@ -233,10 +231,30 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 					{
 						gameover = true;
 					}
+				}				
+			}
+		}		
+	}
+	
+	for (int y = -1; y < 2; y++)
+	{
+		for (int x = -1; x < 2; x++)
+		{
+			if (X + x >= 0 && X + x < static_cast<int>(COLS) &&
+				Y + y >= 0 && Y + y < static_cast<int>(ROWS))
+			{
+				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
+				if (tiles[INDEX].Value() == mines)
+				{
+					if (!tiles[i].Revealed())
+					{
+						RevealTile(X + x, Y + y);
+					}
 				}
 			}
 		}
 	}
+
 	return gameover;
 }
 void Grid::CheckTile(const int& X, const int& Y)
