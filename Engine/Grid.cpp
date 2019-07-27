@@ -13,13 +13,11 @@ Grid::Grid(
 	:
 	COLS(std::max<unsigned int>(MIN_COLS, COLS)),
 	ROWS(std::max<unsigned int>(MIN_ROWS, ROWS)),
-	SIZE(this->COLS * this->ROWS),
-	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(SIZE - 1u, MINES))),
+	SIZE(static_cast<size_t>(this->COLS) * this->ROWS),
+	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
 	TILE_SIZE(Bumble::SetSize(this->COLS,this->ROWS,OFFSET)),
-	GRID_POSITION(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u),
-	COLOR_START(Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u))),
-	COLOR_END(Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u)))
+	GRID_POSITION(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)
 {
 	InitialiseTiles();
 	InitialiseBackground();
@@ -90,13 +88,16 @@ void Grid::InitialiseTiles()
 }
 void Grid::InitialiseBackground()
 {
+	const Color COLOR_START = Bumble::RandomColor();
+	const Color COLOR_END = Bumble::RandomColor();
+
 	background_textures.emplace_back(std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_POSITION, COLOR_START, COLOR_END)));
 	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
 	
 	const size_t MIN = 0;
 	const size_t MAX = background_textures.size() - 1;
 
-	background = Block(GRID_POSITION, background_textures[rnd::RandomInt(MIN,MAX)]);
+	background = { GRID_POSITION, background_textures[rnd::RandomInt(MIN,MAX)] };
 }
 
 void Grid::SetTileValues()
@@ -108,15 +109,18 @@ void Grid::SetTileValues()
 
 	std::vector<unsigned int> index_array;
 
+
+	const unsigned int MIN = 0u;
+	const unsigned int MAX = static_cast<unsigned int>(SIZE) - 1u;
 	for (unsigned int i = 0u; i < MINES; i++)
 	{
-		unsigned int index = rnd::RandomInt(0u, SIZE - 1u);
+		unsigned int index = rnd::RandomInt(MIN,MAX);
 
 		for (unsigned int j = 0u; j < index_array.size(); j++)
 		{
 			while (index == index_array[j])
 			{
-				index = rnd::RandomInt(0u, SIZE - 1u);
+				index = rnd::RandomInt(MIN, MAX);
 				j = 0u;
 			}
 		}
@@ -191,7 +195,7 @@ void Grid::RevealTile(const int& X, const int& Y)
 
 	if (!tiles[INDEX].Revealed() && !tiles[INDEX].Flag())
 	{
-		tiles[INDEX].SetIsRevealed(true);
+		tiles[INDEX].SetRevealed(true);
 
 		if (tiles[INDEX].Value() == 0u)
 		{
@@ -200,43 +204,40 @@ void Grid::RevealTile(const int& X, const int& Y)
 	}
 }
 
-void Grid::CheckTiles(const int& X, const int& Y)
+bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 {
-	const unsigned int INDEX = Y * COLS + X;
-
+	//const unsigned int INDEX = Y * COLS + X;
+	bool gameover = false;
 	size_t i = 0;
-	if (!Revealed(INDEX))
+	size_t j = 0;
+	unsigned int mines = 0;
+	for (int y = -1; y < 2; y++)
 	{
-		for (int y = -1; y < 2; y++)
+		for (int x = -1; x < 2; x++)
 		{
-			for (int x = -1; x < 2; x++)
+			if (X + x >= 0 && X + x < static_cast<int>(COLS) &&
+				Y + y >= 0 && Y + y < static_cast<int>(ROWS))
 			{
-				if (X + x >= 0 && X + x < static_cast<int>(COLS) &&
-					Y + y >= 0 && Y + y < static_cast<int>(ROWS))
+				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
+				j = Y * COLS + X;
+				tiles[i].SetChecked(IS_CHECKED);
+
+				// ----------------------------------
+				if (tiles[j].Revealed() && (tiles[j].Value() >= 1u && tiles[j].Value() < 9))
 				{
-					i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
-					tiles[i].SetIsChecked(true);
-				}
-				else
-				{
-					continue;
+					if (tiles[i].Flag() && tiles[i].Mine())
+					{
+						mines++;
+					}
+					else if(tiles[i].Flag() && !tiles[i].Mine())
+					{
+						gameover = true;
+					}
 				}
 			}
-		}		
+		}
 	}
-	else
-	{
-		/*CheckTile(X - 1, Y - 1);
-		CheckTile(X + 0, Y - 1);
-		CheckTile(X + 1, Y - 1);
-
-		CheckTile(X - 1, Y + 0);
-		CheckTile(X + 1, Y + 0);
-
-		CheckTile(X - 1, Y + 1);
-		CheckTile(X + 0, Y + 1);
-		CheckTile(X + 1, Y + 1);*/
-	}
+	return gameover;
 }
 void Grid::CheckTile(const int& X, const int& Y)
 {
@@ -292,28 +293,28 @@ void Grid::CheckTile(const int& X, const int& Y)
 	}
 }
 
-unsigned int Grid::GetCols() const
+unsigned int Grid::Cols() const
 {
 	return COLS;
 }
-unsigned int Grid::GetRows() const
+unsigned int Grid::Rows() const
 {
 	return ROWS;
 }
-unsigned int Grid::GetGridSize() const
+size_t Grid::Size() const
 {
 	return SIZE;
 }
-unsigned int Grid::GetMines() const
+unsigned int Grid::Mines() const
 {
 	return MINES;
 }
-unsigned int Grid::GetTileSize() const
+unsigned int Grid::TileSize() const
 {
 	return TILE_SIZE;
 }
 
-RectUI Grid::GetGridRect() const
+RectUI Grid::Rect() const
 {
 	return GRID_POSITION;
 }
@@ -343,17 +344,17 @@ bool Grid::MouseOver(const unsigned int& INDEX) const
 	return tiles[INDEX].MouseOver();
 }
 
-void Grid::SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG)
+void Grid::SetFlag(const unsigned int& INDEX, const bool& IS_FLAG)
 {
-	tiles[INDEX].SetIsFlag(IS_FLAG);
+	tiles[INDEX].SetFlag(IS_FLAG);
 }
-void Grid::SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED)
+void Grid::SetRevealed(const unsigned int& INDEX, const bool& IS_REVEALED)
 {
-	tiles[INDEX].SetIsRevealed(IS_REVEALED);
+	tiles[INDEX].SetRevealed(IS_REVEALED);
 }
-void Grid::SetIsChecked(const unsigned int& INDEX, const bool& IS_CHECKED)
+void Grid::SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED)
 {
-	tiles[INDEX].SetIsChecked(IS_CHECKED);
+	tiles[INDEX].SetChecked(IS_CHECKED);
 }
 void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 {
@@ -367,8 +368,8 @@ void Grid::SetBackground()
 
 	if (INDEX == 0u)
 	{
-		Color color_start = Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u));
-		Color color_end = Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u));
+		Color color_start = Bumble::RandomColor();
+		Color color_end = Bumble::RandomColor();
 		background_textures[0] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_POSITION, color_start, color_end));
 	}
 

@@ -112,3 +112,8 @@ Surface Bumble::CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& co
 
 	return temp;
 }
+
+Color Bumble::RandomColor()
+{
+	return Color(rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u), rnd::RandomInt(0u, 255u));
+}

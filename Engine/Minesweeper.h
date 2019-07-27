@@ -187,7 +187,8 @@ private:
 
 	std::vector<Sound> sounds;
 	std::vector<Sound> win_sounds;
-	bool sound_played = false;
+	bool gameover_sound_played = false;
+	bool checked_sound_played = false;
 
 public:
 	Minesweeper();

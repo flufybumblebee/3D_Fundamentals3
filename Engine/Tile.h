@@ -20,9 +20,9 @@ public:
 	Tile(const RectUI& POSITION, std::shared_ptr<Surface> texture);
 public:
 	void SetValue(const unsigned int& VALUE);
-	void SetIsRevealed(const bool& IS_REVEALED);
-	void SetIsFlag(const bool& IS_FLAG);
-	void SetIsChecked(const bool& IS_CHECKED);
+	void SetRevealed(const bool& IS_REVEALED);
+	void SetFlag(const bool& IS_FLAG);
+	void SetChecked(const bool& IS_CHECKED);
 	void SetPosition(const RectUI& POSITION);
 	void SetTexture(std::shared_ptr<Surface> texture);
 	void SetMouseOver(Mouse& mouse);

@@ -32,15 +32,13 @@ private:
 		
 	const unsigned int COLS;
 	const unsigned int ROWS;
-	const unsigned int SIZE;
+	const size_t SIZE;
 	const unsigned int MINES;
 	const unsigned int OFFSET;
 	const unsigned int TILE_SIZE;
 
 
 	const RectUI							GRID_POSITION;
-	const Color								COLOR_START;
-	const Color								COLOR_END;
 	std::vector<std::shared_ptr<Surface>>	tile_textures;
 	std::vector<std::shared_ptr<Surface>>	background_textures;
 	std::vector<Tile>						tiles;
@@ -61,26 +59,26 @@ public:
 	void SetTileValue(const size_t& INDEX);
 	void RevealTiles(const int& X, const int& Y);
 	void RevealTile(const int& X, const int& Y);
-	void CheckTiles(const int& X, const int& Y);
+	bool CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED);
 	void CheckTile(const int& X, const int& Y);
 
-	unsigned int GetCols() const;
-	unsigned int GetRows() const;
-	unsigned int GetGridSize() const;
-	unsigned int GetMines() const;
-	unsigned int GetTileSize() const;
-	RectUI GetGridRect() const;
+	unsigned int	Cols() const;
+	unsigned int	Rows() const;
+	size_t			Size() const;
+	unsigned int	Mines() const;
+	unsigned int	TileSize() const;
+	RectUI			Rect() const;
 	
-	unsigned int Value(const unsigned int& INDEX) const;
-	bool Flag(const unsigned int& INDEX) const;
-	bool Revealed(const unsigned int& INDEX) const;
-	bool Checked(const unsigned int& INDEX) const;
-	bool Mine(const unsigned int& INDEX) const;
-	bool MouseOver(const unsigned int& INDEX) const;
+	unsigned int	Value(const unsigned int& INDEX) const;
+	bool			Flag(const unsigned int& INDEX) const;
+	bool			Revealed(const unsigned int& INDEX) const;
+	bool			Checked(const unsigned int& INDEX) const;
+	bool			Mine(const unsigned int& INDEX) const;
+	bool			MouseOver(const unsigned int& INDEX) const;
 
-	void SetIsFlag(const unsigned int& INDEX, const bool& IS_FLAG);
-	void SetIsRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
-	void SetIsChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
+	void SetFlag(const unsigned int& INDEX, const bool& IS_FLAG);
+	void SetRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
+	void SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
 	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
 	void SetBackground();
 

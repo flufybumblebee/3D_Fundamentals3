@@ -4,6 +4,7 @@
 #include "Rect.h"
 #include "Surface.h"
 #include "Colors.h"
+#include "Random.h"
 #include "Vec4.h"
 #include <vector>
 #include <array>
@@ -23,6 +24,8 @@ public:
 	static std::vector<Color> Blur(const int& WIDTH, const int& HEIGHT, const std::vector<Color>& INPUT);
 	static std::vector<Color> ConvertSurfaceToColorVector(const Surface& surface);
 	static Surface CreateColorBlendTexture(const RectUI& RECTANGLE, const Color& color_start, const Color& color_end);
+
+	static Color RandomColor();
 };
 
 template<typename T>

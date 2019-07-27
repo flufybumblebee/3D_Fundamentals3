@@ -64,7 +64,7 @@ void Minesweeper::Setup()
 
 	if (grid != nullptr)
 	{
-		mines = grid->GetMines();
+		mines = grid->Mines();
 
 		InitialiseBorder();
 		InitialiseMinesCounter();
@@ -80,10 +80,10 @@ void Minesweeper::Reset()
 	timer_started	= false;
 	gameover		= false;
 	gamewon			= false;
-	sound_played	= false;
+	gameover_sound_played	= false;
 	is_help			= false;
 	is_settings		= false;
-	mines			= grid->GetMines();
+	mines			= grid->Mines();
 	flags			= 0u;
 	time			= 0u;
 	frames			= 0u;
@@ -267,9 +267,9 @@ void Minesweeper::InitialiseBorder()
 
 	{
 		const unsigned int TOP = 0u;
-		const unsigned int BOTTOM = OFFSET * 6 + grid->GetTileSize() * grid->GetRows() + OFFSET - 1u;
+		const unsigned int BOTTOM = OFFSET * 6 + grid->TileSize() * grid->Rows() + OFFSET - 1u;
 		const unsigned int LEFT = 0u;
-		const unsigned int RIGHT = OFFSET + grid->GetTileSize() * grid->GetCols() + OFFSET - 1u;;
+		const unsigned int RIGHT = OFFSET + grid->TileSize() * grid->Cols() + OFFSET - 1u;;
 
 		border_rect = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 	}
@@ -399,7 +399,7 @@ void Minesweeper::InitialiseButtons()
 	{
 		const unsigned int TOP = border_rect.top + OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT = OFFSET + (grid->GetTileSize() * grid->GetCols()) / 2u - OFFSET * 6u;
+		const unsigned int LEFT = OFFSET + (grid->TileSize() * grid->Cols()) / 2u - OFFSET * 6u;
 		const unsigned int RIGHT = LEFT + OFFSET * 4u - 1u;
 
 		button_rects[0] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -412,7 +412,7 @@ void Minesweeper::InitialiseButtons()
 	{
 		const unsigned int TOP = border_rect.top + OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT		= OFFSET + (grid->GetTileSize() * grid->GetCols()) / 2u + OFFSET * 2u;
+		const unsigned int LEFT		= OFFSET + (grid->TileSize() * grid->Cols()) / 2u + OFFSET * 2u;
 		const unsigned int RIGHT	= LEFT + OFFSET * 4u - 1u;
 
 		button_rects[2] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -425,7 +425,7 @@ void Minesweeper::InitialiseButtons()
 	{
 		const unsigned int TOP = border_rect.top + OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT		= OFFSET + (grid->GetTileSize() * grid->GetCols()) / 2u - OFFSET * 2u;
+		const unsigned int LEFT		= OFFSET + (grid->TileSize() * grid->Cols()) / 2u - OFFSET * 2u;
 		const unsigned int RIGHT	= LEFT + OFFSET * 4u - 1u;
 
 		button_rects[4] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -438,7 +438,7 @@ void Minesweeper::InitialiseButtons()
 void Minesweeper::InitialiseTimer()
 {
 	const unsigned int TOP = border_rect.top + OFFSET * 1u;
-	const unsigned int RIGHT = OFFSET + grid->GetTileSize() * grid->GetCols();
+	const unsigned int RIGHT = OFFSET + grid->TileSize() * grid->Cols();
 
 	for (unsigned int y = 0u; y < DIGIT_ROWS; y++)
 	{
@@ -456,23 +456,23 @@ void Minesweeper::InitialiseTimer()
 }
 void Minesweeper::InitialiseGameOver()
 {
-	if (grid->GetRows() <= grid->GetCols())
+	if (grid->Rows() <= grid->Cols())
 	{
-		const unsigned int SIZE		= (grid->GetTileSize() * grid->GetRows()) / 2u;
-		const unsigned int TOP		= border_rect.top + OFFSET * 6u + (grid->GetTileSize() * grid->GetRows()) / 2u - SIZE;
-		const unsigned int BOTTOM	= border_rect.top + OFFSET * 6u + (grid->GetTileSize() * grid->GetRows()) / 2u + SIZE;
-		const unsigned int LEFT		= (OFFSET + grid->GetTileSize() * grid->GetCols() + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT	= (OFFSET + grid->GetTileSize() * grid->GetCols() + OFFSET) / 2u + SIZE;
+		const unsigned int SIZE		= (grid->TileSize() * grid->Rows()) / 2u;
+		const unsigned int TOP		= border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u - SIZE;
+		const unsigned int BOTTOM	= border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u + SIZE;
+		const unsigned int LEFT		= (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u - SIZE;
+		const unsigned int RIGHT	= (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u + SIZE;
 
 		gameover_rect = { TOP,BOTTOM,LEFT,RIGHT };
 	}
 	else
 	{
-		const unsigned int SIZE		= (grid->GetTileSize() * grid->GetCols()) / 2u;
-		const unsigned int TOP		= border_rect.top + OFFSET * 6u + (grid->GetTileSize() * grid->GetRows()) / 2u - SIZE;
-		const unsigned int BOTTOM	= border_rect.top + OFFSET * 6u + (grid->GetTileSize() * grid->GetRows()) / 2u + SIZE;
-		const unsigned int LEFT		= (OFFSET + grid->GetTileSize() * grid->GetCols() + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT	= (OFFSET + grid->GetTileSize() * grid->GetCols() + OFFSET) / 2u + SIZE;
+		const unsigned int SIZE		= (grid->TileSize() * grid->Cols()) / 2u;
+		const unsigned int TOP		= border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u - SIZE;
+		const unsigned int BOTTOM	= border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u + SIZE;
+		const unsigned int LEFT		= (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u - SIZE;
+		const unsigned int RIGHT	= (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u + SIZE;
 
 		gameover_rect = { TOP,BOTTOM,LEFT,RIGHT };
 	}
@@ -586,7 +586,7 @@ void Minesweeper::SetSettings(Mouse& mouse)
 		}
 		else
 		{
-			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
+			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed())
 			{
 				mouse_pressed = false;
 			}
@@ -643,7 +643,7 @@ void Minesweeper::SetButtons(Mouse& mouse)
 		}
 		else
 		{
-			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
+			if (!mouse.LeftIsPressed() && !mouse.RightIsPressed())
 			{
 				mouse_pressed = false;
 			}
@@ -655,18 +655,19 @@ void Minesweeper::SetGrid(Mouse& mouse)
 {
 	if (!gameover && mouse.IsInWindow())
 	{
-		for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
-		{
-			grid->SetMouseOver(i,mouse);
-		}
-		
 		int i = 0;
 
-		for (unsigned int y = 0u; y < grid->GetRows(); y++)
+		for (; i < grid->Size(); i++)
 		{
-			for (unsigned int x = 0u; x < grid->GetCols(); x++)
+			grid->SetMouseOver(i, mouse);
+			grid->SetChecked(i, false);
+		}
+		
+		for (unsigned int y = 0u; y < grid->Rows(); y++)
+		{
+			for (unsigned int x = 0u; x < grid->Cols(); x++)
 			{
-				i = y * grid->GetCols() + x;
+				i = y * grid->Cols() + x;
 
 				if (grid->MouseOver(i) && !mouse_pressed)
 				{
@@ -676,7 +677,7 @@ void Minesweeper::SetGrid(Mouse& mouse)
 						{
 							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
 
-							grid->SetIsRevealed(i,true);
+							grid->SetRevealed(i, true);
 
 							if (grid->Value(i) == 9u)
 							{
@@ -701,51 +702,28 @@ void Minesweeper::SetGrid(Mouse& mouse)
 								if (flags > 0) { flags--; }
 								assert(flags >= 0u);
 
-								if (mines < grid->GetMines())
+								if (mines < grid->Mines())
 								{
 									mines++;
-									grid->SetIsFlag( i,false );
+									grid->SetFlag(i, false);
 								}
-								assert(mines <= grid->GetMines());
+								assert(mines <= grid->Mines());
 							}
 							else
 							{
 								sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
-								if (flags < grid->GetMines()) { flags++; }
-								assert(flags <= grid->GetMines());
+								if (flags < grid->Mines()) { flags++; }
+								assert(flags <= grid->Mines());
 
 								if (mines > 0u)
 								{
 									mines--;
-									grid->SetIsFlag( i,true );
+									grid->SetFlag(i, true);
 								}
 								assert(mines >= 0u);
 							}
 						}
 
-						mouse_pressed = true;
-					}
-					else if (mouse.MiddleIsPressed())
-					{
-						// check tiles
-						
-						/*
-						when a tile is right clicked:
-						if the tile is unrevealed it wont trigger checking
-						but it will trigger changing the tile temporarily
-						to a blank tile to show that it is potentially
-						going to check those tiles. this means the tile
-						texture needs to also change temporarily.
-
-						checking is only initiated on release of middle click
-						
-						*/
-
-						grid->SetIsChecked(i, true);
-
-						//grid->CheckTiles(x, y);
-
-						sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
 						mouse_pressed = true;
 					}
 
@@ -757,10 +735,37 @@ void Minesweeper::SetGrid(Mouse& mouse)
 				}
 				else
 				{
-					if (!mouse.LeftIsPressed() && !mouse.RightIsPressed() && !mouse.MiddleIsPressed())
+					if (!mouse.LeftIsPressed() && !mouse.RightIsPressed())
 					{
 						mouse_pressed = false;
 					}
+				}
+			}
+		}
+		
+		for (unsigned int y = 0u; y < grid->Rows(); y++)
+		{
+			for (unsigned int x = 0u; x < grid->Cols(); x++)
+			{
+				i = y * grid->Cols() + x;
+
+				if (grid->MouseOver(i) && mouse.MiddleIsPressed())
+				{
+					if (grid->CheckTiles(x, y, true))
+					{
+						gameover = true;
+						gamewon = false;
+					}
+
+					if (!checked_sound_played)
+					{
+						sounds[SOUNDS::CLICK_1].Play(1.0f, 1.0f);
+						checked_sound_played = true;
+					}
+				}
+				else if (!mouse.MiddleIsPressed())
+				{
+					checked_sound_played = false;
 				}
 			}
 		}
@@ -773,7 +778,7 @@ void Minesweeper::SetGameOver()
 		unsigned int count_mines_and_flags = 0u;
 		unsigned int count_revealed_blocks = 0u;
 
-		for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
+		for (unsigned int i = 0u; i < grid->Size(); i++)
 		{
 			if (grid->Value(i) == 9u && grid->Flag(i))
 			{
@@ -786,7 +791,7 @@ void Minesweeper::SetGameOver()
 			}
 		}
 
-		if (count_mines_and_flags == grid->GetMines() && count_revealed_blocks == grid->GetGridSize() - grid->GetMines())
+		if (count_mines_and_flags == grid->Mines() && count_revealed_blocks == grid->Size() - grid->Mines())
 		{
 			gameover = true;
 			gamewon = true;
@@ -797,33 +802,33 @@ void Minesweeper::SetGameOver()
 	{
 		if (gamewon)
 		{
-			if (!sound_played)
+			if (!gameover_sound_played)
 			{
 				//sounds[1].Play(1.0f, 1.0f);
 				const size_t MIN = 0;
 				const size_t MAX = win_sounds.size() - 1;
 				const size_t INDEX = rnd::RandomInt(MIN, MAX);
 				win_sounds[INDEX].Play(1.0f, 1.0f);
-				sound_played = true;
+				gameover_sound_played = true;
 			}
 			button_blocks[4].SetTexture(button_textures[3]);
 			button_blocks[5].SetTexture(button_textures[3]);
 		}
 		else
 		{
-			if (!sound_played)
+			if (!gameover_sound_played)
 			{
 				sounds[0].Play(1.0f, 1.0f);
-				sound_played = true;
+				gameover_sound_played = true;
 			}
 			button_blocks[4].SetTexture(button_textures[4]);
 			button_blocks[5].SetTexture(button_textures[4]);
 
-			for (unsigned int i = 0u; i < grid->GetGridSize(); i++)
+			for (unsigned int i = 0u; i < grid->Size(); i++)
 			{
 				if (!grid->Revealed(i) && grid->Value(i) == 9u)
 				{
-					grid->SetIsRevealed(i, true);
+					grid->SetRevealed(i, true);
 				}
 			}
 		}
@@ -888,7 +893,7 @@ void Minesweeper::DrawDisplayBackground(Graphics& gfx)
 	const unsigned int TOP		= border_rect.top + OFFSET;
 	const unsigned int BOTTOM	= border_rect.top + OFFSET * 5u - 1u;
 	const unsigned int LEFT		= OFFSET;
-	const unsigned int RIGHT	= OFFSET + grid->GetTileSize() * grid->GetCols() - 1u;
+	const unsigned int RIGHT	= OFFSET + grid->TileSize() * grid->Cols() - 1u;
 
 	const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 

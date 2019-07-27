@@ -10,15 +10,15 @@ void Tile::SetValue(const unsigned int& new_value)
 	value = new_value;
 	if (value == 9u) { is_mine = true; }
 }
-void Tile::SetIsRevealed(const bool& IS_REVEALED)
+void Tile::SetRevealed(const bool& IS_REVEALED)
 {
 	is_revealed = IS_REVEALED;
 }
-void Tile::SetIsFlag(const bool& IS_FLAG)
+void Tile::SetFlag(const bool& IS_FLAG)
 {
 	is_flag = IS_FLAG;
 }
-void Tile::SetIsChecked(const bool& IS_CHECKED)
+void Tile::SetChecked(const bool& IS_CHECKED)
 {
 	is_checked = IS_CHECKED;
 }
