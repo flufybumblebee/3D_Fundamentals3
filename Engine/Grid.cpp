@@ -244,9 +244,10 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 				Y + y >= 0 && Y + y < static_cast<int>(ROWS))
 			{
 				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
-				if (tiles[INDEX].Value() == mines)
+
+				if (tiles[INDEX].Revealed() && tiles[INDEX].Value() == mines)
 				{
-					if (!tiles[i].Revealed())
+					if (!tiles[i].Revealed() && i != INDEX)
 					{
 						RevealTile(X + x, Y + y);
 					}
