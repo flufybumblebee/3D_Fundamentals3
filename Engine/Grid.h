@@ -30,15 +30,14 @@ private:
 	static constexpr unsigned int MIN_COLS = 9u;
 	static constexpr unsigned int MIN_ROWS = 9u;
 		
-	const unsigned int COLS;
-	const unsigned int ROWS;
-	const size_t SIZE;
-	const unsigned int MINES;
-	const unsigned int OFFSET;
-	const unsigned int TILE_SIZE;
+	const unsigned int	COLS;
+	const unsigned int	ROWS;
+	const size_t		SIZE;
+	const unsigned int	MINES;
+	const unsigned int	OFFSET;
+	const unsigned int	TILE_SIZE;
+	const RectUI		GRID_RECT;
 
-
-	const RectUI							GRID_POSITION;
 	std::vector<std::shared_ptr<Surface>>	tile_textures;
 	std::vector<std::shared_ptr<Surface>>	background_textures;
 	std::vector<Tile>						tiles;

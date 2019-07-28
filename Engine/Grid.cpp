@@ -17,57 +17,25 @@ Grid::Grid(
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
 	TILE_SIZE(Bumble::SetSize(this->COLS,this->ROWS,OFFSET)),
-	GRID_POSITION(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)
+	GRID_RECT(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)
 {
 	InitialiseTiles();
 	InitialiseBackground();
 	SetTileValues();
 }
 
-void Grid::Update()
-{
-	for (auto& t : tiles)
-	{		
-		if (!t.Revealed())
-		{
-			if (t.Flag())
-			{
-				t.SetTexture(tile_textures[TILE::FLAG]);
-			}
-			else if (t.Checked())
-			{
-				t.SetTexture(tile_textures[0]);
-			}
-			else
-			{				
-				t.SetTexture(tile_textures[TILE::BLANK_TILE]);
-			}
-		}
-		else
-		{
-			t.SetTexture(tile_textures[t.Value()]);
-		}
-	}
-}
-void Grid::Draw(Graphics& gfx)
-{
-	DrawBackground(gfx);
-	DrawMouseOverTiles(gfx);
-	DrawTiles(gfx);
-}
-
 void Grid::InitialiseTiles()
 {
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_0.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_1.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_2.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_3.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_4.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\tile_5.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_0.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_1.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_2.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_3.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_4.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_5.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_yellow.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\tile_mine.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mine.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_blank.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag.png"));
 
@@ -75,10 +43,10 @@ void Grid::InitialiseTiles()
 	{
 		for (unsigned int x = 0u; x < COLS; x++)
 		{
-			const unsigned int TOP		= GRID_POSITION.top + TILE_SIZE * y;
-			const unsigned int BOTTOM	= GRID_POSITION.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
-			const unsigned int LEFT		= GRID_POSITION.left + TILE_SIZE * x;
-			const unsigned int RIGHT	= GRID_POSITION.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
+			const unsigned int TOP		= GRID_RECT.top + TILE_SIZE * y;
+			const unsigned int BOTTOM	= GRID_RECT.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
+			const unsigned int LEFT		= GRID_RECT.left + TILE_SIZE * x;
+			const unsigned int RIGHT	= GRID_RECT.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
 
 			const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 			
@@ -91,13 +59,22 @@ void Grid::InitialiseBackground()
 	const Color COLOR_START = Bumble::RandomColor();
 	const Color COLOR_END = Bumble::RandomColor();
 
-	background_textures.emplace_back(std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_POSITION, COLOR_START, COLOR_END)));
+	background_textures.emplace_back(std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, COLOR_START, COLOR_END)));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.png")));
 	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Space1.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.png")));
+	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")));
 	
 	const size_t MIN = 0;
 	const size_t MAX = background_textures.size() - 1;
 
-	background = { GRID_POSITION, background_textures[rnd::RandomInt(MIN,MAX)] };
+	background = { GRID_RECT, background_textures[rnd::RandomInt(MIN,MAX)] };
 }
 
 void Grid::SetTileValues()
@@ -108,8 +85,7 @@ void Grid::SetTileValues()
 	}
 
 	std::vector<unsigned int> index_array;
-
-
+	
 	const unsigned int MIN = 0u;
 	const unsigned int MAX = static_cast<unsigned int>(SIZE) - 1u;
 	for (unsigned int i = 0u; i < MINES; i++)
@@ -312,36 +288,37 @@ void Grid::CheckTile(const int& X, const int& Y)
 	}
 }
 
-unsigned int Grid::Cols() const
+unsigned int	Grid::Cols() const
 {
 	return COLS;
 }
-unsigned int Grid::Rows() const
+unsigned int	Grid::Rows() const
 {
 	return ROWS;
 }
-size_t Grid::Size() const
+size_t			Grid::Size() const
 {
 	return SIZE;
 }
-unsigned int Grid::Mines() const
+unsigned int	Grid::Mines() const
 {
 	return MINES;
 }
-unsigned int Grid::TileSize() const
+unsigned int	Grid::TileSize() const
 {
 	return TILE_SIZE;
 }
 
 RectUI Grid::Rect() const
 {
-	return GRID_POSITION;
+	return GRID_RECT;
 }
 
 unsigned int Grid::Value(const unsigned int& INDEX) const
 {
 	return tiles[INDEX].Value();
 }
+
 bool Grid::Flag(const unsigned int& INDEX) const
 {
 	return tiles[INDEX].Flag();
@@ -389,10 +366,10 @@ void Grid::SetBackground()
 	{
 		Color color_start = Bumble::RandomColor();
 		Color color_end = Bumble::RandomColor();
-		background_textures[0] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_POSITION, color_start, color_end));
+		background_textures[0] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, color_start, color_end));
 	}
 
-	background = Block(GRID_POSITION, background_textures[INDEX]);
+	background = Block(GRID_RECT, background_textures[INDEX]);
 }
 
 void Grid::DrawBackground(Graphics& gfx)
@@ -416,4 +393,36 @@ void Grid::DrawMouseOverTiles(Graphics& gfx)
 			mouseover.Draw(gfx);
 		}
 	}
+}
+
+void Grid::Update()
+{
+	for (auto& t : tiles)
+	{		
+		if (!t.Revealed())
+		{
+			if (t.Flag())
+			{
+				t.SetTexture(tile_textures[TILE::FLAG]);
+			}
+			else if (t.Checked())
+			{
+				t.SetTexture(tile_textures[0]);
+			}
+			else
+			{				
+				t.SetTexture(tile_textures[TILE::BLANK_TILE]);
+			}
+		}
+		else
+		{
+			t.SetTexture(tile_textures[t.Value()]);
+		}
+	}
+}
+void Grid::Draw(Graphics& gfx)
+{
+	DrawBackground(gfx);
+	DrawMouseOverTiles(gfx);
+	DrawTiles(gfx);
 }

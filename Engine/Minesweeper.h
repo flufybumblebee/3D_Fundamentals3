@@ -77,25 +77,30 @@ namespace HARD
 }
 
 /*
-
 TO DO:
-
-FINISH TILE TEXTURES
-FINISH BUTTON TEXTURE
-CLICK ON TILES TO CHECK
+	HELP EXIT BUTTON
+	HELP TEXTURES
+	TEXTURE - MINE IN WRONG PLACE 
+	TEXTURE - FLAG IN WRONG PLACE 
 
 MAYBE DO:
 
-CUSTOM LEVELS
-VOLUME ADJUST
-VOLUME MUTE
-TEXT SIZE ADJUST
-ADD MUSIC
-ADD CAMERA SCROLL
-ANIMATED TILES
+SETTINGS:
+	CUSTOM LEVEL SETTINGS
+	VOLUME ADJUST	(MUSIC & FX)
+	VOLUME MUTE		(MUSIC & FX)
+	TEXT SIZE ADJUST
+	TILE BACKGROUND TEXTURE ADJUST
+	TILE MOUSEOVER TEXTURE ADJUST
+
+GRID:
+	ADD CAMERA SCROLL
+	ANIMATED TILES
+
 SCOREBOARD
 SAVE/LOAD
 KEYBOARD CONTROLS
+ADD MUSIC
 
 */
 
@@ -152,6 +157,9 @@ private:
 	Block														help_block;
 	bool														is_help = false;
 
+	std::vector<std::shared_ptr<Surface>>						help_button_textures;
+	Block														help_button_block;
+
 	/*------------------------------------------------------------------------------------*/
 
 	std::vector<std::shared_ptr<Surface>>						settings_textures;
@@ -190,20 +198,12 @@ private:
 	bool gameover_sound_played = false;
 	bool checked_sound_played = false;
 
-public:
-	Minesweeper();
-	
-public:
-	void Update(Mouse& mouse);
-	void Draw(Graphics& gfx);
 
 private:
-	void Setup();
-	void Reset();
-
 	void InitialiseTextures();
 
 	void InitialiseSettingsTextures();
+	void InitialiseHelpTextures();
 	void InitialiseBorderTextures();
 	void InitialiseDigitTextures();
 	void InitialiseButtonTextures();
@@ -219,6 +219,7 @@ private:
 	void InitialiseSettings();
 
 	void SetSettings(Mouse& mouse);
+	void SetHelp(Mouse& mouse);
 	void SetButtons(Mouse& mouse);
 	void SetGrid(Mouse& mouse);
 	void SetGameOver();
@@ -236,5 +237,16 @@ private:
 
 	void DrawHelp(Graphics& gfx);
 	void DrawSettings(Graphics& gfx);
+	
+public:
+	Minesweeper();
+
+private:
+	void Setup();
+	void Reset();
+
+public:
+	void Update(Mouse& mouse);
+	void Draw(Graphics& gfx);
 };
 
