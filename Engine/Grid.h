@@ -18,8 +18,10 @@ namespace TILE
 	static constexpr size_t SEVEN		= 7;
 	static constexpr size_t EIGHT		= 8;
 	static constexpr size_t MINE		= 9;
-	static constexpr size_t BLANK_TILE	= 10;
+	static constexpr size_t UNREVEALED	= 10;
 	static constexpr size_t FLAG		= 11;
+	static constexpr size_t FLAG_WRONG	= 12;
+	static constexpr size_t EXPLODED	= 13;
 };
 
 class Grid
@@ -50,34 +52,34 @@ public:
 		const unsigned int& MINES,
 		const unsigned int& OFFSET);
 
-public:
+private:
 	void InitialiseTiles();
 	void InitialiseBackground();
 
+public:
 	void SetTileValues();
-	void SetTileValue(const size_t& INDEX);
 	void RevealTiles(const int& X, const int& Y);
 	void RevealTile(const int& X, const int& Y);
 	bool CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED);
-	void CheckTile(const int& X, const int& Y);
 
 	unsigned int	Cols() const;
 	unsigned int	Rows() const;
 	size_t			Size() const;
 	unsigned int	Mines() const;
 	unsigned int	TileSize() const;
-	RectUI			Rect() const;
-	
+	RectUI			Rect() const;	
 	unsigned int	Value(const unsigned int& INDEX) const;
-	bool			Flag(const unsigned int& INDEX) const;
-	bool			Revealed(const unsigned int& INDEX) const;
-	bool			Checked(const unsigned int& INDEX) const;
-	bool			Mine(const unsigned int& INDEX) const;
-	bool			MouseOver(const unsigned int& INDEX) const;
+
+	bool Flag(const unsigned int& INDEX) const;
+	bool Revealed(const unsigned int& INDEX) const;
+	bool Checked(const unsigned int& INDEX) const;
+	bool Mine(const unsigned int& INDEX) const;
+	bool MouseOver(const unsigned int& INDEX) const;
 
 	void SetFlag(const unsigned int& INDEX, const bool& IS_FLAG);
 	void SetRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
 	void SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
+	void SetExploded(const unsigned int& INDEX, const bool& IS_EXPLODED);
 	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
 	void SetBackground();
 

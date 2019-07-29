@@ -635,6 +635,7 @@ void Minesweeper::SetGrid(Mouse& mouse)
 
 							if (grid->Value(i) == 9u)
 							{
+								grid->SetExploded(i, true);
 								gameover = true;
 								gamewon = false;
 							}
@@ -818,68 +819,6 @@ void Minesweeper::SetTimer()
 
 /*--------------------------------------------*/
 
-void Minesweeper::Update(Mouse& mouse)
-{
-	if (grid != nullptr)
-	{
-		if (is_help)
-		{
-			SetHelp(mouse);
-		}
-		else
-		{
-			SetButtons(mouse);
-
-			if (grid != nullptr)
-			{
-				SetGrid(mouse);
-
-				if (!gameover)
-				{
-					SetTimer();
-					SetMinesCounter();
-				}
-
-				SetGameOver();
-
-				grid->Update();
-			}
-		}		
-	}
-	
-	if(grid == nullptr)
-	{
-		SetSettings(mouse);
-	}
-}
-void Minesweeper::Draw(Graphics& gfx)
-{
-	if (grid != nullptr)
-	{
-		if (is_help)
-		{
-			DrawHelp(gfx);
-		}
-		else
-		{
-			DrawBorder(gfx);
-			DrawDisplayBackground(gfx);
-
-			DrawMinesCounter(gfx);
-			DrawButtons(gfx);
-			DrawTimer(gfx);
-			grid->Draw(gfx);
-			DrawGameOver(gfx);
-		}
-	}
-	else
-	{
-		DrawSettings(gfx);
-	}
-}
-
-/*--------------------------------------------*/
-
 void Minesweeper::Setup()
 {
 	// custom: columns, rows, mines
@@ -937,6 +876,68 @@ void Minesweeper::ExtractDigits(std::vector<unsigned int>& vec, const unsigned i
 	else
 	{
 		vec.push_back(0u);
+	}
+}
+
+/*--------------------------------------------*/
+
+void Minesweeper::Update(Mouse& mouse)
+{
+	if (grid != nullptr)
+	{
+		if (is_help)
+		{
+			SetHelp(mouse);
+		}
+		else
+		{
+			SetButtons(mouse);
+
+			if (grid != nullptr)
+			{
+				SetGrid(mouse);
+
+				if (!gameover)
+				{
+					SetTimer();
+					SetMinesCounter();
+				}
+
+				SetGameOver();
+
+				grid->Update();
+			}
+		}		
+	}
+	
+	if(grid == nullptr)
+	{
+		SetSettings(mouse);
+	}
+}
+void Minesweeper::Draw(Graphics& gfx)
+{
+	if (grid != nullptr)
+	{
+		if (is_help)
+		{
+			DrawHelp(gfx);
+		}
+		else
+		{
+			DrawBorder(gfx);
+			DrawDisplayBackground(gfx);
+
+			DrawMinesCounter(gfx);
+			DrawButtons(gfx);
+			DrawTimer(gfx);
+			grid->Draw(gfx);
+			DrawGameOver(gfx);
+		}
+	}
+	else
+	{
+		DrawSettings(gfx);
 	}
 }
 

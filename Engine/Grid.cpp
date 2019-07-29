@@ -38,6 +38,8 @@ void Grid::InitialiseTiles()
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mine.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_blank.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag_wrong.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_exploded.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
@@ -50,7 +52,7 @@ void Grid::InitialiseTiles()
 
 			const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
 			
-			tiles.emplace_back(POSITION, tile_textures[TILE::BLANK_TILE]);
+			tiles.emplace_back(POSITION, tile_textures[TILE::UNREVEALED]);
 		}
 	}
 }
@@ -69,7 +71,6 @@ void Grid::InitialiseBackground()
 	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Space1.png")));
 	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.png")));
 	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")));
 	
 	const size_t MIN = 0;
 	const size_t MAX = background_textures.size() - 1;
@@ -134,11 +135,11 @@ void Grid::SetTileValues()
 						if (x + xx >= 0 && x + xx < static_cast<int>(COLS) &&
 							y + yy >= 0 && y + yy < static_cast<int>(ROWS))
 						{
-							j = (static_cast<size_t>(y) +yy) * COLS + (static_cast<size_t>(x) + xx);
+							j = (static_cast<size_t>(y) + yy) * COLS + (static_cast<size_t>(x) + xx);
 
 							if (tiles[j].Value() != 9)
 							{
-								SetTileValue(j);
+								tiles[j].SetValue(tiles[j].Value() + 1u);
 							}
 						}
 					}
@@ -146,10 +147,6 @@ void Grid::SetTileValues()
 			}
 		}
 	}
-}
-void Grid::SetTileValue(const size_t& INDEX)
-{
-	tiles[INDEX].SetValue(tiles[INDEX].Value() + 1u);
 }
 void Grid::RevealTiles(const int& X, const int& Y)
 {
@@ -205,6 +202,7 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 					}
 					else if(tiles[i].Flag() && !tiles[i].Mine())
 					{
+						tiles[i].SetFlagWrong(true);
 						gameover = true;
 					}
 				}				
@@ -233,59 +231,6 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 	}
 
 	return gameover;
-}
-void Grid::CheckTile(const int& X, const int& Y)
-{
-	const unsigned int INDEX = Y * COLS + X;
-	if (INDEX >= 0 && INDEX < SIZE)
-	{
-		if (Y == -1)
-		{
-			if (X == -1)
-			{
-				//top left
-			}
-			else if (X == 0)
-			{
-				// top middle
-			}
-			else if (X == 1)
-			{
-				// top right
-			}
-		}
-		else if (Y == 0)
-		{
-			if (X == -1)
-			{
-				//middle left
-			}
-			else if (X == 0)
-			{
-				// middle middle
-			}
-			else if (X == 1)
-			{
-				// middle right
-			}
-		}
-		else if (Y == 1)
-		{
-			if (X == -1)
-			{
-				//bottom left
-			}
-			else if (X == 0)
-			{
-				// bottom middle
-			}
-			else if (X == 1)
-			{
-				// bottom right
-			}
-		}
-		
-	}
 }
 
 unsigned int	Grid::Cols() const
@@ -352,6 +297,10 @@ void Grid::SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED)
 {
 	tiles[INDEX].SetChecked(IS_CHECKED);
 }
+void Grid::SetExploded(const unsigned int& INDEX, const bool& IS_EXPLODED)
+{
+	tiles[INDEX].SetExploded(IS_EXPLODED);
+}
 void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 {
 	tiles[INDEX].SetMouseOver(mouse);
@@ -403,20 +352,34 @@ void Grid::Update()
 		{
 			if (t.Flag())
 			{
-				t.SetTexture(tile_textures[TILE::FLAG]);
+				if (t.FlagWrong())
+				{
+					t.SetTexture(tile_textures[TILE::FLAG_WRONG]);
+				}
+				else
+				{
+					t.SetTexture(tile_textures[TILE::FLAG]);
+				}
 			}
 			else if (t.Checked())
 			{
-				t.SetTexture(tile_textures[0]);
+				t.SetTexture(tile_textures[TILE::EMPTY]);
 			}
 			else
 			{				
-				t.SetTexture(tile_textures[TILE::BLANK_TILE]);
+				t.SetTexture(tile_textures[TILE::UNREVEALED]);
 			}
 		}
 		else
 		{
-			t.SetTexture(tile_textures[t.Value()]);
+			if (t.Exploded())
+			{
+				t.SetTexture(tile_textures[TILE::EXPLODED]);
+			}
+			else
+			{
+				t.SetTexture(tile_textures[t.Value()]);
+			}
 		}
 	}
 }
