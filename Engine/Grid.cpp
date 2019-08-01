@@ -16,12 +16,44 @@ Grid::Grid(
 	SIZE(static_cast<size_t>(this->COLS) * this->ROWS),
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
-	TILE_SIZE(SetSize(this->COLS,this->ROWS,OFFSET)),
-	GRID_RECT(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)
+	TILE_SIZE(SetTileSize(this->COLS,this->ROWS,OFFSET)),
+	GRID_RECT(SetGridRect(TILE_SIZE,this->COLS,this->ROWS,OFFSET))/*
+	GRID_RECT(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)*/
 {
 	InitialiseTiles();
 	InitialiseBackground();
 	SetTileValues();
+}
+
+unsigned int Grid::SetTileSize(const unsigned int& COLS, const unsigned int& ROWS, const unsigned int& OFFSET)
+{
+	unsigned int size = 0u;
+
+	const unsigned int WIDTH = Graphics::ScreenWidth - OFFSET * 2u;
+	const unsigned int HEIGHT = Graphics::ScreenHeight - OFFSET * 7u;
+
+	if (HEIGHT / ROWS <= WIDTH / COLS)
+	{
+		size = HEIGHT / ROWS;
+	}
+	else
+	{
+		size = WIDTH / COLS;
+	}
+
+	return size;
+}
+
+RectUI Grid::SetGridRect(const unsigned int& TILE_SIZE, const unsigned int& COLS, const unsigned int& ROWS, const unsigned int& OFFSET)
+{
+	const unsigned int TOP		= OFFSET * 6u + (SCREEN_H - OFFSET * 6u) / 2 - TILE_SIZE * ROWS / 2;
+	const unsigned int BOTTOM	= TOP + TILE_SIZE * ROWS - 1u;
+	const unsigned int LEFT		= SCREEN_W / 2u - (TILE_SIZE * COLS) / 2u;
+	const unsigned int RIGHT	= LEFT + TILE_SIZE * COLS - 1u;
+
+	const RectUI RECT = { TOP, BOTTOM, LEFT, RIGHT };
+
+	return RECT;
 }
 
 void Grid::InitialiseTiles()

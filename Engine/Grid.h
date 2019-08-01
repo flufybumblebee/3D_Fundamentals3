@@ -61,35 +61,22 @@ public:
 		const unsigned int& OFFSET);
 
 private:
-	static unsigned int SetSize(
+	static unsigned int SetTileSize(
 		const unsigned int& COLS,
 		const unsigned int& ROWS,
-		const unsigned int& OFFSET)
-	{
-		unsigned int size = 0u;
+		const unsigned int& OFFSET);
 
-		const unsigned int WIDTH	= Graphics::ScreenWidth - OFFSET * 2u;
-		const unsigned int HEIGHT	= Graphics::ScreenHeight - OFFSET * 7u;
-
-		if (HEIGHT / ROWS <= WIDTH / COLS)
-		{
-			size = HEIGHT / ROWS;
-		}
-		else
-		{
-			size = WIDTH / COLS;
-		}
-
-		return size;
-	}
+	static RectUI SetGridRect(
+		const unsigned int& TILE_SIZE,
+		const unsigned int& COLS,
+		const unsigned int& ROWS,
+		const unsigned int& OFFSET);
+	
 private:
 	void InitialiseTiles();
 	void InitialiseBackground();
 
 public:
-
-	
-
 	void SetBackground();
 	void SetTileValues();
 	void RevealTiles(const int& X, const int& Y);

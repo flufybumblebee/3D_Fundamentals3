@@ -25,7 +25,7 @@ void Minesweeper::InitialiseTextures()
 {
 	InitialiseSettingsTextures();
 	InitialiseHelpTextures();
-	InitialiseBorderTextures();
+	//InitialiseBorderTextures();
 	InitialiseDigitTextures();
 	InitialiseButtonTextures();
 	InitialiseGameOverTextures();
@@ -149,10 +149,7 @@ void Minesweeper::InitialiseSettings()
 		const unsigned int BOTTOM = TOP + TITLE_H;
 		const unsigned int LEFT = TITLE_POSITION.x - TITLE_W / 2u;
 		const unsigned int RIGHT = LEFT + TITLE_W;
-
-		//const RectUI RECT = { TOP,BOTTOM,LEFT,RIGHT };
-		//settings_text_blocks[0] = { RECT, settings_textures[0] };
-
+		
 		settings_text_blocks[0] = { { TOP,BOTTOM,LEFT,RIGHT }, settings_textures[0] };
 	}
 
@@ -315,8 +312,8 @@ void Minesweeper::InitialiseBorder()
 }
 void Minesweeper::InitialiseMinesCounter()
 {
-	const unsigned int TOP = border_rect.top + OFFSET;
-	const unsigned int RIGHT = OFFSET + OFFSET * 4u * 3u;
+	const unsigned int TOP = OFFSET;
+	const unsigned int LEFT = grid->Rect().left + OFFSET * 4u * 2u;
 
 	for (unsigned int y = 0u; y < DIGIT_ROWS; y++)
 	{
@@ -325,19 +322,21 @@ void Minesweeper::InitialiseMinesCounter()
 			const RectUI RECT = {
 				TOP,
 				TOP + OFFSET * 4u - 1u,
-				RIGHT - (OFFSET * 4u * x) - OFFSET * 4u,
-				RIGHT - (OFFSET * 4u * x) - 1u };
+				LEFT - (OFFSET * 4u * x),
+				LEFT - (OFFSET * 4u * x) + OFFSET * 4u - 1u };
 
-			mines_counter[y][x] = std::move(Block(RECT, digit_textures[y]));
+			mines_counter[y][x] = { RECT, digit_textures[y] };
 		}
 	}
 }
 void Minesweeper::InitialiseButtons()
 {
 	{
-		const unsigned int TOP = border_rect.top + OFFSET * 1u;
+		// HELP BUTTON
+
+		const unsigned int TOP = OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT = OFFSET + (grid->TileSize() * grid->Cols()) / 2u - OFFSET * 6u;
+		const unsigned int LEFT = grid->Rect().left + grid->Rect().GetWidth() / 2u - OFFSET * 6u;
 		const unsigned int RIGHT = LEFT + OFFSET * 4u - 1u;
 
 		button_rects[0] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -348,9 +347,11 @@ void Minesweeper::InitialiseButtons()
 	}
 
 	{
-		const unsigned int TOP = border_rect.top + OFFSET * 1u;
+		// SETTINGS BUTTON
+
+		const unsigned int TOP = OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT = OFFSET + (grid->TileSize() * grid->Cols()) / 2u + OFFSET * 2u;
+		const unsigned int LEFT = grid->Rect().left + grid->Rect().GetWidth() / 2u + OFFSET * 2u;
 		const unsigned int RIGHT = LEFT + OFFSET * 4u - 1u;
 
 		button_rects[2] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -361,9 +362,11 @@ void Minesweeper::InitialiseButtons()
 	}
 
 	{
+		// RESET BUTTON
+
 		const unsigned int TOP = border_rect.top + OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + OFFSET * 4u - 1u;
-		const unsigned int LEFT = OFFSET + (grid->TileSize() * grid->Cols()) / 2u - OFFSET * 2u;
+		const unsigned int LEFT = grid->Rect().left + grid->Rect().GetWidth() / 2u - OFFSET * 2u;
 		const unsigned int RIGHT = LEFT + OFFSET * 4u - 1u;
 
 		button_rects[4] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -376,7 +379,7 @@ void Minesweeper::InitialiseButtons()
 void Minesweeper::InitialiseTimer()
 {
 	const unsigned int TOP = border_rect.top + OFFSET * 1u;
-	const unsigned int RIGHT = OFFSET + grid->TileSize() * grid->Cols();
+	const unsigned int LEFT = grid->Rect().right - OFFSET * 4u;
 
 	for (unsigned int y = 0u; y < DIGIT_ROWS; y++)
 	{
@@ -385,36 +388,22 @@ void Minesweeper::InitialiseTimer()
 			const RectUI RECT = {
 				TOP,
 				TOP + OFFSET * 4u - 1u,
-				RIGHT - (OFFSET * 4u * x) - OFFSET * 4u,
-				RIGHT - (OFFSET * 4u * x) - 1u };
+				LEFT - (OFFSET * 4u * x),
+				LEFT - (OFFSET * 4u * x) + OFFSET * 4u - 1u	};
 
-			timer[y][x] = std::move(Block(RECT, digit_textures[y]));
+			timer[y][x] = { RECT, digit_textures[y] };
 		}
 	}
 }
 void Minesweeper::InitialiseGameOver()
 {
-	if (grid->Rows() <= grid->Cols())
-	{
-		const unsigned int SIZE = (grid->TileSize() * grid->Rows()) / 2u;
-		const unsigned int TOP = border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u - SIZE;
-		const unsigned int BOTTOM = border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u + SIZE;
-		const unsigned int LEFT = (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT = (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u + SIZE;
+	const unsigned int TOP = grid->Rect().top;
+	const unsigned int BOTTOM = grid->Rect().bottom;
+	const unsigned int LEFT = grid->Rect().left + grid->Rect().GetWidth() / 2u - grid->Rect().GetHeight() / 2u;
+	const unsigned int RIGHT = LEFT + grid->Rect().GetHeight();
 
-		gameover_rect = { TOP,BOTTOM,LEFT,RIGHT };
-	}
-	else
-	{
-		const unsigned int SIZE = (grid->TileSize() * grid->Cols()) / 2u;
-		const unsigned int TOP = border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u - SIZE;
-		const unsigned int BOTTOM = border_rect.top + OFFSET * 6u + (grid->TileSize() * grid->Rows()) / 2u + SIZE;
-		const unsigned int LEFT = (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u - SIZE;
-		const unsigned int RIGHT = (OFFSET + grid->TileSize() * grid->Cols() + OFFSET) / 2u + SIZE;
-
-		gameover_rect = { TOP,BOTTOM,LEFT,RIGHT };
-	}
-
+	gameover_rect = { TOP,BOTTOM,LEFT,RIGHT };
+	
 	// EXPLOSION ANIMATION
 	for (unsigned int i = 0; i < EXPLOSION_FRAMES; i++)
 	{
@@ -602,7 +591,6 @@ void Minesweeper::SetButtons(Mouse& mouse)
 				mouse_pressed = false;
 			}
 		}
-
 	}
 }
 void Minesweeper::SetGrid(Mouse& mouse)
@@ -822,7 +810,7 @@ void Minesweeper::Setup()
 {
 	if (grid != nullptr)
 	{
-		InitialiseBorder();
+		//InitialiseBorder();
 		InitialiseMinesCounter();
 		InitialiseButtons();
 		InitialiseTimer();
@@ -933,8 +921,8 @@ void Minesweeper::Draw(Graphics& gfx)
 		}
 		else
 		{
-			DrawBorder(gfx);
-			DrawDisplayBackground(gfx);
+			//DrawBorder(gfx);
+			//DrawDisplayBackground(gfx);
 
 			DrawMinesCounter(gfx);
 			DrawButtons(gfx);
@@ -945,7 +933,14 @@ void Minesweeper::Draw(Graphics& gfx)
 	}
 	else
 	{
-		DrawSettings(gfx);
+		if (is_help)
+		{
+			DrawHelp(gfx);
+		}
+		else
+		{
+			DrawSettings(gfx);
+		}
 	}
 }
 
