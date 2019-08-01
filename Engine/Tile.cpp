@@ -57,7 +57,7 @@ bool			Tile::Flag() const
 }
 bool Tile::FlagWrong() const
 {
-	return is_flag_wrong;
+	return !is_mine && is_flag;
 }
 bool Tile::Exploded() const
 {

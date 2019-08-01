@@ -630,7 +630,7 @@ void Minesweeper::SetGrid(Mouse& mouse)
 						if (!grid->Revealed(i) && !grid->Flag(i))
 						{
 							sounds[SOUNDS::CLICK_0].Play(1.0f, 1.0f);
-
+							
 							grid->SetRevealed(i, true);
 
 							if (grid->Value(i) == 9u)
@@ -759,7 +759,6 @@ void Minesweeper::SetGameOver()
 		{
 			if (!gameover_sound_played)
 			{
-				//sounds[1].Play(1.0f, 1.0f);
 				const size_t MIN = 0;
 				const size_t MAX = win_sounds.size() - 1;
 				const size_t INDEX = rnd::RandomInt(MIN, MAX);
@@ -783,15 +782,15 @@ void Minesweeper::SetGameOver()
 			{
 				grid->SetChecked(i, false);
 
-				if (!grid->Revealed(i) && grid->Value(i) == 9u)
+				if (grid->Mine(i) && !grid->Flag(i))
 				{
 					grid->SetRevealed(i, true);
 				}
 			}
-			
-			//grid->Update();
 		}
 	}
+
+	grid->SetGameOver(gameover);
 }
 void Minesweeper::SetMinesCounter()
 {
@@ -821,19 +820,29 @@ void Minesweeper::SetTimer()
 
 void Minesweeper::Setup()
 {
-	// custom: columns, rows, mines
-
 	if (grid != nullptr)
 	{
-		mines = grid->Mines();
-
 		InitialiseBorder();
 		InitialiseMinesCounter();
 		InitialiseButtons();
 		InitialiseTimer();
 		InitialiseGameOver();
 
-		Reset();
+		timer_started = false;
+		gameover = false;
+		gamewon = false;
+		gameover_sound_played = false;
+		is_help = false;
+		is_settings = false;
+		mines = grid->Mines();
+		flags = 0u;
+		time = 0u;
+		frames = 0u;
+		index0 = 0u;
+		index1 = 0u;
+
+		button_blocks[4].SetTexture(button_textures[2]);
+		button_blocks[5].SetTexture(button_textures[2]);
 	}
 }
 void Minesweeper::Reset()
@@ -850,12 +859,11 @@ void Minesweeper::Reset()
 	frames			= 0u;
 	index0			= 0u;
 	index1			= 0u;
-		
-	grid->SetTileValues();
-	grid->SetBackground();
 	
 	button_blocks[4].SetTexture(button_textures[2]);
 	button_blocks[5].SetTexture(button_textures[2]);
+
+	grid->Reset();
 }
 
 /*--------------------------------------------*/

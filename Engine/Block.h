@@ -25,11 +25,10 @@ public:
 	Block(Block&& block) noexcept;
 	Block& operator = (const Block& rhs);
 	Block& operator = (Block&& rhs) noexcept;
-	~Block() = default;
 public:
-	void SetMouseOver(Mouse& mouse);
-	bool MouseOver() const;
-	RectUI Position() const;
+	bool	MouseOver() const;
+	RectUI	Position() const;
+	void SetMouseOver(Mouse& mouse); 
 	void SetPosition(const RectUI& POSITION);
 	void SetTexture(std::shared_ptr<Surface> texture);
 	void Draw(Graphics& gfx);

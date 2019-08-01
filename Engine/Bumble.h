@@ -13,9 +13,6 @@ class Bumble
 {
 public:
 	template<typename T>
-	static T SetSize(const T& COLS, const T& ROWS, const T& OFFSET);
-
-	template<typename T>
 	void ExtractDigits(std::vector<T>& vec, const T& NUM);
 
 	template<typename T>
@@ -27,28 +24,6 @@ public:
 
 	static Color RandomColor();
 };
-
-template<typename T>
-inline T Bumble::SetSize(const T& COLS, const T& ROWS, const T& OFFSET)
-{
-	T size = T(0);
-
-	const T SCREEN_W = Graphics::ScreenWidth;
-	const T SCREEN_H = Graphics::ScreenHeight;
-	const T WIDTH = SCREEN_W - OFFSET * 2u;
-	const T HEIGHT = SCREEN_H - OFFSET * 7u;
-
-	if (HEIGHT / ROWS <= WIDTH / COLS)
-	{
-		size = HEIGHT / ROWS;
-	}
-	else
-	{
-		size = WIDTH / COLS;
-	}
-
-	return size;
-}
 
 template<typename T>
 inline void Bumble::ExtractDigits(std::vector<T>& vec, const T& NUM)

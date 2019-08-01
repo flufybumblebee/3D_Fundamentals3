@@ -16,7 +16,7 @@ Grid::Grid(
 	SIZE(static_cast<size_t>(this->COLS) * this->ROWS),
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
-	TILE_SIZE(Bumble::SetSize(this->COLS,this->ROWS,OFFSET)),
+	TILE_SIZE(SetSize(this->COLS,this->ROWS,OFFSET)),
 	GRID_RECT(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)
 {
 	InitialiseTiles();
@@ -39,7 +39,9 @@ void Grid::InitialiseTiles()
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_blank.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag_wrong.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_exploded.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag_correct.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_skull.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mouseover.png"));
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
@@ -180,36 +182,15 @@ void Grid::RevealTile(const int& X, const int& Y)
 bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 {
 	const size_t INDEX = static_cast<size_t>(Y) * COLS + X;
-	bool gameover = false;
-	size_t i = 0;
-	unsigned int mines = 0;
-	for (int y = -1; y < 2; y++)
-	{
-		for (int x = -1; x < 2; x++)
-		{
-			if (X + x >= 0 && X + x < static_cast<int>(COLS) &&
-				Y + y >= 0 && Y + y < static_cast<int>(ROWS))
-			{
-				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
-			
-				tiles[i].SetChecked(IS_CHECKED);
-				
-				if (tiles[INDEX].Revealed() && (tiles[INDEX].Value() >= 1u && tiles[INDEX].Value() < 9))
-				{
-					if (tiles[i].Flag() && tiles[i].Mine())
-					{
-						mines++;
-					}
-					else if(tiles[i].Flag() && !tiles[i].Mine())
-					{
-						tiles[i].SetFlagWrong(true);
-						gameover = true;
-					}
-				}				
-			}
-		}		
-	}
 	
+	size_t i = 0;
+	size_t j = 0;
+	unsigned int mines = 0u;
+
+	std::vector<size_t> indices;
+	std::vector<int> ix;
+	std::vector<int> iy;
+
 	for (int y = -1; y < 2; y++)
 	{
 		for (int x = -1; x < 2; x++)
@@ -219,11 +200,62 @@ bool Grid::CheckTiles(const int& X, const int& Y, const bool& IS_CHECKED)
 			{
 				i = (static_cast<size_t>(Y) + y) * COLS + (static_cast<size_t>(X) + x);
 
-				if (tiles[INDEX].Revealed() && tiles[INDEX].Value() == mines)
+				if (i != INDEX)
 				{
-					if (!tiles[i].Revealed() && i != INDEX)
+					indices.emplace_back(i);
+					ix.emplace_back(x);
+					iy.emplace_back(y);
+				}
+			}
+		}
+	}
+
+	if(!tiles[INDEX].Revealed())
+	{
+		tiles[INDEX].SetChecked(IS_CHECKED);
+
+		for (i = 0; i < indices.size(); i++)
+		{
+			tiles[indices[i]].SetChecked(IS_CHECKED);
+		}
+	}
+	else
+	{
+		if (tiles[INDEX].Value() >= 1u &&
+			tiles[INDEX].Value() < 9u)
+		{
+			for (i = 0; i < indices.size(); i++)
+			{
+				tiles[indices[i]].SetChecked(IS_CHECKED);
+
+				if (tiles[indices[i]].Flag() && !tiles[indices[i]].Mine())
+				{
+					gameover = true;
+				}
+				else if (tiles[indices[i]].Flag() && tiles[indices[i]].Mine())
+				{
+					mines++;
+				}
+			}
+
+			for (i = 0; i < indices.size(); i++)
+			{
+				if (gameover)
+				{
+					if (!tiles[indices[i]].Flag() && tiles[indices[i]].Mine())
 					{
-						RevealTile(X + x, Y + y);
+						tiles[indices[i]].SetExploded(true);
+					}
+				}
+			}
+
+			for (i = 0; i < indices.size(); i++)
+			{
+				if (tiles[INDEX].Value() == mines)
+				{
+					if (!tiles[indices[i]].Revealed())
+					{
+						RevealTile(X + ix[i], Y + iy[i]);
 					}
 				}
 			}
@@ -305,6 +337,10 @@ void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
 {
 	tiles[INDEX].SetMouseOver(mouse);
 }
+void Grid::SetGameOver(const bool& IS_GAMEOVER)
+{
+	gameover = IS_GAMEOVER;
+}
 void Grid::SetBackground()
 {
 	const size_t MIN = 0;
@@ -329,19 +365,20 @@ void Grid::DrawTiles(Graphics& gfx)
 {
 	for (auto& t : tiles)
 	{
+		if (t.MouseOver())
+		{
+			mouseover.Draw(gfx);
+		}
+
 		t.Draw(gfx);
 	}
 }
-void Grid::DrawMouseOverTiles(Graphics& gfx)
+
+void Grid::Reset()
 {
-	for (auto& t : tiles)
-	{
-		if (t.MouseOver())
-		{
-			mouseover = Block(t.Position(), std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Tiles\\tile_mouseover.png")));
-			mouseover.Draw(gfx);
-		}
-	}
+	SetBackground();
+	SetTileValues();
+	gameover = false;
 }
 
 void Grid::Update()
@@ -349,29 +386,36 @@ void Grid::Update()
 	for (auto& t : tiles)
 	{		
 		if (!t.Revealed())
-		{
-			if (t.Flag())
+		{		
+			if (gameover)
 			{
-				if (t.FlagWrong())
+				if (t.Flag() && !t.Mine())
 				{
 					t.SetTexture(tile_textures[TILE::FLAG_WRONG]);
 				}
-				else
+				else if (t.Flag() && t.Mine())
+				{
+					t.SetTexture(tile_textures[TILE::FLAG_CORRECT]);
+				}
+			}
+			else
+			{
+				if (t.Flag())
 				{
 					t.SetTexture(tile_textures[TILE::FLAG]);
 				}
-			}
-			else if (t.Checked())
-			{
-				t.SetTexture(tile_textures[TILE::EMPTY]);
-			}
-			else
-			{				
-				t.SetTexture(tile_textures[TILE::UNREVEALED]);
+				else if (t.Checked())
+				{
+					t.SetTexture(tile_textures[TILE::EMPTY]);
+				}
+				else
+				{
+					t.SetTexture(tile_textures[TILE::UNREVEALED]);
+				}
 			}
 		}
 		else
-		{
+		{			
 			if (t.Exploded())
 			{
 				t.SetTexture(tile_textures[TILE::EXPLODED]);
@@ -381,11 +425,15 @@ void Grid::Update()
 				t.SetTexture(tile_textures[t.Value()]);
 			}
 		}
+
+		if (t.MouseOver())
+		{
+			mouseover = { t.Position(),tile_textures[TILE::MOUSEOVER] };
+		}
 	}
 }
 void Grid::Draw(Graphics& gfx)
 {
 	DrawBackground(gfx);
-	DrawMouseOverTiles(gfx);
 	DrawTiles(gfx);
 }
