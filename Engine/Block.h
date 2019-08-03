@@ -7,7 +7,7 @@
 
 /*  NOTES:
 
-position	= position (& size) of texture (when drawn)
+rect	= rect (& size) of texture (when drawn)
 pTex		= pointer to a texture
 rhs			= right hand side (of the assignment operator)  */
 
@@ -15,21 +15,21 @@ class Block
 {
 private:
 	bool mouse_over = false;
-	RectF position;
+	RectF rect;
 	std::shared_ptr<Surface> pTex = nullptr;
 
 public:
 	Block() = default;
-	Block(const RectUI& POSITION, std::shared_ptr<Surface> texture);
+	Block(const RectUI& RECT, std::shared_ptr<Surface> texture);
 	Block(const Block& COPY);
 	Block(Block&& block) noexcept;
 	Block& operator = (const Block& rhs);
 	Block& operator = (Block&& rhs) noexcept;
 public:
 	bool	MouseOver() const;
-	RectUI	Position() const;
+	RectUI	Rect() const;
 	void SetMouseOver(Mouse& mouse); 
-	void SetPosition(const RectUI& POSITION);
+	void SetRect(const RectUI& RECT);
 	void SetTexture(std::shared_ptr<Surface> texture);
 	void Draw(Graphics& gfx);
 };

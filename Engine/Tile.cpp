@@ -1,13 +1,20 @@
 #include "Tile.h"
 
-Tile::Tile(const RectUI& position, std::shared_ptr<Surface> texture)
+Tile::Tile(std::vector<Block> BLOCKS)
+	:
+	blocks(std::move(BLOCKS))
 {
-	block = { position,texture };
+	for (auto& b : BLOCKS)
+	{
+		b.SetTexture(nullptr);
+	}
+
+	BLOCKS.clear();
 }
 
-void Tile::SetValue(const unsigned int& new_value)
+void Tile::SetValue(const unsigned int& VALUE)
 {
-	value = new_value;
+	value = VALUE;
 	if (value == 9u) { is_mine = true; }
 }
 void Tile::SetRevealed(const bool& IS_REVEALED)
@@ -22,42 +29,42 @@ void Tile::SetChecked(const bool& IS_CHECKED)
 {
 	is_checked = IS_CHECKED;
 }
-void Tile::SetFlagWrong(const bool& IS_FLAG_WRONG)
-{
-	is_flag_wrong = IS_FLAG_WRONG;
-}
 void Tile::SetExploded(const bool& IS_EXPLODED)
 {
 	is_exploded = IS_EXPLODED;
 }
-void Tile::SetPosition(const RectUI& POSITION)
-{
-	block.SetPosition(POSITION);
-}
-void Tile::SetTexture(std::shared_ptr<Surface> texture)
-{
-	block.SetTexture(texture);
-}
+
 void Tile::SetMouseOver(Mouse& mouse)
 {
-	block.SetMouseOver(mouse);
+	mouseover = mouseover_rect.Contains(mouse.GetPos());
 }
 
-unsigned int	Tile::Value() const
+void Tile::SetMouseoverRect(const RectUI& MOUSEOVER_RECT)
+{
+	mouseover_rect = MOUSEOVER_RECT;
+}
+
+void Tile::SetRect(const size_t& INDEX, const RectUI& RECT)
+{
+	blocks[INDEX].SetRect(RECT);
+}
+
+void Tile::SetTexture(const size_t& INDEX, std::shared_ptr<Surface> texture)
+{
+	blocks[INDEX].SetTexture(texture);
+}
+
+unsigned int Tile::Value() const
 {
 	return value;
 }
-bool			Tile::Revealed() const
+bool Tile::Revealed() const
 {
 	return is_revealed;
 }
-bool			Tile::Flag() const
+bool Tile::Flag() const
 {
 	return is_flag;
-}
-bool Tile::FlagWrong() const
-{
-	return !is_mine && is_flag;
 }
 bool Tile::Exploded() const
 {
@@ -67,29 +74,54 @@ bool Tile::Checked() const
 {
 	return is_checked;
 }
-bool			Tile::Mine() const
+bool Tile::Mine() const
 {
 	return is_mine;
 }
-RectUI			Tile::Position() const
+bool Tile::MouseOver() const
 {
-	return block.Position();
+	return mouseover;
 }
-bool			Tile::MouseOver() const
+
+RectUI Tile::MouseoverRect() const
 {
-	return block.MouseOver();
+	return mouseover_rect;
+}
+
+RectUI Tile::Rect(const size_t INDEX) const
+{
+	return blocks[INDEX].Rect();
 }
 
 void Tile::Reset()
 {
-	value = 0;
-	is_flag = false;
-	is_revealed = false;
-	is_checked = false;
-	is_exploded = false;
-	is_mine = false;
+	value = 0u;
+	is_revealed		= false;
+	is_flag			= false;
+	is_mine			= false;
+	is_checked		= false;
+	is_flag_wrong	= false;
+	is_exploded		= false;
+	mouseover		= false;
 }
+
 void Tile::Draw(Graphics& gfx)
-{
-	block.Draw(gfx);
+{	
+	for (size_t i = 1; i < blocks.size(); i++)
+	{
+		if (mouseover)
+		{
+			blocks[0].Draw(gfx);
+		}
+		blocks[i].Draw(gfx);
+	}
+
+	/*if (is_flag)
+	{
+		blocks[FLAG].Draw(gfx);
+	}
+	else if (is_exploded)
+	{
+
+	}*/
 }

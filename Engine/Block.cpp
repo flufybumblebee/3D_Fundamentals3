@@ -1,25 +1,25 @@
 #include "Block.h"
 
-Block::Block(const RectUI& POSITION, std::shared_ptr<Surface> texture)
+Block::Block(const RectUI& RECT, std::shared_ptr<Surface> texture)
 	:
-	position(static_cast<RectF>(POSITION)),
+	rect(static_cast<RectF>(RECT)),
 	pTex(texture)
 {}
 Block::Block(const Block& COPY)
 	:
-	position(COPY.position),
+	rect(COPY.rect),
 	pTex(COPY.pTex)
 {}
 Block::Block(Block&& block) noexcept
 	:
-	position(block.position),
+	rect(block.rect),
 	pTex(block.pTex)
 {
 	block.pTex = nullptr;
 }
 Block& Block::operator = (const Block& rhs)
 {
-	position = rhs.position;
+	rect = rhs.rect;
 	pTex = rhs.pTex;
 
 	return *this;
@@ -28,7 +28,7 @@ Block& Block::operator = (Block&& rhs) noexcept
 {
 	if (&rhs != this)
 	{
-		position = rhs.position;
+		rect = rhs.rect;
 		pTex = rhs.pTex;
 
 		rhs.pTex = nullptr;
@@ -38,19 +38,19 @@ Block& Block::operator = (Block&& rhs) noexcept
 }
 void Block::SetMouseOver(Mouse& mouse)
 {
-	mouse_over = position.Contains(mouse.GetPos());	
+	mouse_over = rect.Contains(mouse.GetPos());	
 }
 bool Block::MouseOver() const
 {
 	return mouse_over;
 }
-RectUI Block::Position() const
+RectUI Block::Rect() const
 {
-	return static_cast<RectUI>(position);
+	return static_cast<RectUI>(rect);
 }
-void Block::SetPosition(const RectUI& POSITION)
+void Block::SetRect(const RectUI& RECT)
 {
-	position = static_cast<RectF>(POSITION);
+	rect = static_cast<RectF>(RECT);
 }
 void Block::SetTexture(std::shared_ptr<Surface> texture)
 {
@@ -59,13 +59,13 @@ void Block::SetTexture(std::shared_ptr<Surface> texture)
 void Block::Draw(Graphics& gfx)
 {
 	gfx.DrawTriangleTex(
-		{ {position.left,	position.top,		0.0f},{ 0.0f,0.0f } },
-		{ {position.right,	position.top,		0.0f},{ 1.0f,0.0f } },
-		{ {position.right,	position.bottom,	0.0f},{ 1.0f,1.0f } },
+		{ {rect.left,	rect.top,		0.0f},{ 0.0f,0.0f } },
+		{ {rect.right,	rect.top,		0.0f},{ 1.0f,0.0f } },
+		{ {rect.right,	rect.bottom,	0.0f},{ 1.0f,1.0f } },
 		*pTex);
 	gfx.DrawTriangleTex(
-		{ {position.left,	position.top,		0.0f},{ 0.0f,0.0f } },
-		{ {position.right,	position.bottom,	0.0f},{ 1.0f,1.0f } },
-		{ {position.left,	position.bottom,	0.0f},{ 0.0f,1.0f } },
+		{ {rect.left,	rect.top,		0.0f},{ 0.0f,0.0f } },
+		{ {rect.right,	rect.bottom,	0.0f},{ 1.0f,1.0f } },
+		{ {rect.left,	rect.bottom,	0.0f},{ 0.0f,1.0f } },
 		*pTex);
 }

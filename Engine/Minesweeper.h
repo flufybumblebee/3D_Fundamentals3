@@ -78,8 +78,8 @@ namespace HARD
 
 /*
 TO DO:
-	TEXTURE - HELP SCREEN
-	TEXTURE - HELP BUTTON
+	TEXTURE - HELP SCREEN (started)
+	Convert SetGrid() to grid based function.
 
 MAYBE DO:
 
@@ -92,13 +92,17 @@ SETTINGS:
 	TILE MOUSEOVER TEXTURE ADJUST
 
 GRID:
-	ADD CAMERA SCROLL
+	CAMERA SCROLL
 	ANIMATED TILES
 
 SCOREBOARD
 SAVE/LOAD
 KEYBOARD CONTROLS
 ADD MUSIC
+
+emulate middle mouse click - DONE
+
+shadow emulation with numbers bombs and flags
 
 */
 
@@ -116,8 +120,9 @@ private:
 		
 	/*------------------------------------------------------------------------------------*/
 
+	std::vector<std::shared_ptr<Surface>>						tile_textures;
 	std::unique_ptr<Grid>										grid;
-	
+		
 	/*------------------------------------------------------------------------------------*/
 
 	std::vector<std::shared_ptr<Surface>>						border_textures;
@@ -195,19 +200,19 @@ private:
 	std::vector<Sound> win_sounds;
 	bool gameover_sound_played = false;
 	bool checked_sound_played = false;
-
-
+	float sound_fx_volume = 1.0f;
+	float music_volume = 1.0f;
+	
 private:
 	void InitialiseTextures();
 
 	void InitialiseSettingsTextures();
 	void InitialiseHelpTextures();
-	void InitialiseBorderTextures();
+	void InitialiseTileTextures();
 	void InitialiseDigitTextures();
 	void InitialiseButtonTextures();
 	void InitialiseGameOverTextures();
 
-	void InitialiseBorder();
 	void InitialiseMinesCounter();
 	void InitialiseButtons();
 	void InitialiseTimer();
@@ -225,9 +230,7 @@ private:
 	void SetTimer();
 	
 	void ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM);
-		
-	void DrawBorder(Graphics& gfx);
-	void DrawDisplayBackground(Graphics& gfx);
+	
 	void DrawMinesCounter(Graphics& gfx);
 	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);

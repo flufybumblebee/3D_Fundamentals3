@@ -5,12 +5,10 @@
 
 #include <vector>
 #include <array>
-#include <map>
-#include <string>
 
 namespace TILE
 {
-	static constexpr size_t EMPTY			= 0;
+	static constexpr size_t BLANK			= 0;
 	static constexpr size_t ONE				= 1;
 	static constexpr size_t TWO				= 2;
 	static constexpr size_t THREE			= 3;
@@ -20,15 +18,21 @@ namespace TILE
 	static constexpr size_t SEVEN			= 7;
 	static constexpr size_t EIGHT			= 8;
 	static constexpr size_t MINE			= 9;
-	static constexpr size_t UNREVEALED		= 10;
-	static constexpr size_t FLAG			= 11;
-	static constexpr size_t FLAG_WRONG		= 12;
-	static constexpr size_t FLAG_CORRECT	= 13;
-	static constexpr size_t EXPLODED		= 14;
-	static constexpr size_t MOUSEOVER		= 15;
+	static constexpr size_t EXPLODED		= 10;
+	static constexpr size_t TILE_LIGHT		= 11;
+	static constexpr size_t TILE_DARK		= 12;
+	static constexpr size_t FLAG			= 13;
+	static constexpr size_t FLAG_WRONG		= 14;
+	static constexpr size_t FLAG_CORRECT	= 15;
+	static constexpr size_t MOUSEOVER		= 16;
 };
 
-
+namespace TILE_TYPE
+{
+	static constexpr size_t MOUSEOVER	= 0;
+	static constexpr size_t TILE		= 1;
+	static constexpr size_t IMAGE		= 2;
+}
 
 class Grid
 {
@@ -37,7 +41,7 @@ private:
 	static constexpr unsigned int SCREEN_H = Graphics::ScreenHeight;
 	static constexpr unsigned int MIN_COLS = 9u;
 	static constexpr unsigned int MIN_ROWS = 9u;
-		
+
 	const unsigned int	COLS;
 	const unsigned int	ROWS;
 	const size_t		SIZE;
@@ -49,13 +53,14 @@ private:
 	std::vector<std::shared_ptr<Surface>>	tile_textures;
 	std::vector<std::shared_ptr<Surface>>	background_textures;
 	std::vector<Tile>						tiles;
-	Block									background;
-	Block									mouseover;
 
+	Block									background;
+	
 	bool gameover = false;
 
 public:
-	Grid(const unsigned int& COLS,
+	Grid(std::vector<std::shared_ptr<Surface>> textures,
+		const unsigned int& COLS,
 		const unsigned int& ROWS,
 		const unsigned int& MINES,
 		const unsigned int& OFFSET);
@@ -73,6 +78,7 @@ private:
 		const unsigned int& OFFSET);
 	
 private:
+	//void InitialiseTextures();
 	void InitialiseTiles();
 	void InitialiseBackground();
 
@@ -85,10 +91,10 @@ public:
 
 	unsigned int	Cols() const; 
 	unsigned int	Rows() const;
-	size_t			Size() const;
+	size_t			GridSize() const;
 	unsigned int	Mines() const;
 	unsigned int	TileSize() const;
-	RectUI			Rect() const;
+	RectUI			GridRect() const;
 
 	unsigned int	Value(const unsigned int& INDEX) const;
 
@@ -103,6 +109,7 @@ public:
 	void SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
 	void SetExploded(const unsigned int& INDEX, const bool& IS_EXPLODED);
 	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
+
 	void SetGameOver(const bool& IS_GAMEOVER);
 
 	void DrawBackground(Graphics& gfx);

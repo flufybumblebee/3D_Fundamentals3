@@ -5,20 +5,20 @@
 
 #include <algorithm>
 
-Grid::Grid(
+Grid::Grid(std::vector<std::shared_ptr<Surface>> textures,
 	const unsigned int& COLS,
 	const unsigned int& ROWS,
 	const unsigned int& MINES,
 	const unsigned int& OFFSET)
 	:
+	tile_textures(textures),
 	COLS(std::max<unsigned int>(MIN_COLS, COLS)),
 	ROWS(std::max<unsigned int>(MIN_ROWS, ROWS)),
 	SIZE(static_cast<size_t>(this->COLS) * this->ROWS),
 	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
 	TILE_SIZE(SetTileSize(this->COLS,this->ROWS,OFFSET)),
-	GRID_RECT(SetGridRect(TILE_SIZE,this->COLS,this->ROWS,OFFSET))/*
-	GRID_RECT(OFFSET * 6u, OFFSET * 6u + TILE_SIZE * this->ROWS - 1u,OFFSET, OFFSET + TILE_SIZE * this->COLS - 1u)*/
+	GRID_RECT(SetGridRect(TILE_SIZE,this->COLS,this->ROWS,OFFSET))
 {
 	InitialiseTiles();
 	InitialiseBackground();
@@ -43,7 +43,6 @@ unsigned int Grid::SetTileSize(const unsigned int& COLS, const unsigned int& ROW
 
 	return size;
 }
-
 RectUI Grid::SetGridRect(const unsigned int& TILE_SIZE, const unsigned int& COLS, const unsigned int& ROWS, const unsigned int& OFFSET)
 {
 	const unsigned int TOP		= OFFSET * 6u + (SCREEN_H - OFFSET * 6u) / 2 - TILE_SIZE * ROWS / 2;
@@ -58,35 +57,27 @@ RectUI Grid::SetGridRect(const unsigned int& TILE_SIZE, const unsigned int& COLS
 
 void Grid::InitialiseTiles()
 {
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_0.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_1.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_2.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_3.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_4.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_5.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_yellow.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mine.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_blank.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag_wrong.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_flag_correct.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_skull.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mouseover.png"));
+	const unsigned int OFF = TILE_SIZE / 20u;
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
 		for (unsigned int x = 0u; x < COLS; x++)
 		{
-			const unsigned int TOP		= GRID_RECT.top + TILE_SIZE * y;
-			const unsigned int BOTTOM	= GRID_RECT.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
-			const unsigned int LEFT		= GRID_RECT.left + TILE_SIZE * x;
-			const unsigned int RIGHT	= GRID_RECT.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
+			const unsigned int TOP = GRID_RECT.top + TILE_SIZE * y;
+			const unsigned int BOTTOM = GRID_RECT.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
+			const unsigned int LEFT = GRID_RECT.left + TILE_SIZE * x;
+			const unsigned int RIGHT = GRID_RECT.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
 
-			const RectUI POSITION = RectUI(TOP, BOTTOM, LEFT, RIGHT);
-			
-			tiles.emplace_back(POSITION, tile_textures[TILE::UNREVEALED]);
+			std::vector<Block> blocks;
+
+			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::MOUSEOVER]);
+			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::TILE_DARK]);
+			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::BLANK]);
+
+			tiles.emplace_back(blocks);
+
+			const size_t INDEX = static_cast<size_t>(y) * COLS + x;
+			tiles[INDEX].SetMouseoverRect(RectUI(TOP+OFF, BOTTOM-OFF, LEFT+OFF, RIGHT-OFF));
 		}
 	}
 }
@@ -305,7 +296,7 @@ unsigned int	Grid::Rows() const
 {
 	return ROWS;
 }
-size_t			Grid::Size() const
+size_t			Grid::GridSize() const
 {
 	return SIZE;
 }
@@ -318,7 +309,7 @@ unsigned int	Grid::TileSize() const
 	return TILE_SIZE;
 }
 
-RectUI Grid::Rect() const
+RectUI Grid::GridRect() const
 {
 	return GRID_RECT;
 }
@@ -386,7 +377,7 @@ void Grid::SetBackground()
 		background_textures[0] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, color_start, color_end));
 	}
 
-	background = Block(GRID_RECT, background_textures[INDEX]);
+	background = { GRID_RECT, background_textures[INDEX] };
 }
 
 void Grid::DrawBackground(Graphics& gfx)
@@ -397,11 +388,6 @@ void Grid::DrawTiles(Graphics& gfx)
 {
 	for (auto& t : tiles)
 	{
-		if (t.MouseOver())
-		{
-			mouseover.Draw(gfx);
-		}
-
 		t.Draw(gfx);
 	}
 }
@@ -411,6 +397,12 @@ void Grid::Reset()
 	SetBackground();
 	SetTileValues();
 	gameover = false;
+
+	for (auto& t : tiles)
+	{
+		t.SetTexture(TILE_TYPE::TILE,tile_textures[TILE::TILE_DARK]);
+		t.SetTexture(TILE_TYPE::IMAGE,tile_textures[TILE::BLANK]);
+	}
 }
 
 void Grid::Update()
@@ -423,26 +415,29 @@ void Grid::Update()
 			{
 				if (t.Flag() && !t.Mine())
 				{
-					t.SetTexture(tile_textures[TILE::FLAG_WRONG]);
+					t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
+					t.SetTexture(2,tile_textures[TILE::FLAG_WRONG]);
 				}
 				else if (t.Flag() && t.Mine())
 				{
-					t.SetTexture(tile_textures[TILE::FLAG_CORRECT]);
+					t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
+					t.SetTexture(2,tile_textures[TILE::FLAG_CORRECT]);
 				}
 			}
 			else
 			{
 				if (t.Flag())
 				{
-					t.SetTexture(tile_textures[TILE::FLAG]);
+					t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
+					t.SetTexture(2,tile_textures[TILE::FLAG]);
 				}
 				else if (t.Checked())
 				{
-					t.SetTexture(tile_textures[TILE::EMPTY]);
+					t.SetTexture(1,tile_textures[TILE::TILE_LIGHT]);
 				}
 				else
 				{
-					t.SetTexture(tile_textures[TILE::UNREVEALED]);
+					t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
 				}
 			}
 		}
@@ -450,17 +445,14 @@ void Grid::Update()
 		{			
 			if (t.Exploded())
 			{
-				t.SetTexture(tile_textures[TILE::EXPLODED]);
+				t.SetTexture(1,tile_textures[TILE::TILE_LIGHT]);
+				t.SetTexture(2,tile_textures[TILE::EXPLODED]);
 			}
 			else
 			{
-				t.SetTexture(tile_textures[t.Value()]);
+				t.SetTexture(1,tile_textures[TILE::TILE_LIGHT]);
+				t.SetTexture(2,tile_textures[t.Value()]);
 			}
-		}
-
-		if (t.MouseOver())
-		{
-			mouseover = { t.Position(),tile_textures[TILE::MOUSEOVER] };
 		}
 	}
 }

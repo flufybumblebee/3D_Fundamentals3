@@ -13,7 +13,7 @@ class Button
 private:
 	bool mousepress = false;
 	bool mouseover = false;
-	RectUI position;
+	RectUI rect;
 	Block block_a;
 	Block block_b;
 	Block block_c; 
