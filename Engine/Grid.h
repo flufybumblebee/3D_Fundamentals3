@@ -19,12 +19,12 @@ namespace TILE
 	static constexpr size_t EIGHT			= 8;
 	static constexpr size_t MINE			= 9;
 	static constexpr size_t EXPLODED		= 10;
-	static constexpr size_t TILE_LIGHT		= 11;
-	static constexpr size_t TILE_DARK		= 12;
-	static constexpr size_t FLAG			= 13;
-	static constexpr size_t FLAG_WRONG		= 14;
-	static constexpr size_t FLAG_CORRECT	= 15;
-	static constexpr size_t MOUSEOVER		= 16;
+	static constexpr size_t FLAG			= 11;
+	static constexpr size_t FLAG_WRONG		= 12;
+	static constexpr size_t FLAG_CORRECT	= 13;
+	static constexpr size_t MOUSEOVER		= 14;
+	static constexpr size_t TILE_LIGHT		= 15;
+	static constexpr size_t TILE_DARK		= 16;
 };
 
 namespace TILE_TYPE
@@ -39,8 +39,9 @@ class Grid
 private:
 	static constexpr unsigned int SCREEN_W = Graphics::ScreenWidth;
 	static constexpr unsigned int SCREEN_H = Graphics::ScreenHeight;
-	static constexpr unsigned int MIN_COLS = 9u;
-	static constexpr unsigned int MIN_ROWS = 9u;
+	static constexpr unsigned int MIN_COLS = 1u;
+	static constexpr unsigned int MIN_ROWS = 1u;
+	static constexpr unsigned int MIN_MINES = 1u;
 
 	const unsigned int	COLS;
 	const unsigned int	ROWS;
@@ -50,16 +51,16 @@ private:
 	const unsigned int	TILE_SIZE;
 	const RectUI		GRID_RECT;
 
-	std::vector<std::shared_ptr<Surface>>	tile_textures;
 	std::vector<std::shared_ptr<Surface>>	background_textures;
+	std::vector<std::shared_ptr<Surface>>	tile_textures;
 	std::vector<Tile>						tiles;
-
 	Block									background;
 	
 	bool gameover = false;
 
 public:
-	Grid(std::vector<std::shared_ptr<Surface>> textures,
+	Grid(std::vector<std::shared_ptr<Surface>> grid_background_textures,
+		std::vector<std::shared_ptr<Surface>> tile_textures,
 		const unsigned int& COLS,
 		const unsigned int& ROWS,
 		const unsigned int& MINES,
@@ -78,7 +79,6 @@ private:
 		const unsigned int& OFFSET);
 	
 private:
-	//void InitialiseTextures();
 	void InitialiseTiles();
 	void InitialiseBackground();
 
@@ -96,19 +96,19 @@ public:
 	unsigned int	TileSize() const;
 	RectUI			GridRect() const;
 
-	unsigned int	Value(const unsigned int& INDEX) const;
+	unsigned int	Value(const size_t& INDEX) const;
 
-	bool Flag(const unsigned int& INDEX) const;
-	bool Revealed(const unsigned int& INDEX) const;
-	bool Checked(const unsigned int& INDEX) const; 
-	bool Mine(const unsigned int& INDEX) const;
-	bool MouseOver(const unsigned int& INDEX) const;
+	bool Flag(const size_t& INDEX) const;
+	bool Revealed(const size_t& INDEX) const;
+	bool Checked(const size_t& INDEX) const;
+	bool Mine(const size_t& INDEX) const;
+	bool MouseOver(const size_t& INDEX) const;
 
-	void SetFlag(const unsigned int& INDEX, const bool& IS_FLAG);
-	void SetRevealed(const unsigned int& INDEX, const bool& IS_REVEALED);
-	void SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED);
-	void SetExploded(const unsigned int& INDEX, const bool& IS_EXPLODED);
-	void SetMouseOver(const unsigned int& INDEX, Mouse& mouse);
+	void SetFlag(const size_t& INDEX, const bool& IS_FLAG);
+	void SetRevealed(const size_t& INDEX, const bool& IS_REVEALED);
+	void SetChecked(const size_t& INDEX, const bool& IS_CHECKED);
+	void SetExploded(const size_t& INDEX, const bool& IS_EXPLODED);
+	void SetMouseOver(const size_t& INDEX, Mouse& mouse);
 
 	void SetGameOver(const bool& IS_GAMEOVER);
 

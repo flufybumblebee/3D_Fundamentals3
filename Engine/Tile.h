@@ -6,10 +6,18 @@
 #include "Rect.h"
 #include <assert.h>
 
+/*
+NOTES:
+
+find an efficient way to organise the tile textures so that they
+do not need to be set every frame/update but only when they are changed
+
+*/
+
 class Tile
 {
 private:
-	static constexpr size_t EMPTY			= 0;
+	/*static constexpr size_t EMPTY			= 0;
 	static constexpr size_t ONE				= 1;
 	static constexpr size_t TWO				= 2;
 	static constexpr size_t THREE			= 3;
@@ -24,6 +32,8 @@ private:
 	static constexpr size_t FLAG_WRONG		= 12;
 	static constexpr size_t FLAG_CORRECT	= 13;
 	static constexpr size_t MOUSEOVER		= 14;
+	static constexpr size_t TILE_LIGHT		= 15;
+	static constexpr size_t TILE_DARK		= 16;*/
 
 	unsigned int value	= 0u;
 	bool is_revealed	= false;

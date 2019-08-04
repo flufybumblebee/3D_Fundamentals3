@@ -5,20 +5,22 @@
 
 #include <algorithm>
 
-Grid::Grid(std::vector<std::shared_ptr<Surface>> textures,
+Grid::Grid(std::vector<std::shared_ptr<Surface>> grid_background_textures,
+	std::vector<std::shared_ptr<Surface>> tile_textures,
 	const unsigned int& COLS,
 	const unsigned int& ROWS,
 	const unsigned int& MINES,
 	const unsigned int& OFFSET)
 	:
-	tile_textures(textures),
+	background_textures(grid_background_textures),
+	tile_textures(tile_textures),
 	COLS(std::max<unsigned int>(MIN_COLS, COLS)),
 	ROWS(std::max<unsigned int>(MIN_ROWS, ROWS)),
 	SIZE(static_cast<size_t>(this->COLS) * this->ROWS),
-	MINES(std::max<unsigned int>(1u, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
+	MINES(std::max<unsigned int>(MIN_MINES, std::min<unsigned int>(static_cast<unsigned int>(SIZE) - 1u, MINES))),
 	OFFSET(OFFSET),
-	TILE_SIZE(SetTileSize(this->COLS,this->ROWS,OFFSET)),
-	GRID_RECT(SetGridRect(TILE_SIZE,this->COLS,this->ROWS,OFFSET))
+	TILE_SIZE(SetTileSize(this->COLS,this->ROWS,this->OFFSET)),
+	GRID_RECT(SetGridRect(TILE_SIZE,this->COLS,this->ROWS,this->OFFSET))
 {
 	InitialiseTiles();
 	InitialiseBackground();
@@ -63,10 +65,10 @@ void Grid::InitialiseTiles()
 	{
 		for (unsigned int x = 0u; x < COLS; x++)
 		{
-			const unsigned int TOP = GRID_RECT.top + TILE_SIZE * y;
-			const unsigned int BOTTOM = GRID_RECT.top + TILE_SIZE * y + TILE_SIZE/* - 1u*/;
-			const unsigned int LEFT = GRID_RECT.left + TILE_SIZE * x;
-			const unsigned int RIGHT = GRID_RECT.left + TILE_SIZE * x + TILE_SIZE/* - 1u*/;
+			const unsigned int TOP		= GRID_RECT.top		+ TILE_SIZE * y;
+			const unsigned int BOTTOM	= GRID_RECT.top		+ TILE_SIZE * y + TILE_SIZE/* - 1u*/;
+			const unsigned int LEFT		= GRID_RECT.left	+ TILE_SIZE * x;
+			const unsigned int RIGHT	= GRID_RECT.left	+ TILE_SIZE * x + TILE_SIZE/* - 1u*/;
 
 			std::vector<Block> blocks;
 
@@ -87,15 +89,6 @@ void Grid::InitialiseBackground()
 	const Color COLOR_END = Bumble::RandomColor();
 
 	background_textures.emplace_back(std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, COLOR_START, COLOR_END)));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature0.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature1.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature2.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature3.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature4.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Nature5.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Space1.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksBlue.png")));
-	background_textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\BlocksGreen.png")));
 	
 	const size_t MIN = 0;
 	const size_t MAX = background_textures.size() - 1;
@@ -103,6 +96,21 @@ void Grid::InitialiseBackground()
 	background = { GRID_RECT, background_textures[rnd::RandomInt(MIN,MAX)] };
 }
 
+void Grid::SetBackground()
+{
+	const size_t MIN = 0;
+	const size_t MAX = background_textures.size() - 1;
+	const size_t INDEX = rnd::RandomInt(MIN, MAX);
+
+	if (INDEX == MAX)
+	{
+		Color color_start = Bumble::RandomColor();
+		Color color_end = Bumble::RandomColor();
+		background_textures[INDEX] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, color_start, color_end));
+	}
+
+	background = { GRID_RECT, background_textures[INDEX] };
+}
 void Grid::SetTileValues()
 {
 	for (auto& t : tiles)
@@ -110,15 +118,15 @@ void Grid::SetTileValues()
 		t.Reset();
 	}
 
-	std::vector<unsigned int> index_array;
+	std::vector<size_t> index_array;
 	
-	const unsigned int MIN = 0u;
-	const unsigned int MAX = static_cast<unsigned int>(SIZE) - 1u;
-	for (unsigned int i = 0u; i < MINES; i++)
+	const size_t MIN = 0u;
+	const size_t MAX = SIZE - 1u;
+	for (size_t i = 0u; i < MINES; i++)
 	{
-		unsigned int index = rnd::RandomInt(MIN,MAX);
+		size_t index = rnd::RandomInt(MIN,MAX);
 
-		for (unsigned int j = 0u; j < index_array.size(); j++)
+		for (size_t j = 0u; j < index_array.size(); j++)
 		{
 			while (index == index_array[j])
 			{
@@ -162,7 +170,7 @@ void Grid::SetTileValues()
 						{
 							j = (static_cast<size_t>(y) + yy) * COLS + (static_cast<size_t>(x) + xx);
 
-							if (tiles[j].Value() != 9)
+							if (tiles[j].Value() != 9u)
 							{
 								tiles[j].SetValue(tiles[j].Value() + 1u);
 							}
@@ -314,70 +322,55 @@ RectUI Grid::GridRect() const
 	return GRID_RECT;
 }
 
-unsigned int Grid::Value(const unsigned int& INDEX) const
+unsigned int Grid::Value(const size_t& INDEX) const
 {
 	return tiles[INDEX].Value();
 }
 
-bool Grid::Flag(const unsigned int& INDEX) const
+bool Grid::Flag(const size_t& INDEX) const
 {
 	return tiles[INDEX].Flag();
 }
-bool Grid::Revealed(const unsigned int& INDEX) const
+bool Grid::Revealed(const size_t& INDEX) const
 {
 	return tiles[INDEX].Revealed();
 }
-bool Grid::Checked(const unsigned int& INDEX) const
+bool Grid::Checked(const size_t& INDEX) const
 {
 	return tiles[INDEX].Checked();
 }
-bool Grid::Mine(const unsigned int& INDEX) const
+bool Grid::Mine(const size_t& INDEX) const
 {
 	return tiles[INDEX].Mine();
 }
-bool Grid::MouseOver(const unsigned int& INDEX) const
+bool Grid::MouseOver(const size_t& INDEX) const
 {
 	return tiles[INDEX].MouseOver();
 }
 
-void Grid::SetFlag(const unsigned int& INDEX, const bool& IS_FLAG)
+void Grid::SetFlag(const size_t& INDEX, const bool& IS_FLAG)
 {
 	tiles[INDEX].SetFlag(IS_FLAG);
 }
-void Grid::SetRevealed(const unsigned int& INDEX, const bool& IS_REVEALED)
+void Grid::SetRevealed(const size_t& INDEX, const bool& IS_REVEALED)
 {
 	tiles[INDEX].SetRevealed(IS_REVEALED);
 }
-void Grid::SetChecked(const unsigned int& INDEX, const bool& IS_CHECKED)
+void Grid::SetChecked(const size_t& INDEX, const bool& IS_CHECKED)
 {
 	tiles[INDEX].SetChecked(IS_CHECKED);
 }
-void Grid::SetExploded(const unsigned int& INDEX, const bool& IS_EXPLODED)
+void Grid::SetExploded(const size_t& INDEX, const bool& IS_EXPLODED)
 {
 	tiles[INDEX].SetExploded(IS_EXPLODED);
 }
-void Grid::SetMouseOver(const unsigned int& INDEX, Mouse& mouse)
+void Grid::SetMouseOver(const size_t& INDEX, Mouse& mouse)
 {
 	tiles[INDEX].SetMouseOver(mouse);
 }
 void Grid::SetGameOver(const bool& IS_GAMEOVER)
 {
 	gameover = IS_GAMEOVER;
-}
-void Grid::SetBackground()
-{
-	const size_t MIN = 0;
-	const size_t MAX = background_textures.size() - 1;
-	const size_t INDEX = rnd::RandomInt(MIN, MAX);
-
-	if (INDEX == 0u)
-	{
-		Color color_start = Bumble::RandomColor();
-		Color color_end = Bumble::RandomColor();
-		background_textures[0] = std::make_shared<Surface>(Bumble::CreateColorBlendTexture(GRID_RECT, color_start, color_end));
-	}
-
-	background = { GRID_RECT, background_textures[INDEX] };
 }
 
 void Grid::DrawBackground(Graphics& gfx)
@@ -404,7 +397,6 @@ void Grid::Reset()
 		t.SetTexture(TILE_TYPE::IMAGE,tile_textures[TILE::BLANK]);
 	}
 }
-
 void Grid::Update()
 {
 	for (auto& t : tiles)
@@ -438,6 +430,7 @@ void Grid::Update()
 				else
 				{
 					t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
+					t.SetTexture(2, tile_textures[TILE::BLANK]);
 				}
 			}
 		}

@@ -27,18 +27,18 @@ namespace DISPLAY
 	static constexpr size_t EIGHT	= 8;
 	static constexpr size_t NINE	= 9;
 	static constexpr size_t TILE	= 10;
-};
-namespace BORDER
-{
-	static constexpr size_t HORIZONTAL			= 0;
-	static constexpr size_t VERTICLE			= 1;
-	static constexpr size_t CORNER_TOP_LEFT		= 2;
-	static constexpr size_t CORNER_TOP_RIGHT	= 3;
-	static constexpr size_t CORNER_BOTTOM_LEFT	= 4;
-	static constexpr size_t CORNER_BOTTOM_RIGHT = 5;
-	static constexpr size_t T_LEFT				= 6;
-	static constexpr size_t T_RIGHT				= 7;
-};
+}
+//namespace BORDER
+//{
+//	static constexpr size_t HORIZONTAL			= 0;
+//	static constexpr size_t VERTICLE			= 1;
+//	static constexpr size_t CORNER_TOP_LEFT		= 2;
+//	static constexpr size_t CORNER_TOP_RIGHT	= 3;
+//	static constexpr size_t CORNER_BOTTOM_LEFT	= 4;
+//	static constexpr size_t CORNER_BOTTOM_RIGHT = 5;
+//	static constexpr size_t T_LEFT				= 6;
+//	static constexpr size_t T_RIGHT				= 7;
+//}
 namespace SOUNDS
 {
 	static constexpr size_t FANFARE = 0;
@@ -79,7 +79,7 @@ namespace HARD
 /*
 TO DO:
 	TEXTURE - HELP SCREEN (started)
-	Convert SetGrid() to grid based function.
+	Convert SetGrid() to grid based function
 
 MAYBE DO:
 
@@ -100,9 +100,7 @@ SAVE/LOAD
 KEYBOARD CONTROLS
 ADD MUSIC
 
-emulate middle mouse click - DONE
-
-shadow emulation with numbers bombs and flags
+mouse/tile based dynamic shadows with numbers bombs and flags
 
 */
 
@@ -114,20 +112,23 @@ private:
 	static constexpr unsigned int OFFSET			= 10u;
 	static constexpr unsigned int DIGIT_COLS		= 3u;
 	static constexpr unsigned int DIGIT_ROWS		= 10u;
+	static constexpr unsigned int DIGIT_W			= OFFSET * 4u;
+	static constexpr unsigned int DIGIT_H			= OFFSET * 4u;
 	static constexpr unsigned int EXPLOSION_FRAMES	= 26u;
 	static constexpr unsigned int FLAG_FRAMES		= 241u;
 	static constexpr unsigned int BUTTONS_NUM		= 3u;
 		
 	/*------------------------------------------------------------------------------------*/
-
+	
+	std::vector<std::shared_ptr<Surface>>						grid_textures;
 	std::vector<std::shared_ptr<Surface>>						tile_textures;
 	std::unique_ptr<Grid>										grid;
 		
 	/*------------------------------------------------------------------------------------*/
 
-	std::vector<std::shared_ptr<Surface>>						border_textures;
-	std::vector<Block>											border_blocks;
-	RectUI														border_rect;
+	//std::vector<std::shared_ptr<Surface>>						border_textures;
+	//std::vector<Block>											border_blocks;
+	//RectUI														border_rect;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -135,13 +136,15 @@ private:
 
 	/*------------------------------------------------------------------------------------*/
 
+	std::array<RectUI, DIGIT_COLS>								mines_rects;
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		mines_counter;
 	std::vector<unsigned int>									mines_number;
 	unsigned int												mines = 0u;
 	
 	/*------------------------------------------------------------------------------------*/
 
-	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		timer;
+	std::array<RectUI, DIGIT_COLS>								timer_rects;
+	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		timer_blocks;
 	std::vector<unsigned int>									timer_number;
 	bool														timer_started = false;
 	unsigned int												time = 0;
@@ -153,6 +156,16 @@ private:
 	std::array<RectUI, BUTTONS_NUM * 2u>						button_rects;
 	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
 	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
+
+	/*------------------------------------------------------------------------------------*/
+
+	std::vector<std::shared_ptr<Surface>>						display_textures;
+
+	RectUI														display_rect;
+	Block														display_background_block;
+
+	std::vector<RectUI>											display_divider_rects;
+	std::vector<Block>											display_divider_blocks;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -208,14 +221,20 @@ private:
 
 	void InitialiseSettingsTextures();
 	void InitialiseHelpTextures();
+	void InitialiseGridTextures();
 	void InitialiseTileTextures();
+	void InitialiseDisplayTextures();
 	void InitialiseDigitTextures();
 	void InitialiseButtonTextures();
 	void InitialiseGameOverTextures();
 
+	void InitialiseDisplay();
+	void InitialiseDisplayBackground();
 	void InitialiseMinesCounter();
 	void InitialiseButtons();
 	void InitialiseTimer();
+	void InitialiseDisplayDividers();
+
 	void InitialiseGameOver();
 	void InitialiseSounds();
 	void InitialiseHelp();
@@ -228,9 +247,12 @@ private:
 	void SetGameOver();
 	void SetMinesCounter();
 	void SetTimer();
+	void SetDisplay(Mouse& mouse);
 	
 	void ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM);
 	
+	void DrawDisplay(Graphics& gfx);
+	void DrawDisplayBackground(Graphics& gfx);
 	void DrawMinesCounter(Graphics& gfx);
 	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);
