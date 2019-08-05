@@ -166,6 +166,9 @@ private:
 
 	std::vector<RectUI>											display_divider_rects;
 	std::vector<Block>											display_divider_blocks;
+
+	std::vector<RectUI>											display_button_rects;
+	std::vector<Block>											display_button_blocks;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -234,6 +237,7 @@ private:
 	void InitialiseButtons();
 	void InitialiseTimer();
 	void InitialiseDisplayDividers();
+	void InitialiseDisplayButtons();
 
 	void InitialiseGameOver();
 	void InitialiseSounds();
@@ -247,7 +251,6 @@ private:
 	void SetGameOver();
 	void SetMinesCounter();
 	void SetTimer();
-	void SetDisplay(Mouse& mouse);
 	
 	void ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM);
 	
@@ -256,6 +259,7 @@ private:
 	void DrawMinesCounter(Graphics& gfx);
 	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);
+	void DrawDisplayButtons(Graphics& gfx);
 	void DrawGameOver(Graphics& gfx);
 
 	void DrawHelp(Graphics& gfx);

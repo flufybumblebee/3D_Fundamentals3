@@ -87,6 +87,9 @@ void Minesweeper::InitialiseDisplayTextures()
 {
 	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_background.png"));
 	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_divider.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_cols.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_rows.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_mines.png"));
 }
 void Minesweeper::InitialiseDigitTextures()
 {
@@ -103,8 +106,8 @@ void Minesweeper::InitialiseDigitTextures()
 }
 void Minesweeper::InitialiseButtonTextures()
 {
-	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\question_mark.png"));
-	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\cog.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\help.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\settings.png"));
 	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_0.png"));
 	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_1.png"));
 	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_2.png"));
@@ -230,6 +233,7 @@ void Minesweeper::InitialiseDisplay()
 	InitialiseButtons();
 	InitialiseMinesCounter();
 	InitialiseTimer();
+	InitialiseDisplayButtons();
 	InitialiseDisplayDividers();
 }
 
@@ -340,6 +344,48 @@ void Minesweeper::InitialiseTimer()
 	}
 }
 
+void Minesweeper::InitialiseDisplayButtons()
+{
+	{
+		// DISPLAY BUTTON COLS
+
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = mines_rects[0].right + OFFSET + OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[0], display_textures[2]);
+	}
+
+	{
+		// DISPLAY BUTTON ROWS
+
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = display_button_rects[0].right + OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[1], display_textures[3]);
+	}
+	
+	{
+		// DISPLAY BUTTON MINES
+
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = display_button_rects[1].right + OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[2], display_textures[4]);
+	}
+}
+
 void Minesweeper::InitialiseDisplayDividers()
 {
 	const unsigned int DIVIDER_W = (DIGIT_H + OFFSET / 2u) / 6u;
@@ -349,7 +395,7 @@ void Minesweeper::InitialiseDisplayDividers()
 
 		const unsigned int TOP = OFFSET / 2u;
 		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = mines_rects[0].right;
+		const unsigned int LEFT = mines_rects[0].right + OFFSET / 2u;
 		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
 
 		display_divider_rects.emplace_back( TOP,BOTTOM,LEFT,RIGHT );
@@ -362,12 +408,25 @@ void Minesweeper::InitialiseDisplayDividers()
 
 		const unsigned int TOP = OFFSET / 2u;
 		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = timer_rects[2].left - DIVIDER_W;
+		const unsigned int LEFT = timer_rects[2].left - DIVIDER_W - OFFSET / 2u;
 		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
 
 		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
 
 		display_divider_blocks.emplace_back(display_divider_rects[1], display_textures[1]);
+	}
+
+	{
+		// MINES BUTTON DIVIDER
+
+		const unsigned int TOP = OFFSET / 2u;
+		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
+		const unsigned int LEFT = display_button_rects[2].right + OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
+
+		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_divider_blocks.emplace_back(display_divider_rects[2], display_textures[1]);
 	}
 }
 
@@ -938,6 +997,7 @@ void Minesweeper::DrawDisplay(Graphics& gfx)
 	DrawMinesCounter(gfx);
 	DrawButtons(gfx);
 	DrawTimer(gfx);
+	DrawDisplayButtons(gfx);
 }
 
 void Minesweeper::DrawDisplayBackground(Graphics& gfx)
@@ -977,6 +1037,14 @@ void Minesweeper::DrawTimer(Graphics& gfx)
 	for (unsigned int i = 0u; i < timer_number.size(); i++)
 	{
 		timer_blocks[timer_number[i]][i].Draw(gfx);
+	}
+}
+
+void Minesweeper::DrawDisplayButtons(Graphics& gfx)
+{
+	for (auto& b : display_button_blocks)
+	{
+		b.Draw(gfx);
 	}
 }
 
