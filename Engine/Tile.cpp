@@ -44,6 +44,11 @@ void Tile::SetMouseoverRect(const RectUI& MOUSEOVER_RECT)
 	mouseover_rect = MOUSEOVER_RECT;
 }
 
+void Tile::SetGameOver(const bool& IS_GAMEOVER)
+{
+	gameover = IS_GAMEOVER;
+}
+
 void Tile::SetRect(const size_t& INDEX, const RectUI& RECT)
 {
 	blocks[INDEX].SetRect(RECT);
@@ -103,13 +108,14 @@ void Tile::Reset()
 	is_flag_wrong	= false;
 	is_exploded		= false;
 	mouseover		= false;
+	gameover		= false;
 }
 
 void Tile::Draw(Graphics& gfx)
 {	
 	for (size_t i = 1; i < blocks.size(); i++)
 	{
-		if (mouseover)
+		if (!gameover && mouseover)
 		{
 			blocks[0].Draw(gfx);
 		}

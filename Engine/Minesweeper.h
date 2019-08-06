@@ -16,17 +16,13 @@
 
 namespace DISPLAY
 {
-	static constexpr size_t EMPTY	= 0;
-	static constexpr size_t ONE		= 1;
-	static constexpr size_t TWO		= 2;
-	static constexpr size_t THREE	= 3;
-	static constexpr size_t FOUR	= 4;
-	static constexpr size_t FIVE	= 5;
-	static constexpr size_t SIX		= 6;
-	static constexpr size_t SEVEN	= 7;
-	static constexpr size_t EIGHT	= 8;
-	static constexpr size_t NINE	= 9;
-	static constexpr size_t TILE	= 10;
+	static constexpr size_t COLS	= 0;
+	static constexpr size_t ROWS	= 1;
+	static constexpr size_t MINES	= 2;
+	static constexpr size_t LEVEL	= 3;
+
+	static constexpr size_t TIMER	= 4;
+	static constexpr size_t VOLUME	= 5;
 }
 //namespace BORDER
 //{
@@ -41,39 +37,60 @@ namespace DISPLAY
 //}
 namespace SOUNDS
 {
-	static constexpr size_t FANFARE = 0;
-	static constexpr size_t EXPLOSION = 1;
-	static constexpr size_t CLICK_0 = 2;
-	static constexpr size_t CLICK_1 = 3;
-	static constexpr size_t CLICK_2 = 4;
-	static constexpr size_t CLICK_3 = 5;
+	static constexpr size_t FANFARE		= 0;
+	static constexpr size_t EXPLOSION	= 1;
+	static constexpr size_t CLICK_0		= 2;
+	static constexpr size_t CLICK_1		= 3;
+	static constexpr size_t CLICK_2		= 4;
+	static constexpr size_t CLICK_3		= 5;
 }
-namespace BUTTONS
+namespace BUTTON
 {
-	static constexpr size_t HELP = 0;
-	static constexpr size_t SETTINGS = 2;
-	static constexpr size_t RESET = 4;
-}
+	namespace HELP
+	{
+		static constexpr size_t RELEASE	= 0;
+		static constexpr size_t PRESSED	= 1;
+		static constexpr size_t TEXTURE = 0;
+	}
+	namespace SETTINGS
+	{
+		static constexpr size_t RELEASE	= 2;
+		static constexpr size_t PRESSED	= 3;
+		static constexpr size_t TEXTURE = 1;
+	}
 
-namespace EASY
-{
-	static constexpr unsigned int COLS	= 9u;
-	static constexpr unsigned int ROWS	= 9u;
-	static constexpr unsigned int MINES = 10u;
+	namespace RESET
+	{
+		static constexpr size_t RELEASE = 4;
+		static constexpr size_t PRESSED = 5;
+		static constexpr size_t SMILE	= 2;
+		static constexpr size_t WIN		= 3;
+		static constexpr size_t LOSE	= 4;
+		static constexpr size_t GASP	= 5;
+	}
 }
-
-namespace MEDIUM
+namespace LEVEL
 {
-	static constexpr unsigned int COLS	= 16u;
-	static constexpr unsigned int ROWS	= 16u;
-	static constexpr unsigned int MINES = 40u;
-}
+	namespace EASY
+	{
+		static constexpr unsigned int COLS = 9u;
+		static constexpr unsigned int ROWS = 9u;
+		static constexpr unsigned int MINES = 10u;
+	}
 
-namespace HARD
-{
-	static constexpr unsigned int COLS	= 30u;
-	static constexpr unsigned int ROWS	= 16u;
-	static constexpr unsigned int MINES	= 99u;
+	namespace MEDIUM
+	{
+		static constexpr unsigned int COLS = 16u;
+		static constexpr unsigned int ROWS = 16u;
+		static constexpr unsigned int MINES = 40u;
+	}
+
+	namespace HARD
+	{
+		static constexpr unsigned int COLS = 30u;
+		static constexpr unsigned int ROWS = 16u;
+		static constexpr unsigned int MINES = 99u;
+	}
 }
 
 /*
@@ -122,7 +139,7 @@ private:
 	
 	std::vector<std::shared_ptr<Surface>>						grid_textures;
 	std::vector<std::shared_ptr<Surface>>						tile_textures;
-	std::unique_ptr<Grid>										grid;
+	std::unique_ptr<Grid>										grid = nullptr;
 		
 	/*------------------------------------------------------------------------------------*/
 
@@ -132,23 +149,25 @@ private:
 	
 	/*------------------------------------------------------------------------------------*/
 
-	std::vector<std::shared_ptr<Surface>>						digit_textures;
+	std::array<std::shared_ptr<Surface>, DIGIT_ROWS>				digit_textures{ nullptr };
 
 	/*------------------------------------------------------------------------------------*/
 
-	std::array<RectUI, DIGIT_COLS>								mines_rects;
-	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		mines_counter;
-	std::vector<unsigned int>									mines_number;
+	std::array<RectUI, DIGIT_COLS>								mine_counter_rects;
+	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		mine_counter;
+	std::vector<unsigned int>									mine_counter_value;
 	unsigned int												mines = 0u;
+	RectUI														mine_counter_rect;
 	
 	/*------------------------------------------------------------------------------------*/
 
 	std::array<RectUI, DIGIT_COLS>								timer_rects;
 	std::array<std::array<Block, DIGIT_COLS>, DIGIT_ROWS>		timer_blocks;
-	std::vector<unsigned int>									timer_number;
+	std::vector<unsigned int>									timer_value;
 	bool														timer_started = false;
 	unsigned int												time = 0;
 	std::chrono::high_resolution_clock::time_point				t1;
+	RectUI														timer_rect;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -191,10 +210,10 @@ private:
 
 	RectUI														gameover_rect;
 
-	std::array<std::shared_ptr<Surface>, EXPLOSION_FRAMES>		explosion_textures;
+	std::array<std::shared_ptr<Surface>, EXPLOSION_FRAMES>		explosion_textures{ nullptr };
 	std::array<Block, EXPLOSION_FRAMES>							explosion_blocks;
 
-	std::array<std::shared_ptr<Surface>, FLAG_FRAMES>			flag_textures;
+	std::array<std::shared_ptr<Surface>, FLAG_FRAMES>			flag_textures{ nullptr };
 	std::array<Block, FLAG_FRAMES>								flag_blocks;
 	unsigned int												flags = 0u;
 

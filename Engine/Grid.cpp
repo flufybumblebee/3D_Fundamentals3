@@ -60,6 +60,7 @@ RectUI Grid::SetGridRect(const unsigned int& TILE_SIZE, const unsigned int& COLS
 void Grid::InitialiseTiles()
 {
 	const unsigned int OFF = TILE_SIZE / 20u;
+	const unsigned int OFF2 = TILE_SIZE / 6u;
 
 	for (unsigned int y = 0u; y < ROWS; y++)     
 	{
@@ -74,7 +75,7 @@ void Grid::InitialiseTiles()
 
 			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::MOUSEOVER]);
 			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::TILE_DARK]);
-			blocks.emplace_back(RectUI(TOP, BOTTOM, LEFT, RIGHT), tile_textures[TILE::BLANK]);
+			blocks.emplace_back(RectUI(TOP + OFF2, BOTTOM - OFF2, LEFT + OFF2, RIGHT - OFF2), tile_textures[TILE::BLANK]);
 
 			tiles.emplace_back(blocks);
 
@@ -400,6 +401,11 @@ void Grid::Reset()
 void Grid::Update()
 {
 	for (auto& t : tiles)
+	{
+		t.SetGameOver(gameover);
+	}
+
+	for (auto& t : tiles)
 	{		
 		if (!t.Revealed())
 		{		
@@ -438,13 +444,21 @@ void Grid::Update()
 		{			
 			if (t.Exploded())
 			{
-				t.SetTexture(1,tile_textures[TILE::TILE_LIGHT]);
+				t.SetTexture(1,tile_textures[TILE::TILE_DARK]);
 				t.SetTexture(2,tile_textures[TILE::EXPLODED]);
 			}
 			else
 			{
-				t.SetTexture(1,tile_textures[TILE::TILE_LIGHT]);
-				t.SetTexture(2,tile_textures[t.Value()]);
+				if (t.Mine())
+				{
+					t.SetTexture(1, tile_textures[TILE::TILE_DARK]);
+					t.SetTexture(2, tile_textures[TILE::MINE]);
+				}
+				else
+				{
+					t.SetTexture(1, tile_textures[TILE::TILE_LIGHT]);
+					t.SetTexture(2, tile_textures[t.Value()]);
+				}
 			}
 		}
 	}

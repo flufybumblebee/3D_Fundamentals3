@@ -5,7 +5,26 @@ Minesweeper::Minesweeper()
 	InitialiseSounds();
 	InitialiseTextures();
 	InitialiseHelp();
-	InitialiseSettings();
+	InitialiseDisplay();
+	InitialiseGameOver();
+
+	is_selected[0] = true;
+	is_selected[1] = false;
+	is_selected[2] = false;
+	is_selected[3] = false;
+
+	grid = std::make_unique<Grid>(
+		grid_textures,
+		tile_textures,
+		LEVEL::EASY::COLS,
+		LEVEL::EASY::ROWS,
+		LEVEL::EASY::MINES,
+		OFFSET);
+	
+	if (grid != nullptr)
+	{
+		mines = grid->Mines();
+	}
 }
 
 /*--------------------------------------------*/
@@ -66,13 +85,13 @@ void Minesweeper::InitialiseGridTextures()
 void Minesweeper::InitialiseTileTextures()
 {
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_blank.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_1.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_2.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_3.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_4.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_5.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_yellow.png"));
-	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_violet.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_1_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_2_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_3_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_4_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_5_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_white.png"));
+	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_mine.png"));
 	tile_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_skull.png"));
@@ -90,27 +109,35 @@ void Minesweeper::InitialiseDisplayTextures()
 	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_cols.png"));
 	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_rows.png"));
 	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_mines.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_easy.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_medium.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_hard.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_custom.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_timer.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_volume.png"));
+	display_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\display_volume_mute.png"));
 }
 void Minesweeper::InitialiseDigitTextures()
 {
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_0_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_1_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_2_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_3_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_4_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_5_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png"));
-	digit_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_9_white.png"));
+	digit_textures[0] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_0_white.png");
+	digit_textures[1] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_1_white.png");
+	digit_textures[2] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_2_white.png");
+	digit_textures[3] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_3_white.png");
+	digit_textures[4] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_4_white.png");
+	digit_textures[5] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_5_white.png");
+	digit_textures[6] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_6_white.png");
+	digit_textures[7] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_7_white.png");
+	digit_textures[8] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_8_white.png");
+	digit_textures[9] = std::make_shared<Surface>(L"Textures\\Minesweeper\\Digits\\digit_9_white.png");
 }
 void Minesweeper::InitialiseButtonTextures()
 {
 	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\help.png"));
 	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\settings.png"));
-	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_0.png"));
-	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_1.png"));
-	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_2.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_smile.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_win.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_lose.png"));
+	button_textures.emplace_back(std::make_shared<Surface>(L"Textures\\Minesweeper\\Tiles\\tile_smiley_gasp.png"));
 }
 void Minesweeper::InitialiseGameOverTextures()
 {
@@ -201,9 +228,7 @@ void Minesweeper::InitialiseSettings()
 		const unsigned int BOTTOM = TOP + TEXT_SIZE - 1u;
 		const unsigned int LEFT = BUTTON_POSITION.x - TEXT_SIZE * 3u;
 		const unsigned int RIGHT = LEFT + TEXT_SIZE * 6u - 1u;
-
-		//const RectUI RECT = { TOP,BOTTOM,LEFT,RIGHT };
-
+		
 		settings_text_blocks[i] = Block({ TOP,BOTTOM,LEFT,RIGHT }, settings_textures[i]);
 	}
 
@@ -213,8 +238,6 @@ void Minesweeper::InitialiseSettings()
 		const unsigned int BOTTOM = TOP + BUTTON_H - 1u;
 		const unsigned int LEFT = BUTTON_POSITION.x - BUTTON_W / 2u;
 		const unsigned int RIGHT = LEFT + BUTTON_W - 1u;
-
-		//const RectUI RECT = { TOP,BOTTOM,LEFT,RIGHT };
 
 		settings_blocks[i] = Block({ TOP,BOTTOM,LEFT,RIGHT }, settings_textures[6]);
 	}
@@ -239,16 +262,14 @@ void Minesweeper::InitialiseDisplay()
 
 void Minesweeper::InitialiseDisplayBackground()
 {
-	{
-		const unsigned int TOP = OFFSET / 2u;
-		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = SCREEN_RECT.left + OFFSET / 2u;
-		const unsigned int RIGHT = SCREEN_RECT.right - OFFSET / 2u + 1u;
+	const unsigned int TOP		= OFFSET / 2u;
+	const unsigned int BOTTOM	= TOP + DIGIT_H + OFFSET - 1u;
+	const unsigned int LEFT		= SCREEN_RECT.left + OFFSET / 2u;
+	const unsigned int RIGHT	= SCREEN_RECT.right - OFFSET / 2u + 1u;
 
-		display_rect = { TOP,BOTTOM,LEFT,RIGHT };
+	display_rect = { TOP,BOTTOM,LEFT,RIGHT };
 
-		display_background_block = { display_rect,display_textures[0] };
-	}	
+	display_background_block = { display_rect,display_textures[0] };	
 }
 void Minesweeper::InitialiseMinesCounter()
 {
@@ -267,10 +288,12 @@ void Minesweeper::InitialiseMinesCounter()
 				LEFT - (DIGIT_W * x),
 				LEFT - (DIGIT_W * x) + DIGIT_W - 1u };
 
-			mines_counter[y][x] = { rect, digit_textures[y] };
+			mine_counter[y][x] = { rect, digit_textures[y] };
 		}
-		mines_rects[x] = rect;
+		mine_counter_rects[x] = rect;
 	}
+
+	mine_counter_rect = { mine_counter_rects[0].top,mine_counter_rects[0].bottom,mine_counter_rects[2].left,mine_counter_rects[0].right };
 }
 void Minesweeper::InitialiseButtons()
 {
@@ -281,14 +304,14 @@ void Minesweeper::InitialiseButtons()
 
 		const unsigned int TOP = OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
-		const unsigned int LEFT = grid->GridRect().left + grid->GridRect().GetWidth() / 2u - OFFSET * 6u;
+		const unsigned int LEFT = SCREEN_W / 2u - OFFSET * 6u;
 		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
 
 		button_rects[0] = { TOP,BOTTOM,LEFT,RIGHT };
 		button_rects[1] = { TOP + OFF, BOTTOM - OFF, LEFT + OFF, RIGHT - OFF };
 
 		button_blocks[0] = { button_rects[0], button_textures[0] };
-		button_blocks[1] = { button_rects[1], button_textures[0] };
+		button_blocks[1] = { button_rects[1], button_textures[1] };
 	}
 
 	{
@@ -296,14 +319,16 @@ void Minesweeper::InitialiseButtons()
 
 		const unsigned int TOP = OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
-		const unsigned int LEFT = grid->GridRect().left + grid->GridRect().GetWidth() / 2u + OFFSET * 2u;
+		const unsigned int LEFT = SCREEN_W / 2u + OFFSET * 2u;
 		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
 
 		button_rects[2] = { TOP,BOTTOM,LEFT,RIGHT };
 		button_rects[3] = { TOP + OFF, BOTTOM - OFF, LEFT + OFF, RIGHT - OFF };
 
-		button_blocks[2] = { button_rects[2], button_textures[1] };
-		button_blocks[3] = { button_rects[3], button_textures[1] };
+		button_blocks[BUTTON::SETTINGS::RELEASE] = 
+			{ button_rects[BUTTON::SETTINGS::RELEASE], button_textures[BUTTON::SETTINGS::TEXTURE] };
+		button_blocks[BUTTON::SETTINGS::PRESSED] = 
+			{ button_rects[BUTTON::SETTINGS::PRESSED], button_textures[BUTTON::SETTINGS::TEXTURE] };
 	}
 
 	{
@@ -311,7 +336,7 @@ void Minesweeper::InitialiseButtons()
 
 		const unsigned int TOP = OFFSET * 1u;
 		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
-		const unsigned int LEFT = grid->GridRect().left + grid->GridRect().GetWidth() / 2u - OFFSET * 2u;
+		const unsigned int LEFT = SCREEN_W / 2u - OFFSET * 2u;
 		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
 
 		button_rects[4] = { TOP,BOTTOM,LEFT,RIGHT };
@@ -320,6 +345,33 @@ void Minesweeper::InitialiseButtons()
 		button_blocks[4] = { button_rects[4], button_textures[2] };
 		button_blocks[5] = { button_rects[5], button_textures[2] };
 	}
+
+	//const unsigned int TOP		= OFFSET * 1u;
+	//const unsigned int BOTTOM	= TOP + DIGIT_H - 1u;
+	//const unsigned int LEFT		= SCREEN_W / 2u - DIGIT_W / 2u - DIGIT_W;
+	//const unsigned int RIGHT	= LEFT + DIGIT_W - 1u;
+	//
+	//unsigned int j = 0;
+	//size_t k = 0;
+	//
+	//for (unsigned int i = 0u; i < button_blocks.size()/2u; i++)
+	//{
+	//	j = i * 2u;
+	//	k = static_cast<size_t>(j) + 1u;
+	//
+	//	button_rects[j]	= { TOP,
+	//						BOTTOM,
+	//						LEFT + DIGIT_W * i,
+	//						RIGHT + DIGIT_W * i };
+	//
+	//	button_rects[k]	= { TOP		+ OFF,
+	//						BOTTOM	- OFF,
+	//						LEFT	+ OFF + DIGIT_W * i,
+	//						RIGHT	- OFF + DIGIT_W * i };
+	//
+	//	button_blocks[j] = { button_rects[j], button_textures[i] };
+	//	button_blocks[k] = { button_rects[k], button_textures[i] };
+	//}
 }
 void Minesweeper::InitialiseTimer()
 {
@@ -342,8 +394,9 @@ void Minesweeper::InitialiseTimer()
 		}
 		timer_rects[x] = rect;
 	}
-}
 
+	timer_rect = { timer_rects[0].top,timer_rects[0].bottom,timer_rects[2].left,timer_rects[0].right };
+}
 void Minesweeper::InitialiseDisplayButtons()
 {
 	{
@@ -351,7 +404,7 @@ void Minesweeper::InitialiseDisplayButtons()
 
 		const unsigned int TOP = OFFSET;
 		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
-		const unsigned int LEFT = mines_rects[0].right + OFFSET + OFFSET / 2u;
+		const unsigned int LEFT = mine_counter_rect.right + OFFSET + OFFSET / 2u;
 		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
 
 		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
@@ -384,18 +437,62 @@ void Minesweeper::InitialiseDisplayButtons()
 
 		display_button_blocks.emplace_back(display_button_rects[2], display_textures[4]);
 	}
-}
-
-void Minesweeper::InitialiseDisplayDividers()
-{
-	const unsigned int DIVIDER_W = (DIGIT_H + OFFSET / 2u) / 6u;
 
 	{
-		// MINES COUNTER DIVIDER
+		// DISPLAY BUTTON LEVELS
+
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = display_button_rects[2].right + OFFSET + OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[3], display_textures[5]);
+		display_button_blocks.emplace_back(display_button_rects[3], display_textures[6]);
+		display_button_blocks.emplace_back(display_button_rects[3], display_textures[7]);
+		display_button_blocks.emplace_back(display_button_rects[3], display_textures[8]);
+	}
+
+	{
+		// TIMER ICON
+		
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = timer_rect.left - DIGIT_W - OFFSET - OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[4], display_textures[9]);
+	}
+
+	{
+		// VOLUME BUTTON
+
+		const unsigned int TOP = OFFSET;
+		const unsigned int BOTTOM = TOP + DIGIT_H - 1u;
+		const unsigned int LEFT = display_button_rects[4].left - DIGIT_W - OFFSET - OFFSET / 2u;
+		const unsigned int RIGHT = LEFT + DIGIT_W - 1u;
+
+		display_button_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_button_blocks.emplace_back(display_button_rects[5], display_textures[10]);
+		display_button_blocks.emplace_back(display_button_rects[5], display_textures[11]);
+	}
+}
+void Minesweeper::InitialiseDisplayDividers()
+{
+	const unsigned int DIVIDER_W = (DIGIT_W + OFFSET / 2u) / 6u;
+
+	{
+		// BETWEEN MINES COUNTER & COLS BUTTON 
+
+		const unsigned int GAP = display_button_rects[DISPLAY::COLS].left - mine_counter_rect.right;
 
 		const unsigned int TOP = OFFSET / 2u;
 		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = mines_rects[0].right + OFFSET / 2u;
+		const unsigned int LEFT = mine_counter_rect.right + GAP / 2u - DIVIDER_W / 2u;
 		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
 
 		display_divider_rects.emplace_back( TOP,BOTTOM,LEFT,RIGHT );
@@ -404,11 +501,13 @@ void Minesweeper::InitialiseDisplayDividers()
 	}
 
 	{
-		// TIMER DIVIDER
+		// BETWEEN TIMER BUTTON & TIMER
+
+		const unsigned int GAP = timer_rect.left - display_button_rects[DISPLAY::TIMER].right;
 
 		const unsigned int TOP = OFFSET / 2u;
 		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = timer_rects[2].left - DIVIDER_W - OFFSET / 2u;
+		const unsigned int LEFT = display_button_rects[DISPLAY::TIMER].right + GAP / 2u - DIVIDER_W / 2u;
 		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
 
 		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
@@ -417,24 +516,69 @@ void Minesweeper::InitialiseDisplayDividers()
 	}
 
 	{
-		// MINES BUTTON DIVIDER
+		// BETWEEN MINES BUTTON & LEVELS BUTTON
+
+		const unsigned int GAP = display_button_rects[DISPLAY::LEVEL].left - display_button_rects[DISPLAY::MINES].right;
 
 		const unsigned int TOP = OFFSET / 2u;
 		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
-		const unsigned int LEFT = display_button_rects[2].right + OFFSET / 2u;
+		const unsigned int LEFT = display_button_rects[DISPLAY::MINES].right + GAP / 2u - DIVIDER_W / 2u;
 		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
 
 		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
 
 		display_divider_blocks.emplace_back(display_divider_rects[2], display_textures[1]);
 	}
+
+	{
+		// BETWEEN LEVELS BUTTON & HELP BUTTON 
+
+		const unsigned int GAP = button_rects[BUTTON::HELP::RELEASE].left - display_button_rects[DISPLAY::LEVEL].right;
+
+		const unsigned int TOP = OFFSET / 2u;
+		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
+		const unsigned int LEFT = display_button_rects[DISPLAY::LEVEL].right + GAP / 2u - DIVIDER_W / 2u;
+		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
+
+		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_divider_blocks.emplace_back(display_divider_rects[3], display_textures[1]);
+	}
+
+
+	{
+		// VOLUME BUTTON & TIMER BUTTON
+
+		const unsigned int GAP = display_button_rects[DISPLAY::TIMER].left - display_button_rects[DISPLAY::VOLUME].right;
+
+		const unsigned int TOP = OFFSET / 2u;
+		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
+		const unsigned int LEFT = display_button_rects[DISPLAY::VOLUME].right + GAP / 2u - DIVIDER_W / 2u;
+		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
+
+		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+
+		display_divider_blocks.emplace_back(display_divider_rects[4], display_textures[1]);
+	}
+
+	{
+		// VOLUME BUTTON LEFT
+	
+		const unsigned int TOP = OFFSET / 2u;
+		const unsigned int BOTTOM = TOP + DIGIT_H + OFFSET - 1u;
+		const unsigned int LEFT = display_button_rects[DISPLAY::VOLUME].left - DIVIDER_W - DIVIDER_W / 2u;
+		const unsigned int RIGHT = LEFT + DIVIDER_W - 1u;
+	
+		display_divider_rects.emplace_back(TOP, BOTTOM, LEFT, RIGHT);
+	
+		display_divider_blocks.emplace_back(display_divider_rects[5], display_textures[1]);
+	}
 }
+
+/*--------------------------------------------*/
 
 void Minesweeper::InitialiseGameOver()
 {
-	
-	const unsigned int ANIMATION_H = grid->GridRect().GetHeight();
-
 	const unsigned int TOP = OFFSET * 7u;
 	const unsigned int BOTTOM = SCREEN_H - OFFSET - 1u;
 
@@ -519,9 +663,9 @@ void Minesweeper::SetSettings(Mouse& mouse)
 						grid = std::make_unique<Grid>(
 							grid_textures,
 							tile_textures,
-							EASY::COLS,
-							EASY::ROWS,
-							EASY::MINES,
+							LEVEL::EASY::COLS,
+							LEVEL::EASY::ROWS,
+							LEVEL::EASY::MINES,
 							OFFSET);
 						Setup();
 
@@ -532,9 +676,9 @@ void Minesweeper::SetSettings(Mouse& mouse)
 						grid = std::make_unique<Grid>(
 							grid_textures,
 							tile_textures,
-							MEDIUM::COLS,
-							MEDIUM::ROWS,
-							MEDIUM::MINES,
+							LEVEL::MEDIUM::COLS,
+							LEVEL::MEDIUM::ROWS,
+							LEVEL::MEDIUM::MINES,
 							OFFSET);
 						Setup();
 
@@ -545,9 +689,9 @@ void Minesweeper::SetSettings(Mouse& mouse)
 						grid = std::make_unique<Grid>(
 							grid_textures,
 							tile_textures,
-							HARD::COLS,
-							HARD::ROWS,
-							HARD::MINES,
+							LEVEL::HARD::COLS,
+							LEVEL::HARD::ROWS,
+							LEVEL::HARD::MINES,
 							OFFSET);
 						Setup();
 
@@ -701,6 +845,10 @@ void Minesweeper::SetGrid(Mouse& mouse)
 					(mouse.MiddleIsPressed() || 
 					(mouse.LeftIsPressed() && mouse.RightIsPressed())))
 				{
+
+					button_blocks[4].SetTexture(button_textures[5]);
+					button_blocks[5].SetTexture(button_textures[5]);
+
 					if (grid->CheckTiles(x, y, true))
 					{
 						gameover = true;
@@ -718,6 +866,9 @@ void Minesweeper::SetGrid(Mouse& mouse)
 					!mouse.RightIsPressed())
 				{
 					checked_sound_played = false;
+					
+					button_blocks[4].SetTexture(button_textures[2]);
+					button_blocks[5].SetTexture(button_textures[2]);
 				}
 			}
 		}
@@ -726,9 +877,13 @@ void Minesweeper::SetGrid(Mouse& mouse)
 
 void Minesweeper::SetButtons(Mouse& mouse)
 {
-	button_blocks[BUTTONS::HELP].SetMouseOver(mouse);
-	button_blocks[BUTTONS::SETTINGS].SetMouseOver(mouse);
-	button_blocks[BUTTONS::RESET].SetMouseOver(mouse);
+	for (size_t i = 0u; i < button_blocks.size(); i+=2)
+	{
+		button_blocks[i].SetMouseOver(mouse);
+	}
+	/*button_blocks[BUTTON::HELP::RELEASE].SetMouseOver(mouse);
+	button_blocks[BUTTON::SETTINGS::RELEASE].SetMouseOver(mouse);
+	button_blocks[BUTTON::RESET::RELEASE].SetMouseOver(mouse);*/
 
 	for (unsigned int i = 0u; i < BUTTONS_NUM; i++)
 	{
@@ -746,14 +901,14 @@ void Minesweeper::SetButtons(Mouse& mouse)
 					is_help = true;
 					break;
 				case 1:
-					is_settings = true;
+					/*is_settings = true;
 
 					for (size_t i = 0; i < is_selected.size(); i++)
 					{
 						is_selected[i] = false;
 					}
 
-					grid.reset(nullptr);
+					grid.reset(nullptr);*/
 					break;
 				case 2:
 					Reset();
@@ -781,8 +936,8 @@ void Minesweeper::SetButtons(Mouse& mouse)
 }
 void Minesweeper::SetMinesCounter()
 {
-	ExtractDigits(mines_number, mines);
-	while (mines_number.size() < 3u) { mines_number.emplace_back(0u); }
+	ExtractDigits(mine_counter_value, mines);
+	while (mine_counter_value.size() < 3u) { mine_counter_value.emplace_back(0u); }
 }
 void Minesweeper::SetTimer()
 {
@@ -795,11 +950,11 @@ void Minesweeper::SetTimer()
 
 	if (time > 999) { time = 0u; t1 = std::chrono::high_resolution_clock::now(); }
 
-	ExtractDigits(timer_number, time);
+	ExtractDigits(timer_value, time);
 
-	while (timer_number.size() < 3u)
+	while (timer_value.size() < 3u)
 	{
-		timer_number.emplace_back(0u);
+		timer_value.emplace_back(0u);
 	}
 }
 
@@ -873,56 +1028,6 @@ void Minesweeper::SetGameOver()
 
 /*--------------------------------------------*/
 
-void Minesweeper::Setup()
-{
-	if (grid != nullptr)
-	{
-		InitialiseDisplay();
-		InitialiseGameOver();
-
-		timer_started = false;
-		time = 0u;
-
-		gameover = false;
-		gamewon = false;
-		gameover_sound_played = false;
-
-		is_help = false;
-		is_settings = false;
-
-		mines = grid->Mines();
-		flags = 0u;
-		frames = 0u;
-		index0 = 0u;
-		index1 = 0u;
-
-		button_blocks[4].SetTexture(button_textures[2]);
-		button_blocks[5].SetTexture(button_textures[2]);
-	}
-}
-void Minesweeper::Reset()
-{
-	timer_started	= false;
-	gameover		= false;
-	gamewon			= false;
-	gameover_sound_played	= false;
-	is_help			= false;
-	is_settings		= false;
-	mines			= grid->Mines();
-	flags			= 0u;
-	time			= 0u;
-	frames			= 0u;
-	index0			= 0u;
-	index1			= 0u;
-	
-	button_blocks[4].SetTexture(button_textures[2]);
-	button_blocks[5].SetTexture(button_textures[2]);
-
-	grid->Reset();
-}
-
-/*--------------------------------------------*/
-
 void Minesweeper::ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM)
 {
 	vec.clear();
@@ -946,24 +1051,22 @@ void Minesweeper::ExtractDigits(std::vector<unsigned int>& vec, const unsigned i
 
 void Minesweeper::DrawHelp(Graphics& gfx)
 {
-	if (is_help)
-	{
-		gfx.DrawRect(true, SCREEN_RECT, Colors::LightGray);
-		help_block.Draw(gfx);
-		help_button_block.Draw(gfx);
-	}
+	gfx.DrawRect(true, SCREEN_RECT, Colors::LightGray);
+	help_block.Draw(gfx);
+	help_button_block.Draw(gfx);	
 }
 void Minesweeper::DrawSettings(Graphics& gfx)
 {
 	if (is_settings)
 	{
-		Block background = { SCREEN_RECT, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")) };
-		background.Draw(gfx);
+		/*Block background = { SCREEN_RECT, std::make_unique<Surface>(Surface::FromFile(L"Textures\\Backgrounds\\Blocks3DRainbow.png")) };
+		background.Draw(gfx);*/
 
 		Block mouseover;
 		Block selected;
 		selected.SetTexture(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Settings\\button_selected.png")));
 		mouseover.SetTexture( std::make_shared<Surface>( Surface::FromFile(L"Textures\\Minesweeper\\Settings\\button_mouseover.png") ) );
+		
 		for (auto& s : settings_blocks)
 		{
 			s.Draw(gfx);
@@ -1011,9 +1114,9 @@ void Minesweeper::DrawDisplayBackground(Graphics& gfx)
 }
 void Minesweeper::DrawMinesCounter(Graphics& gfx)
 {	
-	for (unsigned int i = 0u; i < mines_number.size(); i++)
+	for (unsigned int i = 0u; i < mine_counter_value.size(); i++)
 	{
-		mines_counter[mines_number[i]][i].Draw(gfx);
+		mine_counter[mine_counter_value[i]][i].Draw(gfx);
 	}	
 }
 void Minesweeper::DrawButtons(Graphics& gfx)
@@ -1034,18 +1137,36 @@ void Minesweeper::DrawButtons(Graphics& gfx)
 }
 void Minesweeper::DrawTimer(Graphics& gfx)
 {
-	for (unsigned int i = 0u; i < timer_number.size(); i++)
+	for (unsigned int i = 0u; i < timer_value.size(); i++)
 	{
-		timer_blocks[timer_number[i]][i].Draw(gfx);
+		timer_blocks[timer_value[i]][i].Draw(gfx);
 	}
 }
-
 void Minesweeper::DrawDisplayButtons(Graphics& gfx)
 {
-	for (auto& b : display_button_blocks)
+	display_button_blocks[0].Draw(gfx);
+	display_button_blocks[1].Draw(gfx);
+	display_button_blocks[2].Draw(gfx);
+	display_button_blocks[7].Draw(gfx);
+	display_button_blocks[8].Draw(gfx);
+
+	if (is_selected[0])
 	{
-		b.Draw(gfx);
+		display_button_blocks[3].Draw(gfx);
 	}
+	else if (is_selected[1])
+	{
+		display_button_blocks[4].Draw(gfx);
+	}
+	else if (is_selected[2])
+	{
+		display_button_blocks[5].Draw(gfx);
+	}
+	else if (is_selected[3])
+	{
+		display_button_blocks[6].Draw(gfx);
+	}
+	
 }
 
 void Minesweeper::DrawGameOver(Graphics& gfx)
@@ -1073,54 +1194,127 @@ void Minesweeper::DrawGameOver(Graphics& gfx)
 
 /*--------------------------------------------*/
 
+void Minesweeper::Setup()
+{	
+	InitialiseDisplay();
+	InitialiseGameOver();
+
+	timer_started = false;
+	time = 0u;
+
+	gameover = false;
+	gamewon = false;
+	gameover_sound_played = false;
+
+	is_help = false;
+	is_settings = false;
+
+	flags = 0u;
+	frames = 0u;
+	index0 = 0u;
+	index1 = 0u;
+
+	button_blocks[4].SetTexture(button_textures[2]);
+	button_blocks[5].SetTexture(button_textures[2]);
+
+	if (grid != nullptr)
+	{
+		mines = grid->Mines();
+	}
+}
+void Minesweeper::Reset()
+{
+	timer_started	= false;
+	gameover		= false;
+	gamewon			= false;
+	is_help			= false;
+	is_settings		= false;
+	flags			= 0u;
+	time			= 0u;
+	frames			= 0u;
+	index0			= 0u;
+	index1			= 0u;
+	
+	gameover_sound_played	= false;
+
+	button_blocks[4].SetTexture(button_textures[2]);
+	button_blocks[5].SetTexture(button_textures[2]);
+
+	if (grid != nullptr)
+	{
+		mines = grid->Mines();
+	}
+
+	grid->Reset();
+}
+/*--------------------------------------------*/
+
 void Minesweeper::Update(Mouse& mouse)
 {
-	if (grid != nullptr)
+	if (is_help)
+	{
+		SetHelp(mouse);
+	}
+	else
+	{
+		SetButtons(mouse);
+
+		if (grid != nullptr)
+		{
+			SetGrid(mouse);
+
+			if (!gameover)
+			{
+				SetTimer();
+				SetMinesCounter();
+			}
+
+			SetGameOver();
+
+			grid->Update();
+		}
+	}
+
+	/*if (grid != nullptr)
 	{
 		if (is_help)
 		{
-			SetHelp(mouse);
+			
 		}
 		else
 		{
-			SetButtons(mouse);
+			
 
-			if (grid != nullptr)
-			{
-				SetGrid(mouse);
-
-				if (!gameover)
-				{
-					SetTimer();
-					SetMinesCounter();
-				}
-
-				SetGameOver();
-
-				grid->Update();
-			}
+			
 		}		
-	}
+	}*/
 	
-	if(grid == nullptr)
+	/*if(grid == nullptr)
 	{
 		SetSettings(mouse);
-	}
+	}*/
 }
 void Minesweeper::Draw(Graphics& gfx)
 {
-	if (grid != nullptr)
+	if (is_help)		
 	{
-		if (is_help)
+		DrawHelp(gfx);
+	}
+	else
+	{
+		DrawDisplay(gfx);
+
+		if (grid != nullptr)
 		{
-			DrawHelp(gfx);
-		}
-		else
-		{
-			DrawDisplay(gfx);
 			grid->Draw(gfx);
-			DrawGameOver(gfx);
 		}
+
+		DrawGameOver(gfx);
+	}
+
+	/*if (grid != nullptr)
+	{
+		
 	}
 	else
 	{
@@ -1132,5 +1326,5 @@ void Minesweeper::Draw(Graphics& gfx)
 		{
 			DrawSettings(gfx);
 		}
-	}
+	}*/
 }

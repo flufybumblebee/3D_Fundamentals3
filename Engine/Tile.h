@@ -49,6 +49,8 @@ private:
 	std::vector<Block> blocks;
 	std::vector<std::shared_ptr<Surface>> textures;
 
+	bool gameover = false;
+
 public:
 	Tile() = default;
 	Tile(std::vector<Block> BLOCKS);
@@ -64,6 +66,8 @@ public:
 	void SetMouseoverRect(const RectUI& MOUSE_RECT);
 	void SetRect(const size_t& INDEX, const RectUI& RECT);
 	void SetTexture(const size_t& INDEX, std::shared_ptr<Surface> texture);
+
+	void SetGameOver(const bool& IS_GAMEOVER);
 
 	unsigned int Value() const;
 	bool Revealed() const;

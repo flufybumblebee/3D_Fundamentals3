@@ -125,10 +125,10 @@ public:
 		return p.top >= top && p.bottom <= bottom && p.left >= left && p.right <= right;
 	}
 public:
-	T top		= 0;
-	T bottom	= 0;
-	T left		= 0;
-	T right		= 0;
+	T top		= (T)0;
+	T bottom	= (T)0;
+	T left		= (T)0;
+	T right		= (T)0;
 };
 
 //typedef _Rect< unsigned int > RectUI;
