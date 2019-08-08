@@ -47,6 +47,8 @@ public:
 		bool leftIsPressed;
 		bool rightIsPressed;
 		bool middleIsPressed;
+		bool onWheelUp;
+		bool onWheelDown;
 		int x;
 		int y;
 	public:
@@ -100,6 +102,14 @@ public:
 		{
 			return middleIsPressed;
 		}
+		bool OnWheelUp() const
+		{
+			return onWheelUp;
+		}
+		bool OnWheelDown() const
+		{
+			return onWheelDown;
+		}
 	};
 public:
 	Mouse() = default;
@@ -111,6 +121,8 @@ public:
 	bool LeftIsPressed() const;
 	bool RightIsPressed() const;
 	bool MiddleIsPressed() const;
+	bool WheelUp() const;
+	bool WheelDown() const;
 	bool IsInWindow() const;
 	Mouse::Event Read();
 	bool IsEmpty() const
@@ -130,6 +142,7 @@ private:
 	void OnMiddleReleased(int x, int y);
 	void OnWheelUp( int x,int y );
 	void OnWheelDown( int x,int y );
+	void OnWheelDelta(int x, int y, int delta) noexcept;
 	void TrimBuffer();
 private:
 	static constexpr unsigned int bufferSize = 10u;
@@ -138,6 +151,9 @@ private:
 	bool leftIsPressed = false;
 	bool rightIsPressed = false;
 	bool middleIsPressed = false;
+	bool onWheelUp = false;
+	bool onWheelDown = false;
 	bool isInWindow = false;
+	int wheelDeltaCarry = 0;
 	std::queue<Event> buffer;
 };

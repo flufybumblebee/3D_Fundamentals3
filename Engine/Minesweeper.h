@@ -14,27 +14,6 @@
 #include "Sound.h"
 #include "Grid.h"
 
-namespace DISPLAY
-{
-	static constexpr size_t COLS	= 0;
-	static constexpr size_t ROWS	= 1;
-	static constexpr size_t MINES	= 2;
-	static constexpr size_t LEVEL	= 3;
-
-	static constexpr size_t TIMER	= 4;
-	static constexpr size_t VOLUME	= 5;
-}
-//namespace BORDER
-//{
-//	static constexpr size_t HORIZONTAL			= 0;
-//	static constexpr size_t VERTICLE			= 1;
-//	static constexpr size_t CORNER_TOP_LEFT		= 2;
-//	static constexpr size_t CORNER_TOP_RIGHT	= 3;
-//	static constexpr size_t CORNER_BOTTOM_LEFT	= 4;
-//	static constexpr size_t CORNER_BOTTOM_RIGHT = 5;
-//	static constexpr size_t T_LEFT				= 6;
-//	static constexpr size_t T_RIGHT				= 7;
-//}
 namespace SOUNDS
 {
 	static constexpr size_t FANFARE		= 0;
@@ -44,31 +23,66 @@ namespace SOUNDS
 	static constexpr size_t CLICK_2		= 4;
 	static constexpr size_t CLICK_3		= 5;
 }
+
 namespace BUTTON
 {
-	namespace HELP
+	namespace TEXTURE
 	{
-		static constexpr size_t RELEASE	= 0;
-		static constexpr size_t PRESSED	= 1;
-		static constexpr size_t TEXTURE = 0;
-	}
-	namespace SETTINGS
-	{
-		static constexpr size_t RELEASE	= 2;
-		static constexpr size_t PRESSED	= 3;
-		static constexpr size_t TEXTURE = 1;
+		static constexpr size_t BACKGROUND		= 0;
+		static constexpr size_t DIVIDER			= 1;
+
+		static constexpr size_t COLS			= 2;
+		static constexpr size_t ROWS			= 3;
+		static constexpr size_t MINES			= 4;
+		static constexpr size_t LEVEL_EASY		= 5;
+		static constexpr size_t LEVEL_MEDIUM	= 6;
+		static constexpr size_t LEVEL_HARD		= 7;
+		static constexpr size_t LEVEL_CUSTOM	= 8;
+
+		static constexpr size_t HELP			= 9;
+		static constexpr size_t RESTART_SMILE	= 10;
+		static constexpr size_t RESTART_WIN		= 11;
+		static constexpr size_t RESTART_LOSE	= 12;
+		static constexpr size_t RESTART_GASP	= 13;
+		static constexpr size_t SETTINGS		= 14;
+
+		static constexpr size_t VOLUME			= 15;
+		static constexpr size_t VOLUME_MUTE		= 16;
+		static constexpr size_t TIMER			= 17;
 	}
 
-	namespace RESET
+	namespace RECT
 	{
-		static constexpr size_t RELEASE = 4;
-		static constexpr size_t PRESSED = 5;
-		static constexpr size_t SMILE	= 2;
-		static constexpr size_t WIN		= 3;
-		static constexpr size_t LOSE	= 4;
-		static constexpr size_t GASP	= 5;
+		static constexpr size_t COLS = 0;
+		static constexpr size_t ROWS = 1;
+		static constexpr size_t MINES = 2;
+		static constexpr size_t LEVEL = 3;
+
+		static constexpr size_t HELP_RELEASE = 4;
+		static constexpr size_t HELP_PRESSED = 5;
+		static constexpr size_t RESTART_RELEASE = 6;
+		static constexpr size_t RESTART_PRESSED = 7;
+		static constexpr size_t SETTINGS_RELEASE = 8;
+		static constexpr size_t SETTINGS_PRESSED = 9;
+
+		static constexpr size_t VOLUME = 10;
+		static constexpr size_t TIMER = 11;
 	}
+
+	static constexpr size_t COLS		= 0;
+	static constexpr size_t ROWS		= 1;
+	static constexpr size_t MINES		= 2;
+
+	static constexpr size_t LEVEL		= 3;
+
+	static constexpr size_t HELP		= 4;
+	static constexpr size_t RESTART		= 5;
+	static constexpr size_t SETTINGS	= 6;
+
+	static constexpr size_t TIMER		= 7;
+	static constexpr size_t VOLUME		= 8;
 }
+
 namespace LEVEL
 {
 	namespace EASY
@@ -134,7 +148,19 @@ private:
 	static constexpr unsigned int EXPLOSION_FRAMES	= 26u;
 	static constexpr unsigned int FLAG_FRAMES		= 241u;
 	static constexpr unsigned int BUTTONS_NUM		= 3u;
-		
+
+	const RectUI SCREEN_RECT{ 0u,SCREEN_H - 1u,0u,SCREEN_W - 1u };
+
+	/*------------------------------------------------------------------------------------*/
+
+	std::vector<Sound>	sounds;
+	std::vector<Sound>	win_sounds;
+	bool				gameover_sound_played	= false;
+	bool				checked_sound_played	= false;
+	bool				volume_mute				= false;
+	float				sound_fx_volume			= 1.0f;
+	float				music_volume			= 1.0f;
+
 	/*------------------------------------------------------------------------------------*/
 	
 	std::vector<std::shared_ptr<Surface>>						grid_textures;
@@ -143,13 +169,7 @@ private:
 		
 	/*------------------------------------------------------------------------------------*/
 
-	//std::vector<std::shared_ptr<Surface>>						border_textures;
-	//std::vector<Block>											border_blocks;
-	//RectUI														border_rect;
-	
-	/*------------------------------------------------------------------------------------*/
-
-	std::array<std::shared_ptr<Surface>, DIGIT_ROWS>				digit_textures{ nullptr };
+	std::array<std::shared_ptr<Surface>, DIGIT_ROWS>			digit_textures{ nullptr };
 
 	/*------------------------------------------------------------------------------------*/
 
@@ -170,24 +190,24 @@ private:
 	RectUI														timer_rect;
 	
 	/*------------------------------------------------------------------------------------*/
-
+	
 	std::vector<std::shared_ptr<Surface>>						button_textures;
-	std::array<RectUI, BUTTONS_NUM * 2u>						button_rects;
-	std::array<Block, BUTTONS_NUM * 2u>							button_blocks;
-	std::array<bool, BUTTONS_NUM>								button_pressed{ false };
 
-	/*------------------------------------------------------------------------------------*/
+	RectUI														button_background_rect;
+	Block														button_background_block;
 
-	std::vector<std::shared_ptr<Surface>>						display_textures;
+	std::vector<RectUI>											button_rects;
+	std::vector<Block>											button_blocks;
 
-	RectUI														display_rect;
-	Block														display_background_block;
+	std::vector<RectUI>											button_divider_rects;
+	std::vector<Block>											button_divider_blocks;
 
-	std::vector<RectUI>											display_divider_rects;
-	std::vector<Block>											display_divider_blocks;
+	std::vector<bool>											button_pressed;
 
-	std::vector<RectUI>											display_button_rects;
-	std::vector<Block>											display_button_blocks;
+	unsigned int level = 0u;
+	unsigned int custom_cols = 3u;
+	unsigned int custom_rows = 3u;
+	unsigned int custom_mines = 2u;
 	
 	/*------------------------------------------------------------------------------------*/
 
@@ -203,7 +223,6 @@ private:
 	std::vector<std::shared_ptr<Surface>>						settings_textures;
 	std::array<Block, 6>										settings_text_blocks;
 	std::array<Block, 5>										settings_blocks;
-	std::array<bool,5>											is_selected{ false };
 	bool														is_settings = true;
 	
 	/*------------------------------------------------------------------------------------*/
@@ -219,77 +238,65 @@ private:
 
 	/*------------------------------------------------------------------------------------*/
 	
-	const RectUI SCREEN_RECT{ 0u,SCREEN_H - 1u,0u,SCREEN_W - 1u };
-
 	bool mouse_pressed	= false;
 	bool gameover		= false;
 	bool gamewon		= false;
+
+	/*------------------------------------------------------------------------------------*/
 
 	unsigned int index0 = 0;
 	unsigned int index1 = 0;
 	unsigned int frames = 0;
 
-	/*------------------------------------------------------------------------------------*/
-
-	std::vector<Sound> sounds;
-	std::vector<Sound> win_sounds;
-	bool gameover_sound_played = false;
-	bool checked_sound_played = false;
-	float sound_fx_volume = 1.0f;
-	float music_volume = 1.0f;
 	
 private:
+	void InitialiseSounds();
 	void InitialiseTextures();
 
-	void InitialiseSettingsTextures();
 	void InitialiseHelpTextures();
 	void InitialiseGridTextures();
 	void InitialiseTileTextures();
-	void InitialiseDisplayTextures();
 	void InitialiseDigitTextures();
 	void InitialiseButtonTextures();
 	void InitialiseGameOverTextures();
 
 	void InitialiseDisplay();
-	void InitialiseDisplayBackground();
+
+	void InitialiseButtonBackground();
 	void InitialiseMinesCounter();
-	void InitialiseButtons();
 	void InitialiseTimer();
-	void InitialiseDisplayDividers();
-	void InitialiseDisplayButtons();
+	void InitialiseButtons();
+	void InitialiseButtonDividers();
 
 	void InitialiseGameOver();
-	void InitialiseSounds();
 	void InitialiseHelp();
-	void InitialiseSettings();
-
-	void SetSettings(Mouse& mouse);
+	
+	void SetSound();
+	void SetMinesCounter();
+	void SetTimer();
 	void SetHelp(Mouse& mouse);
 	void SetButtons(Mouse& mouse);
 	void SetGrid(Mouse& mouse);
 	void SetGameOver();
-	void SetMinesCounter();
-	void SetTimer();
 	
-	void ExtractDigits(std::vector<unsigned int>& vec, const unsigned int& NUM);
-	
-	void DrawDisplay(Graphics& gfx);
-	void DrawDisplayBackground(Graphics& gfx);
+	void DrawButtonDisplay(Graphics& gfx);
+
+	void DrawButtonBackground(Graphics& gfx);
 	void DrawMinesCounter(Graphics& gfx);
-	void DrawButtons(Graphics& gfx);
 	void DrawTimer(Graphics& gfx);
-	void DrawDisplayButtons(Graphics& gfx);
+	void DrawButtons(Graphics& gfx);
+	void DrawButtonDividers(Graphics& gfx);
+
 	void DrawGameOver(Graphics& gfx);
 
 	void DrawHelp(Graphics& gfx);
-	void DrawSettings(Graphics& gfx);
 	
 public:
 	Minesweeper();
 
 private:
 	void Setup();
-	void Reset();
+	void Restart();
 
 public:
 	void Update(Mouse& mouse);

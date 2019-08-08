@@ -20,6 +20,7 @@
  ******************************************************************************************/
 #include "Mouse.h"
 #include "Vec2.h"
+#include "Windows.h"
 
 
 Vei2 Mouse::GetPos() const
@@ -50,6 +51,16 @@ bool Mouse::RightIsPressed() const
 bool Mouse::MiddleIsPressed() const
 {
 	return middleIsPressed;
+}
+
+bool Mouse::WheelUp() const
+{
+	return onWheelUp;
+}
+
+bool Mouse::WheelDown() const
+{
+	return onWheelDown;
 }
 
 bool Mouse::IsInWindow() const
@@ -153,6 +164,23 @@ void Mouse::OnWheelDown( int x,int y )
 {
 	buffer.push( Mouse::Event( Mouse::Event::WheelDown,*this ) );
 	TrimBuffer();
+}
+
+void Mouse::OnWheelDelta(int x, int y, int delta) noexcept
+{
+	wheelDeltaCarry += delta;
+
+	while (wheelDeltaCarry >= WHEEL_DELTA)
+	{
+		wheelDeltaCarry -= WHEEL_DELTA;
+		OnWheelUp(x, y);
+	}
+
+	while (wheelDeltaCarry <= -WHEEL_DELTA)
+	{
+		wheelDeltaCarry += WHEEL_DELTA;
+		OnWheelDown(x, y);
+	}
 }
 
 void Mouse::TrimBuffer()

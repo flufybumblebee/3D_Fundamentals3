@@ -23,6 +23,12 @@
 #include "MainWindow.h"
 #include "Graphics.h"
 #include "Rect.h"
+#include "Block.h"
+#include "Mat.h"
+#include "Bumble.h"
+
+#include <vector>
+#include <chrono>
   
 #include "Minesweeper.h"
 
@@ -34,10 +40,24 @@ private:
 private:
 	Minesweeper ms;
 
-	/*const RectUI RECTANGLE = {0,Graphics::ScreenHeight - 1,0,Graphics::ScreenWidth - 1 };
-	Surface texture;
+	std::vector<std::shared_ptr<Surface>> textures;
+	std::vector<std::shared_ptr<Surface>> temp_tex;
+	RectUI rect;
+	Block block;
+
+	int i = 0;
+	unsigned int number = 0;
+	unsigned int indexA = 0;
+	unsigned int indexB = 1;
+
 	bool key_pressed = false;
-	float angle = 0.0f;	*/
+
+	std::chrono::high_resolution_clock::time_point t1;
+	unsigned int time = 0;
+	bool timer_started = false;
+
+	unsigned int width = 0u;
+	unsigned int height = 0u;
 
 public:
 	Game( class MainWindow& wnd );

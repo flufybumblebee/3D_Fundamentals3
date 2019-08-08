@@ -21,19 +21,40 @@
 #include "MainWindow.h"
 #include "Game.h"
 
-#include "Block.h"
-#include "Mat.h"
-#include "Bumble.h"
 
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
-	gfx(wnd)/*,
-	texture(RECTANGLE.GetWidth(),RECTANGLE.GetHeight())*/
+	gfx(wnd)
 {
-	/*Color color_start = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-	Color color_end = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-	texture = CreateColorBlendTexture(RECTANGLE,color_start, color_end);*/
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_0_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_1_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_2_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_3_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_4_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_5_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_6_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_7_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_8_white.png")));
+	textures.emplace_back(std::make_shared<Surface>(Surface::FromFile(L"Textures\\Minesweeper\\Digits\\digit_9_white.png")));
+
+	const unsigned int OFFSET   = 10u;
+	
+	const unsigned int DIGIT_W = OFFSET * 4u;
+	const unsigned int DIGIT_H = OFFSET * 4u;
+
+	const unsigned int TOP		= OFFSET;
+	const unsigned int BOTTOM	= TOP + DIGIT_H - 1u;
+	const unsigned int LEFT		= Graphics::ScreenWidth / 2u - DIGIT_W / 2u;
+	const unsigned int RIGHT	= LEFT + DIGIT_W - 1u;
+
+	rect = { TOP, BOTTOM, LEFT, RIGHT };
+
+	const unsigned int WIDTH = textures[0]->GetWidth();
+	const unsigned int HEIGHT = textures[0]->GetHeight();
+
+	width = WIDTH;
+	height = HEIGHT;
 }
 
 void Game::Go()
@@ -46,16 +67,12 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	ms.Update(wnd.mouse);
+	//ms.Update(wnd.mouse);
 
 	/*if (!key_pressed)
 	{
 		if (wnd.kbd.KeyIsPressed(VK_SPACE))
-		{
-			Color color_start = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-			Color color_end = Color(rnd::RandomInt(0, 255), rnd::RandomInt(0, 255), rnd::RandomInt(0, 255));
-
-			texture = Bumble::CreateColorBlendTexture(RECTANGLE, color_start, color_end);
+		{		
 
 			key_pressed = true;
 		}
@@ -66,175 +83,183 @@ void Game::UpdateModel()
 		{
 			key_pressed = false;
 		}
-	}	*/
+	}*/
+
+	if (wnd.mouse.WheelUp())
+	{
+		i++;
+		if (i > height - 2u)
+		{
+			i = 0;
+
+			if (indexA < 9u)
+			{
+				indexA++;
+			}
+			else
+			{
+				indexA = 0u;
+			}
+
+			if (indexB < 9u)
+			{
+				indexB++;
+			}
+			else
+			{
+				indexB = 0u;
+			}
+		}
+	}
+	else if (wnd.mouse.WheelDown())
+	{
+		i--;
+		if (i < 0)
+		{
+			i = height - 2u;
+
+			if (indexA > 0u)
+			{
+				indexA--;
+			}
+			else
+			{
+				indexA = 9u;
+			}
+
+			if (indexB > 0u)
+			{
+				indexB--;
+			}
+			else
+			{
+				indexB = 9u;
+			}
+		}
+	}	
 }
 
 void Game::ComposeFrame()
 {
-	ms.Draw(gfx);
+	//ms.Draw(gfx);
+
+	const unsigned int WIDTH = textures[0]->GetWidth();
+	const unsigned int HEIGHT = textures[0]->GetHeight();
+
+	Surface surface(WIDTH, HEIGHT);
+	//surface.Clear(Color(255, 255, 255));
 	
-	/*std::vector<Color> colors;
-
-	colors.emplace_back(Colors::Red);
-	colors.emplace_back(Colors::Green);
-	colors.emplace_back(Colors::Blue);
-	colors.emplace_back(Colors::Cyan);
-	colors.emplace_back(Colors::Yellow);
-	colors.emplace_back(Colors::Magenta);
-	
-	const float TRANS_X = Graphics::ScreenWidth / 2.0f;
-	const float TRANS_Y = Graphics::ScreenHeight / 2.0f;
-
-	const Vec4 TRANS = { TRANS_X,TRANS_Y, 0.0f, 1.0f };
-
-	const Mat4 TRANSLATE = Mat4::Translation(TRANS);
-	const Mat4 ROTATE = Mat4::RotationZ(angle);
-	
-	// RECTANGLE
-
-	const float X0 = 75.0f;
-	const float X1 = 200.0f;
-	const float Y0 = 150.0f;
-	const float Y1 = 100.0f;
-
-	const std::vector<Vec4> RECTANGLE{
-		{ -X0,-Y0, 0.0f, 1.0f },
-		{  X1,-Y0, 0.0f, 1.0f },
-		{  X1, Y1, 0.0f, 1.0f },
-		{ -X0, Y1, 0.0f, 1.0f } };
-
-	std::vector<Vec2> rectangle;
-
-	for (int i = 0; i < RECTANGLE.size(); i++)
+	if(i < HEIGHT - 1u)
 	{
-		rectangle.emplace_back(RECTANGLE[i] * ROTATE * TRANSLATE);
+		/*if (timer_started)
+		{
+			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+			auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
+			time = static_cast<unsigned int>(duration.count()) / 1000000u;
+		}
+
+		if (time > 999) 
+		{
+			time = 0u;
+			t1 = std::chrono::high_resolution_clock::now();
+			i++;
+		}	*/
 	}
-
-	{
-		if (true)
-		{
-			gfx.DrawPolygon2D(false, rectangle, Colors::Green);
-		}
-
-		if (false)
-		{
-			const Vec4 ORIGIN = { 0.0f,0.0f,0.0f,1.0f };
-
-			for (int i = 0; i < rectangle.size(); i++)
-			{
-				gfx.DrawLine({ ORIGIN * TRANSLATE }, { rectangle[i].x,rectangle[i].y }, colors[i]);
-			}
-		}
-
-		if (false)
-		{
-			for (int i = 0; i < rectangle.size(); i++)
-			{
-				const RectF rect = {
-					rectangle[i].y - 3,
-					rectangle[i].y + 3,
-					rectangle[i].x - 3,
-					rectangle[i].x + 3 };
-				gfx.DrawRect(true, rect, colors[i]);
-			}
-		}
-
-		if (false)
-		{
-			int height = texture.GetHeight();
-			int width = texture.GetWidth();
-
-			for (int y = 0; y < height; y++)
-			{
-				for (int x = 0; x < width; x++)
-				{
-					gfx.PutPixel(x, y, texture.GetPixel(x, y));
-				}
-			}
-		}
-
-		Vec2 tc0 = { 0.0f,0.0f };
-		Vec2 tc1 = { 0.0f,1.0f };
-		Vec2 tc2 = { 1.0f,1.0f }; 
-		Vec2 tc3 = { 1.0f,0.0f };
-
-		Vec3 pos0 = Vec3(rectangle[0].x, rectangle[0].y, 0.0f);
-		Vec3 pos1 = Vec3(rectangle[1].x, rectangle[1].y, 0.0f);
-		Vec3 pos2 = Vec3(rectangle[2].x, rectangle[2].y, 0.0f);
-		Vec3 pos3 = Vec3(rectangle[3].x, rectangle[3].y, 0.0f);
-
-		TexVertex tv0 = { pos0, tc0 };
-		TexVertex tv1 = { pos1, tc1 };
-		TexVertex tv2 = { pos2, tc2 };
-		TexVertex tv3 = { pos3, tc3 };
-
-		gfx.DrawTriangleTex(tv0, tv1, tv2, texture);
-		gfx.DrawTriangleTex(tv0, tv2, tv3, texture);
-	}
-
-	// arrow
-	
-	const Vec4 VEC0 = RECTANGLE[0];
-	const Vec4 VEC1 = RECTANGLE[2];
-		
-	const Vec3 ARROW = VEC1 - VEC0;
-	const Vec3 NORMAL = ARROW.GetNormalized();
-	const float LENGTH = ARROW.Len();
-
-	const Vec4 VEC2 = Vec3(VEC0) + (NORMAL * Mat3::Scaling(LENGTH - LENGTH / 30.0f));
-	const Vec4 VEC3 = Vec4(NORMAL * Mat3::Scaling(LENGTH / 100.0f) * Mat3::RotationZ(-PI / 2.0f)) * Mat4::Translation(VEC2);
-	const Vec4 VEC4 = Vec4(NORMAL * Mat3::Scaling(LENGTH / 100.0f) * Mat3::RotationZ(PI / 2.0f)) * Mat4::Translation(VEC2);
-
-	std::vector<Vec2> arrow;		
-
-	arrow.emplace_back(VEC0 * ROTATE * TRANSLATE);
-	arrow.emplace_back(VEC2 * ROTATE * TRANSLATE);
-	arrow.emplace_back(VEC3 * ROTATE * TRANSLATE);
-	arrow.emplace_back(VEC1 * ROTATE * TRANSLATE);
-	arrow.emplace_back(VEC4 * ROTATE * TRANSLATE);
-	arrow.emplace_back(VEC2 * ROTATE * TRANSLATE);
-		
-	gfx.DrawPolygon2D(false, arrow, Colors::Red);
-
-	if (false)
-	{
-		for (int i = 0; i < arrow.size(); i++)
-		{
-			const RectF rect = { arrow[i].y - 3,arrow[i].y + 3, arrow[i].x - 3, arrow[i].x + 3 };
-			gfx.DrawRect(true, rect, colors[i]);
-		}
-	}
-
-	if(true)
-	{
-		// CROSSHAIR
-
-		const float OFFSET = 25.0f;
-
-		const std::vector<Vec4> ORIGIN = {
-			{ -OFFSET,  0.0f,0.0f,1.0f },
-			{  OFFSET,  0.0f,0.0f,1.0f },
-			{   0.0f,-OFFSET,0.0f,1.0f },
-			{   0.0f,OFFSET,0.0f,1.0f } };
-
-
-		std::vector<Vec2> origin;
-
-		for (int i = 0; i < ORIGIN.size(); i++)
-		{
-			origin.emplace_back(ORIGIN[i] * TRANSLATE);
-		}
-
-		gfx.DrawLine(origin[0], origin[1], Colors::LightGray);
-		gfx.DrawLine(origin[2], origin[3], Colors::LightGray);
-	}
-
-	if (angle >= PI * 2)
-	{
-		angle = 0.0f;
-	}	
 	else
 	{
-		angle += 0.01f;
-	}*/
+		i = 0;
+
+		if (indexA < 9u)
+		{
+			indexA++;
+		}
+		else
+		{
+			indexA = 0u;
+		}
+
+		if (indexB < 9u)
+		{
+			indexB++;
+		}
+		else
+		{
+			indexB = 0u;
+		}
+	}
+
+	for (unsigned int y = HEIGHT - 1u - i, yy = 0; y < HEIGHT && yy < i; y++, yy++)
+	{
+		for (unsigned int x = 0u; x < WIDTH; x++)
+		{
+			Color c = textures[indexB]->GetPixel(x,y);
+												
+			surface.PutPixel(x, yy, c);
+		}
+	}		
+		
+	for (unsigned int y = 0, yy = i; y < HEIGHT - i && yy < HEIGHT; y++, yy++)
+	{
+		for (unsigned int x = 0u; x < WIDTH; x++)
+		{
+			Color c = textures[indexA]->GetPixel(x, y);
+
+			surface.PutPixel(x, yy, c);
+		}
+	}
+
+	const Vec2 TC0 = { 0.0f,0.0f };
+	const Vec2 TC1 = { 1.0f,0.0f };
+	const Vec2 TC2 = { 1.0f,1.0f }; 
+	const Vec2 TC3 = { 0.0f,1.0f };
+	
+	const float SIZE = 100.0f;
+
+	const Vec3 P0 = {  0.0f, 0.0f,0.0f };
+	const Vec3 P1 = { SIZE, 0.0f,0.0f };
+	const Vec3 P2 = { SIZE,SIZE,0.0f };
+	const Vec3 P3 = {  0.0f,SIZE,0.0f };
+
+	TexVertex tv0 = { P0,TC0 };
+	TexVertex tv1 = { P1,TC1 };
+	TexVertex tv2 = { P2,TC2 };
+	TexVertex tv3 = { P3,TC3 };
+
+	const unsigned int S = static_cast<unsigned int>(SIZE);
+
+	//gfx.DrawRect(true, 0, 0, S, S, Colors::White);
+	gfx.DrawTriangleTex(tv0, tv1, tv2, surface);
+	gfx.DrawTriangleTex(tv0, tv2, tv3, surface);
+
+	/*
+	NOTES:
+
+	this works but there seems to be one frame of flicker.
+	i think this is when the two textures are changed
+	so that the loop can continue. might be worth checking 
+	if this is definitely reason.
+
+	also would be worth looking into how to do this using
+	two seperate textures and cropping them to the rectangle 
+	because it may be less expensive than this method that
+	creates a surface then copies lines of pixels from the
+	two seperate textures into it.
+
+	could also try using a single large texture with all the 
+	numbers combined in it and then cropping that. though i 
+	still prefer using seperate textures for each digit.
+
+	need to look into changing motion speed and type
+	as well as more complex motions such as spring-like
+	changes.
+
+	also could look into how textures would look on different
+	sized and shaped objects that rotate such as on cylinders
+	and square or hex prisms.
+
+	could also look into different transitions from last to first
+	such as speedily scrolling back through all the past numbers
+	back to the start.
+
+	*/
 }

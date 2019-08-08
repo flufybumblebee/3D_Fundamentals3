@@ -117,12 +117,12 @@ public:
 	template <typename T2>
 	inline	bool Contains( _Vec2<T2> p ) const
 	{
-		return p.y >= top && p.y <= bottom && p.x >= left && p.x <= right;
+		return p.y >= (T2)top && p.y <= (T2)bottom && p.x >= (T2)left && p.x <= (T2)right;
 	}
 	template <typename T2>
 	inline	bool Contains( _Rect<T2> p ) const
 	{
-		return p.top >= top && p.bottom <= bottom && p.left >= left && p.right <= right;
+		return p.top >= (T2)top && p.bottom <= (T2)bottom && p.left >= (T2)left && p.right <= (T2)right;
 	}
 public:
 	T top		= (T)0;
