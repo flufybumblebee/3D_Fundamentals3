@@ -85,58 +85,64 @@ void Game::UpdateModel()
 		}
 	}*/
 
-	if (wnd.mouse.WheelUp())
+	const unsigned int VAL = 25u;
+	while (!wnd.mouse.IsEmpty())
 	{
-		i++;
-		if (i > height - 2u)
+		const auto e = wnd.mouse.Read();
+		switch (e.GetType())
 		{
-			i = 0;
+		case Mouse::Event::Type::WheelUp:
+			i+=VAL;
+			if (i > height - 2u)
+			{
+				i = 0;
 
-			if (indexA < 9u)
-			{
-				indexA++;
-			}
-			else
-			{
-				indexA = 0u;
-			}
+				if (indexA < 9u)
+				{
+					indexA++;
+				}
+				else
+				{
+					indexA = 0u;
+				}
 
-			if (indexB < 9u)
-			{
-				indexB++;
+				if (indexB < 9u)
+				{
+					indexB++;
+				}
+				else
+				{
+					indexB = 0u;
+				}
 			}
-			else
+			break;
+		case Mouse::Event::Type::WheelDown:
+			i-=VAL;
+			if (i < 0)
 			{
-				indexB = 0u;
+				i = height - 2u;
+
+				if (indexA > 0u)
+				{
+					indexA--;
+				}
+				else
+				{
+					indexA = 9u;
+				}
+
+				if (indexB > 0u)
+				{
+					indexB--;
+				}
+				else
+				{
+					indexB = 9u;
+				}
 			}
+			break;
 		}
 	}
-	else if (wnd.mouse.WheelDown())
-	{
-		i--;
-		if (i < 0)
-		{
-			i = height - 2u;
-
-			if (indexA > 0u)
-			{
-				indexA--;
-			}
-			else
-			{
-				indexA = 9u;
-			}
-
-			if (indexB > 0u)
-			{
-				indexB--;
-			}
-			else
-			{
-				indexB = 9u;
-			}
-		}
-	}	
 }
 
 void Game::ComposeFrame()
@@ -147,47 +153,7 @@ void Game::ComposeFrame()
 	const unsigned int HEIGHT = textures[0]->GetHeight();
 
 	Surface surface(WIDTH, HEIGHT);
-	//surface.Clear(Color(255, 255, 255));
 	
-	if(i < HEIGHT - 1u)
-	{
-		/*if (timer_started)
-		{
-			std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-			auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1);
-			time = static_cast<unsigned int>(duration.count()) / 1000000u;
-		}
-
-		if (time > 999) 
-		{
-			time = 0u;
-			t1 = std::chrono::high_resolution_clock::now();
-			i++;
-		}	*/
-	}
-	else
-	{
-		i = 0;
-
-		if (indexA < 9u)
-		{
-			indexA++;
-		}
-		else
-		{
-			indexA = 0u;
-		}
-
-		if (indexB < 9u)
-		{
-			indexB++;
-		}
-		else
-		{
-			indexB = 0u;
-		}
-	}
-
 	for (unsigned int y = HEIGHT - 1u - i, yy = 0; y < HEIGHT && yy < i; y++, yy++)
 	{
 		for (unsigned int x = 0u; x < WIDTH; x++)
@@ -213,7 +179,7 @@ void Game::ComposeFrame()
 	const Vec2 TC2 = { 1.0f,1.0f }; 
 	const Vec2 TC3 = { 0.0f,1.0f };
 	
-	const float SIZE = 100.0f;
+	const float SIZE = 300.0f;
 
 	const Vec3 P0 = {  0.0f, 0.0f,0.0f };
 	const Vec3 P1 = { SIZE, 0.0f,0.0f };
@@ -225,19 +191,11 @@ void Game::ComposeFrame()
 	TexVertex tv2 = { P2,TC2 };
 	TexVertex tv3 = { P3,TC3 };
 
-	const unsigned int S = static_cast<unsigned int>(SIZE);
-
-	//gfx.DrawRect(true, 0, 0, S, S, Colors::White);
 	gfx.DrawTriangleTex(tv0, tv1, tv2, surface);
 	gfx.DrawTriangleTex(tv0, tv2, tv3, surface);
 
 	/*
 	NOTES:
-
-	this works but there seems to be one frame of flicker.
-	i think this is when the two textures are changed
-	so that the loop can continue. might be worth checking 
-	if this is definitely reason.
 
 	also would be worth looking into how to do this using
 	two seperate textures and cropping them to the rectangle 
