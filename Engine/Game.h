@@ -47,4 +47,6 @@ public:
 private:
 	void UpdateModel();
 	void ComposeFrame();
+
+	Vec2 light = { 300.0f,300.0f };
 };
