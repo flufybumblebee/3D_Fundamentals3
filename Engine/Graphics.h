@@ -69,7 +69,10 @@ public:
 	}
 	void PutPixel( int x,int y,Color c )
 	{
-		sysBuffer.PutPixel( x,y,c );
+		if (x > 0 && x < ScreenWidth && y > 0 && y < ScreenHeight)
+		{
+			sysBuffer.PutPixel(x, y, c);
+		}
 	}
 	Surface CopySysBuffer() const
 	{
@@ -98,6 +101,11 @@ public:
 	void PutPixelAlpha(unsigned int x, unsigned int y, const Color dst, const unsigned int alpha);
 	
 	void DrawLine(int x1, int y1, int x2, int y2, Color c);
+	void DrawLine(const Vec2& v0, const Vec2& v1, const Color& c)
+	{
+		DrawLine(int(v0.x), int(v0.y), int(v1.x), int(v1.y), c);
+	}
+
 	void DrawLineAlpha(int x1, int y1, int x2, int y2, Color c);
 
 	void DrawRect(bool filled, int x1, int y1, int x2, int y2, Color c);
@@ -136,6 +144,6 @@ private:
 	D3D11_MAPPED_SUBRESOURCE							mappedSysBufferTexture;
 	Surface												sysBuffer;
 public:
-	static constexpr unsigned int ScreenWidth =  800u;
+	static constexpr unsigned int ScreenWidth =  600u;
 	static constexpr unsigned int ScreenHeight = 600u;
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace SOUND
 {	
 	const size_t ROTATE		= 0;
@@ -33,4 +35,24 @@ namespace MOVE
 	const int RIGHT		= 1;
 	const int DOWN		= 1;
 	const int ROTATE	= 1;
+}
+
+template<typename T>
+void ExtractDigits(std::vector<T>& vec, const T& NUM)
+{
+	vec.clear();
+	T result = NUM;
+
+	if (result > 0)
+	{
+		while (result > 0u)
+		{
+			vec.push_back(T(unsigned int(result) % 10u));
+			result /= 10u;
+		}
+	}
+	else
+	{
+		vec.push_back(0u);
+	}
 }

@@ -47,7 +47,7 @@ public:
 	}
 	T		Len() const
 	{
-		return sqrt(LenSq());
+		return (T)sqrt(LenSq());
 	}
 	_Vec2&	Normalize()
 	{

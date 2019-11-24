@@ -158,6 +158,7 @@
     <ClInclude Include="CubeVertexPositionColorScene.h" />
     <ClInclude Include="DefaultGeometryShader.h" />
     <ClInclude Include="BaseVertexShader.h" />
+    <ClInclude Include="Digit.h" />
     <ClInclude Include="DoubleCubeScene.h" />
     <ClInclude Include="DXErr.h" />
     <ClInclude Include="FrameTimer.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="GouraudPointScene.h" />
     <ClInclude Include="IndexedTriangleList.h" />
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="LineSegment.h" />
     <ClInclude Include="MainWindow.h" />
     <ClInclude Include="Mat.h" />
     <ClInclude Include="Miniball.h" />
@@ -183,8 +185,10 @@
     <ClInclude Include="Pipeline.h" />
     <ClInclude Include="Plane.h" />
     <ClInclude Include="NDCScreenTransformer.h" />
+    <ClInclude Include="Polyshape.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Ray.h" />
+    <ClInclude Include="Rays.h" />
     <ClInclude Include="Rect.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RippleVertexSpecularPhongEffect.h" />
@@ -227,6 +231,7 @@
     <ClCompile Include="MainWindow.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Ray.cpp" />
+    <ClCompile Include="Rays.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Tetris.cpp" />

@@ -21,11 +21,21 @@
 #pragma once
 
 #include "Graphics.h"
-#include "Ray.h"
+#include "Random.h"
+#include "Rays.h"
 
 #include <array>
 #include <vector>
 
+//template <typename T>
+//T RandomFloat(T min, T max)
+//{
+//	std::mt19937 rng;
+//	rng.seed(std::random_device()());
+//	std::uniform_real_distribution<T> dist(min, max);
+//
+//	return dist(rng);
+//}
 
 class Game
 {
@@ -39,14 +49,35 @@ private:
 	std::vector<Color> colors;
 
 public:
-	Game( class MainWindow& wnd );
-	Game( const Game& ) = delete;
-	Game& operator=( const Game& ) = delete;
+	Game(class MainWindow& wnd);
+	Game(const Game&) = delete;
+	Game& operator=(const Game&) = delete;
 	void Go();
 
 private:
 	void UpdateModel();
 	void ComposeFrame();
+	void SetWalls();
 
-	Vec2 light = { 300.0f,300.0f };
+private:
+	const float SCREEN_W = Graphics::ScreenWidth;
+	const float SCREEN_H = Graphics::ScreenHeight;
+
+	const float X_MIN = 100.0f;
+	const float X_MAX = SCREEN_W - 100.0f;
+	const float Y_MIN = 100.0f;
+	const float Y_MAX = SCREEN_H - 100.0f;
+
+	const float X0 = 100.0f;
+	const float Y0 = 100.0f;
+	const float X1 = SCREEN_W - 100.0f;
+	const float Y1 = SCREEN_H - 100.0f;
+
+	const size_t NLINES = 5u;
+
+	const Vec2 position = { SCREEN_W / 2, SCREEN_H / 2 };
+	const size_t nrays = 1000u;
+	Rays rays = { position, nrays };
+	std::vector<LineSegment> walls;
+	bool key_is_pressed = false;
 };

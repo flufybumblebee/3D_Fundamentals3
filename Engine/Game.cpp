@@ -21,6 +21,10 @@
 #include "MainWindow.h"
 #include "Game.h"
 
+#include "Bumble.h"
+#include "Polyshape.h"
+#include "LineSegment.h"
+
 Game::Game(MainWindow& wnd)
 	:
 	wnd(wnd),
@@ -53,6 +57,8 @@ Game::Game(MainWindow& wnd)
 								static_cast<unsigned char>(color.z * 255));
 		}
 	}*/
+	
+	SetWalls();
 }
 
 void Game::Go()
@@ -65,7 +71,7 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	const float SPEED = 1.0f;
+	/*const float SPEED = 1.0f;
 
 	if (wnd.kbd.KeyIsPressed(VK_LEFT))
 	{
@@ -85,7 +91,34 @@ void Game::UpdateModel()
 	if (wnd.kbd.KeyIsPressed(VK_DOWN))
 	{
 		light.y += SPEED;
+	}*/	
+	
+	if (!key_is_pressed)
+	{
+		if (wnd.kbd.KeyIsPressed(VK_SPACE))
+		{
+			SetWalls();
+
+			key_is_pressed = true;
+		}
 	}
+	else
+	{
+		if (!wnd.kbd.KeyIsPressed(VK_SPACE))
+		{
+			key_is_pressed = false;
+		}
+	}
+
+	if (wnd.mouse.IsInWindow())
+	{
+		rays.SetPosition(Vec2(wnd.mouse.GetPos()));
+	}
+	else
+	{
+		rays.SetPosition(position);
+	}
+	rays.Cast(walls);	
 }
 
 void Game::ComposeFrame()
@@ -100,32 +133,30 @@ void Game::ComposeFrame()
 		}
 	}*/
 
-	Vec2 v0 = { 100.0f, 100.0f };
-	Vec2 v1 = { 500.0f, 100.0f };
-	Vec2 v2 = { 500.0f, 500.0f };
-	Vec2 v3 = { 100.0f, 500.0f };
+	for (auto& w : walls)
+	{
+		w.Draw(gfx);
+	}
 
-	gfx.DrawLine(v0.x, v0.y, v1.x, v1.y, Colors::White);
-	gfx.DrawLine(v1.x, v1.y, v2.x, v2.y, Colors::White);
-	gfx.DrawLine(v2.x, v2.y, v3.x, v3.y, Colors::White);
-	gfx.DrawLine(v3.x, v3.y, v0.x, v0.y, Colors::White);
+	rays.Draw(gfx);
+}
 
-	/*--------------------------------------------------------*/
+void Game::SetWalls()
+{
+	walls.clear();
 
-	Vec2 p0 = { 150.0f, 150.0f };
-	Vec2 p1 = { 200.0f, 150.0f };
-	Vec2 p2 = { 200.0f, 200.0f };
-	Vec2 p3 = { 150.0f, 200.0f };
+	walls.emplace_back(X0, Y0, X1, Y0);
+	walls.emplace_back(X1, Y0, X1, Y1);
+	walls.emplace_back(X1, Y1, X0, Y1);
+	walls.emplace_back(X0, Y1, X0, Y0);
 
-	gfx.DrawLine(p0.x, p0.y, p1.x, p1.y, Colors::Green);
-	gfx.DrawLine(p1.x, p1.y, p2.x, p2.y, Colors::Green);
-	gfx.DrawLine(p2.x, p2.y, p3.x, p3.y, Colors::Green);
-	gfx.DrawLine(p3.x, p3.y, p0.x, p0.y, Colors::Green);
-
-	/*--------------------------------------------------------*/
-
-	gfx.DrawLine(light.x, light.y, v0.x, v0.y, Colors::Red);
-	gfx.DrawLine(light.x, light.y, v1.x, v1.y, Colors::Red);
-	gfx.DrawLine(light.x, light.y, v2.x, v2.y, Colors::Red);
-	gfx.DrawLine(light.x, light.y, v3.x, v3.y, Colors::Red);
+	for (int i = 0; i < NLINES; i++)
+	{
+		const LineSegment wall = {
+			rnd::RandomFloat(X_MIN, X_MAX),
+			rnd::RandomFloat(Y_MIN, Y_MAX),
+			rnd::RandomFloat(X_MIN, X_MAX),
+			rnd::RandomFloat(Y_MIN, Y_MAX) };
+		walls.emplace_back(wall);
+	}
 }

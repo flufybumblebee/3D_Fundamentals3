@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 namespace rnd
 {
 	template <typename T>
